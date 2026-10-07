@@ -25,6 +25,7 @@ Fase 0 (setup). Ver [`docs/memory.md`](docs/memory.md) e [`docs/Tasks.md`](docs/
 backend/    FastAPI (app/api, app/services, app/tasks)
 frontend/   Streamlit (pages, components)
 shared/     Schemas e constantes partilhados
+supabase/   Migrações SQL, testes de BD e instruções (ver supabase/README.md)
 models/     Checkpoints ML (gitignored)
 data/       Cache local (gitignored)
 docs/       Documentação
