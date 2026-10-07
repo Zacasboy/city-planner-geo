@@ -26,7 +26,8 @@ da arquitetura (`reports`, `materials`, …) entram com as tarefas que as usam.
 - Utilizadores **não têm `DELETE`**: apagar é fazer `update … set deleted_at = now()` (soft delete).
   A aplicação deve filtrar `deleted_at is null`.
 - Ficheiros no Storage vivem em `<user_id>/<ficheiro>`; só o dono lê e escreve.
-- A `service_role key` ignora a RLS: usar **apenas** no backend, nunca no frontend nem no Git.
+- A **secret key** (`sb_secret_…`, antiga `service_role`) ignora a RLS: usar **apenas** no backend, nunca no frontend nem no Git.
+  A **publishable key** (`sb_publishable_…`, antiga `anon`) é a única que o frontend pode usar.
 
 ## Ligar a um projeto Supabase (uma vez)
 
@@ -40,8 +41,9 @@ da arquitetura (`reports`, `materials`, …) entram com as tarefas que as usam.
    supabase link --project-ref <ref>   # o ref está no URL do projeto
    supabase db push                    # aplica as migrações
    ```
-4. Copiar `.env.example` para `.env` e preencher `SUPABASE_URL`, `SUPABASE_ANON_KEY` e
-   `SUPABASE_SERVICE_ROLE_KEY` (Dashboard → Project Settings → API). O `.env` nunca vai para o Git.
+4. Copiar `.env.example` para `.env` e preencher `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` e
+   `SUPABASE_SECRET_KEY` (Dashboard → Project Settings → API Keys). Editar o ficheiro num editor,
+   não com `echo` no terminal (ficaria no histórico). O `.env` nunca vai para o Git.
 
 ## Verificar no projeto remoto
 
