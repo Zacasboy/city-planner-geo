@@ -9,7 +9,7 @@
 | Última alteração | 2026-10-06 (fim do dia) |
 | Fase | Fase 0 — Setup |
 | Versão | 0.1.0 (documentação) |
-| Processo ativo | Nenhum (próximo: T0.2) |
+| Processo ativo | Nenhum (próximo: T0.3) |
 | Bloqueios | Nenhum |
 | Risco principal | Fontes externas por verificar (licenças, limites, cobertura) |
 
@@ -32,24 +32,33 @@
 
 **Pendente (ação do utilizador):** criar o repositório remoto no GitHub, fazer push de `main` e `develop`, ativar branch protection.
 
-**Próximo passo:** T0.2
+### 2026-10-06 (terça-feira), continuação
+- [x] T0.2 Ambiente de desenvolvimento: Poetry (`poetry.lock`), ruff, black, mypy (strict), pytest (cobertura mínima 70%), pre-commit, `.env.example`, smoke test
+- Branch: `feature/dev-environment` (aguarda PR para `develop`)
+
+**Decisões**
+- **D8** Sem dependências de runtime no `pyproject.toml` até serem necessárias (cada uma entra com a sua tarefa, conforme Rules 3.3)
+- **D9** Linha de 100 caracteres em ruff e black; docstrings Google Style via regras `D` do ruff
+- **D10** Hook mypy limitado a `backend|frontend|shared` (alinhado com `pyproject.toml`)
+
+**Próximo passo:** T0.3
 
 ## 6.3 Processo atual (um por vez)
 
 | Campo | Valor |
 |-------|-------|
-| ID | T0.2 |
-| Nome | Ambiente de desenvolvimento |
+| ID | T0.3 |
+| Nome | CI (GitHub Actions) |
 | Estado | `[ ]` não iniciado |
-| Dependências | T0.1 |
-| Checklist | pyproject.toml (Poetry) · ruff · black · mypy · pytest · pre-commit · .env.example |
+| Dependências | T0.2 |
+| Checklist | workflow lint + mypy + testes em PR · exigir checks na branch protection |
 
 ## 6.4 Fila de processos
 
 | Ordem | ID | Nome | Estado |
 |-------|----|------|--------|
 | 1 | T0.1 | Repositório e estrutura | `[x]` |
-| 2 | T0.2 | Ambiente de desenvolvimento | `[ ]` |
+| 2 | T0.2 | Ambiente de desenvolvimento | `[x]` |
 | 3 | T0.3 | CI | `[ ]` |
 | 4 | T0.4 | Supabase | `[ ]` |
 | 5 | T0.5 | Auditoria de fontes de dados | `[ ]` |
@@ -60,7 +69,7 @@
 
 | Métrica | Atual | Meta MVP |
 |---------|-------|----------|
-| Tarefas de setup concluídas | 1 | 6 |
+| Tarefas de setup concluídas | 2 | 6 |
 | Cobertura de testes | 0% | 70% |
 | Fontes integradas | 0 | 4 |
 | Staging | não | sim |
