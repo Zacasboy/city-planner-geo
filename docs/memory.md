@@ -9,7 +9,7 @@
 | Última alteração | 2026-10-06 (fim do dia) |
 | Fase | Fase 0 — Setup |
 | Versão | 0.1.0 (documentação) |
-| Processo ativo | Nenhum (próximo: T0.3) |
+| Processo ativo | Nenhum (próximo: T0.4) |
 | Bloqueios | Nenhum |
 | Risco principal | Fontes externas por verificar (licenças, limites, cobertura) |
 
@@ -41,17 +41,27 @@
 - **D9** Linha de 100 caracteres em ruff e black; docstrings Google Style via regras `D` do ruff
 - **D10** Hook mypy limitado a `backend|frontend|shared` (alinhado com `pyproject.toml`)
 
-**Próximo passo:** T0.3
+### 2026-10-06 (terça-feira), T0.3
+- [x] T0.3 CI: `.github/workflows/ci.yml` (job `checks`: ruff, black, mypy, pytest em PR para `main`/`develop`)
+- Branch: `feature/ci`
+
+**Decisões**
+- **D11** Job único em Python 3.12 (nome estável `checks` para a branch protection); sem matriz 3.11/3.12
+- **D12** Workflow só em `pull_request`; CD/deploy fica para a T0.6
+
+**Pendente (ação do utilizador):** depois da primeira execução do workflow, em Settings → Branches exigir o status check `checks` em `main` e `develop`.
+
+**Próximo passo:** T0.4
 
 ## 6.3 Processo atual (um por vez)
 
 | Campo | Valor |
 |-------|-------|
-| ID | T0.3 |
-| Nome | CI (GitHub Actions) |
+| ID | T0.4 |
+| Nome | Supabase |
 | Estado | `[ ]` não iniciado |
-| Dependências | T0.2 |
-| Checklist | workflow lint + mypy + testes em PR · exigir checks na branch protection |
+| Dependências | T0.1 |
+| Checklist | projeto Supabase · PostGIS · esquema inicial · RLS · buckets de Storage |
 
 ## 6.4 Fila de processos
 
@@ -59,7 +69,7 @@
 |-------|----|------|--------|
 | 1 | T0.1 | Repositório e estrutura | `[x]` |
 | 2 | T0.2 | Ambiente de desenvolvimento | `[x]` |
-| 3 | T0.3 | CI | `[ ]` |
+| 3 | T0.3 | CI | `[x]` |
 | 4 | T0.4 | Supabase | `[ ]` |
 | 5 | T0.5 | Auditoria de fontes de dados | `[ ]` |
 | 6 | T0.6 | Sentry + CD staging | `[ ]` |
@@ -69,7 +79,7 @@
 
 | Métrica | Atual | Meta MVP |
 |---------|-------|----------|
-| Tarefas de setup concluídas | 2 | 6 |
+| Tarefas de setup concluídas | 3 | 6 |
 | Cobertura de testes | 0% | 70% |
 | Fontes integradas | 0 | 4 |
 | Staging | não | sim |
