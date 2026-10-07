@@ -60,6 +60,7 @@
 - **D14** Soft delete: utilizadores não têm `DELETE` (sem grant nem policy); apagam com `deleted_at`
 - **D15** `analysis_areas.geom` é `Polygon` 4326 com `ST_IsValid` obrigatório (Rules R1)
 - **D16** Storage: buckets privados, acesso por pasta `<user_id>/…`
+- **D18** Chaves Supabase: `publishable`/`secret` (as `anon`/`service_role` estão em descontinuação); variáveis `SUPABASE_PUBLISHABLE_KEY` e `SUPABASE_SECRET_KEY`
 - **D17** Testes de BD em pgTAP (`supabase test db`); a segurança foi validada por mutação (5 quebras deliberadas, todas apanhadas)
 
 **Pendente (ação do utilizador):** criar o projeto Supabase (região UE), `supabase link` + `supabase db push`, correr as queries de verificação de `supabase/README.md`, preencher o `.env`.
