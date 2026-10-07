@@ -9,7 +9,7 @@
 | Última alteração | 2026-10-06 (fim do dia) |
 | Fase | Fase 0 — Setup |
 | Versão | 0.1.0 (documentação) |
-| Processo ativo | Nenhum (próximo: T0.4) |
+| Processo ativo | T0.4 (migrações prontas; falta aplicar no Supabase) |
 | Bloqueios | Nenhum |
 | Risco principal | Fontes externas por verificar (licenças, limites, cobertura) |
 
@@ -51,7 +51,22 @@
 
 **Pendente (ação do utilizador):** depois da primeira execução do workflow, em Settings → Branches exigir o status check `checks` em `main` e `develop`.
 
-**Próximo passo:** T0.4
+### 2026-10-06 (terça-feira), T0.4
+- [~] T0.4 Supabase: migrações PostGIS, `projects`, `analysis_areas` (RLS, GIST) e 5 buckets privados; testes pgTAP (22 verificações, todas a passar numa base PostgreSQL 16 + PostGIS local que imita o Supabase)
+- Branch: `feature/supabase-setup`
+
+**Decisões**
+- **D13** `users` = `auth.users`; só `projects` e `analysis_areas` no esquema inicial, as outras tabelas entram com as suas tarefas
+- **D14** Soft delete: utilizadores não têm `DELETE` (sem grant nem policy); apagam com `deleted_at`
+- **D15** `analysis_areas.geom` é `Polygon` 4326 com `ST_IsValid` obrigatório (Rules R1)
+- **D16** Storage: buckets privados, acesso por pasta `<user_id>/…`
+- **D17** Testes de BD em pgTAP (`supabase test db`); a segurança foi validada por mutação (5 quebras deliberadas, todas apanhadas)
+
+**Pendente (ação do utilizador):** criar o projeto Supabase (região UE), `supabase link` + `supabase db push`, correr as queries de verificação de `supabase/README.md`, preencher o `.env`.
+
+**Por testar:** as migrações foram testadas num PostgreSQL local com um mock de `auth`/`storage`, não no Supabase real. Policies de UPDATE/DELETE do Storage sem teste dedicado.
+
+**Próximo passo:** fechar T0.4 (ações do utilizador), depois T0.5
 
 ## 6.3 Processo atual (um por vez)
 
@@ -59,9 +74,9 @@
 |-------|-------|
 | ID | T0.4 |
 | Nome | Supabase |
-| Estado | `[ ]` não iniciado |
+| Estado | `[~]` migrações prontas; falta aplicar e verificar no projeto real |
 | Dependências | T0.1 |
-| Checklist | projeto Supabase · PostGIS · esquema inicial · RLS · buckets de Storage |
+| Checklist | [x] migrações PostGIS/esquema/RLS/buckets · [x] testes pgTAP · [ ] projeto criado · [ ] `db push` · [ ] verificação remota · [ ] `.env` |
 
 ## 6.4 Fila de processos
 
@@ -70,7 +85,7 @@
 | 1 | T0.1 | Repositório e estrutura | `[x]` |
 | 2 | T0.2 | Ambiente de desenvolvimento | `[x]` |
 | 3 | T0.3 | CI | `[x]` |
-| 4 | T0.4 | Supabase | `[ ]` |
+| 4 | T0.4 | Supabase | `[~]` |
 | 5 | T0.5 | Auditoria de fontes de dados | `[ ]` |
 | 6 | T0.6 | Sentry + CD staging | `[ ]` |
 | 7 | T1.1 | Backend base | `[ ]` |
@@ -95,6 +110,7 @@
 | R5 | Responsabilidade por resultados de engenharia | Média | Alto | Aviso obrigatório, validação contra referências, rótulo de estimativa |
 | R6 | Licenças de datasets incompatíveis com uso comercial | Média | Alto | Auditoria em T0.5 |
 | R7 | Vendor lock-in Supabase | Baixa | Médio | PostgreSQL padrão |
+| R8 | Limite de tamanho de ficheiro do plano Supabase vs. LiDAR de até 5 GB | Média | Médio | Confirmar plano; upload resumível ou Cloudflare R2 |
 
 ## 6.7 Modelo de entrada diária (copiar)
 
