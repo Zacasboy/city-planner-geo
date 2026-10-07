@@ -32,6 +32,30 @@ tests/      Testes e fixtures
 scripts/    Setup e migrações
 ```
 
+## Ambiente de desenvolvimento
+Requisitos: Python 3.11 ou 3.12 e [Poetry](https://python-poetry.org/docs/#installation).
+
+```bash
+poetry install                                   # dependências (inclui ferramentas de dev)
+cp .env.example .env                             # preencher valores localmente
+poetry run pre-commit install -t pre-commit -t commit-msg
+```
+
+Verificações locais (corra antes de abrir um PR):
+
+```bash
+poetry run ruff check .      # lint (inclui proibição de print/except genérico/eval)
+poetry run black --check .   # formatação
+poetry run mypy              # tipos (strict)
+poetry run pytest            # testes + cobertura mínima de 70%
+```
+
+O pre-commit corre ruff, black e mypy automaticamente em cada commit; o pytest tem de ser
+corrido manualmente. Ainda não existe CI: o workflow do GitHub Actions é a tarefa T0.3.
+
+O pre-commit bloqueia commits diretos em `main`/`develop` e mensagens fora do padrão
+Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`).
+
 ## Contribuir
 Siga `docs/Rules.md`: Conventional Commits, PRs pequenos (< 400 linhas), uma tarefa de cada vez.
 
