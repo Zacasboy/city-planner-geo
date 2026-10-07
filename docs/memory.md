@@ -9,7 +9,7 @@
 | Última alteração | 2026-10-06 (fim do dia) |
 | Fase | Fase 0 — Setup |
 | Versão | 0.1.0 (documentação) |
-| Processo ativo | T0.4 (migrações prontas; falta aplicar no Supabase) |
+| Processo ativo | T0.5 (auditoria escrita; falta testes ao vivo e aprovar P1–P5) |
 | Bloqueios | Nenhum |
 | Risco principal | Fontes externas por verificar (licenças, limites, cobertura) |
 
@@ -52,7 +52,7 @@
 **Pendente (ação do utilizador):** depois da primeira execução do workflow, em Settings → Branches exigir o status check `checks` em `main` e `develop`.
 
 ### 2026-10-06 (terça-feira), T0.4
-- [~] T0.4 Supabase: migrações PostGIS, `projects`, `analysis_areas` (RLS, GIST) e 5 buckets privados; testes pgTAP (22 verificações, todas a passar numa base PostgreSQL 16 + PostGIS local que imita o Supabase)
+- [x] T0.4 Supabase: migrações PostGIS, `projects`, `analysis_areas` (RLS, GIST) e 5 buckets privados; testes pgTAP (22 verificações, todas a passar numa base PostgreSQL 16 + PostGIS local que imita o Supabase)
 - Branch: `feature/supabase-setup`
 
 **Decisões**
@@ -63,21 +63,33 @@
 - **D18** Chaves Supabase: `publishable`/`secret` (as `anon`/`service_role` estão em descontinuação); variáveis `SUPABASE_PUBLISHABLE_KEY` e `SUPABASE_SECRET_KEY`
 - **D17** Testes de BD em pgTAP (`supabase test db`); a segurança foi validada por mutação (5 quebras deliberadas, todas apanhadas)
 
-**Pendente (ação do utilizador):** criar o projeto Supabase (região UE), `supabase link` + `supabase db push`, correr as queries de verificação de `supabase/README.md`, preencher o `.env`.
+**Verificado pelo utilizador:** `db push` aplicado; query de verificação devolveu `1 | 2 | 1 | 5 | 6 | 4` (PostGIS, 2 tabelas com RLS, índice GIST, 5 buckets privados, 6 policies em `public`, 4 em `storage`); `curl` com a publishable key recusado (HTTP 401, `42501`) e com a secret key `[]` (HTTP 200); `.env` preenchido. **Advisors → Security** não foi reportado.
 
 **Por testar:** as migrações foram testadas num PostgreSQL local com um mock de `auth`/`storage`, não no Supabase real. Policies de UPDATE/DELETE do Storage sem teste dedicado.
 
-**Próximo passo:** fechar T0.4 (ações do utilizador), depois T0.5
+### 2026-10-06 (terça-feira), T0.5
+- [~] T0.5 Auditoria de fontes do MVP: `docs/data_sources.md` (GBIF, regime florestal, TimoDS, The Well)
+- Branch: `docs/data-sources-audit`
+
+**Achados**
+- GBIF: sem limite de taxa fixo (HTTP 429 possível); `limit` máx. 300 e `offset` máx. 100 000; licença por registo. O "100 pedidos/min" do rascunho inicial era do iNaturalist
+- O serviço OGC API da DGT encontrado tem uma só coleção de conteúdo desconhecido; o regime florestal está num **ArcGIS REST FeatureServer** (2000 registos por pedido, SRS 3857)
+- TimoDS (CC BY 4.0, 60 000 vigas) é sintético e só tem cargas unitárias: valida contra outro software FEM, não contra ensaios
+- The Well (16 datasets de PDE genéricas) **não tem dados de edifícios, microclima ou geografia**; F4 e F6 do PRD ficam sem base de dados
+
+**Pendente:** testes ao vivo (secção 6 de `data_sources.md`); decisões **P1–P5** (aprovação do utilizador antes de alterar PRD, arquitetura e tarefas); licença da camada florestal; PROF e corredores ecológicos não localizados
+
+**Próximo passo:** fechar T0.5, depois T0.6
 
 ## 6.3 Processo atual (um por vez)
 
 | Campo | Valor |
 |-------|-------|
-| ID | T0.4 |
-| Nome | Supabase |
-| Estado | `[~]` migrações prontas; falta aplicar e verificar no projeto real |
-| Dependências | T0.1 |
-| Checklist | [x] migrações PostGIS/esquema/RLS/buckets · [x] testes pgTAP · [ ] projeto criado · [ ] `db push` · [ ] verificação remota · [ ] `.env` |
+| ID | T0.5 |
+| Nome | Auditoria de fontes de dados |
+| Estado | `[~]` documento escrito; faltam testes ao vivo e decisões |
+| Dependências | T0.4 |
+| Checklist | [x] `docs/data_sources.md` · [ ] testes ao vivo (secção 6) · [ ] aprovar/rejeitar P1–P5 · [ ] licença da camada florestal |
 
 ## 6.4 Fila de processos
 
@@ -86,8 +98,8 @@
 | 1 | T0.1 | Repositório e estrutura | `[x]` |
 | 2 | T0.2 | Ambiente de desenvolvimento | `[x]` |
 | 3 | T0.3 | CI | `[x]` |
-| 4 | T0.4 | Supabase | `[~]` |
-| 5 | T0.5 | Auditoria de fontes de dados | `[ ]` |
+| 4 | T0.4 | Supabase | `[x]` |
+| 5 | T0.5 | Auditoria de fontes de dados | `[~]` |
 | 6 | T0.6 | Sentry + CD staging | `[ ]` |
 | 7 | T1.1 | Backend base | `[ ]` |
 
@@ -95,7 +107,7 @@
 
 | Métrica | Atual | Meta MVP |
 |---------|-------|----------|
-| Tarefas de setup concluídas | 3 | 6 |
+| Tarefas de setup concluídas | 4 | 6 |
 | Cobertura de testes | 0% | 70% |
 | Fontes integradas | 0 | 4 |
 | Staging | não | sim |
@@ -112,6 +124,8 @@
 | R6 | Licenças de datasets incompatíveis com uso comercial | Média | Alto | Auditoria em T0.5 |
 | R7 | Vendor lock-in Supabase | Baixa | Médio | PostgreSQL padrão |
 | R8 | Limite de tamanho de ficheiro do plano Supabase vs. LiDAR de até 5 GB | Média | Médio | Confirmar plano; upload resumível ou Cloudflare R2 |
+| R9 | The Well não tem dados de edifícios/microclima/geografia; F4 e F6 sem base de dados | Alta | Alto | Propostas P2 e P3 de `docs/data_sources.md` |
+| R10 | Licença da camada "Regime florestal" por confirmar | Média | Médio | Consultar metadados DGT/SNIG antes de redistribuir |
 
 ## 6.7 Modelo de entrada diária (copiar)
 
