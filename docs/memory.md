@@ -9,7 +9,7 @@
 | Última alteração | 2026-10-06 (fim do dia) |
 | Fase | Fase 0 — Setup |
 | Versão | 0.1.0 (documentação) |
-| Processo ativo | T0.5 (auditoria escrita; falta testes ao vivo e aprovar P1–P5) |
+| Processo ativo | T0.5 (decisões aprovadas e aplicadas; faltam os testes ao vivo) |
 | Bloqueios | Nenhum |
 | Risco principal | Fontes externas por verificar (licenças, limites, cobertura) |
 
@@ -24,7 +24,7 @@
 - **D2** Backend FastAPI + Celery/Redis
 - **D3** Supabase (PostgreSQL + PostGIS + Auth + Storage)
 - **D4** Deploy: Streamlit Cloud/HF Spaces + Render/Fly.io (Vercel só se frontend for Next.js)
-- **D5** MVP usa GBIF, InterGeoPT, TimoDS, The Well (streaming); restantes datasets em v1.0+
+- **D5** MVP usa GBIF, regime florestal da DGT e TimoDS; The Well fora do MVP (D20); restantes datasets em v1.0+
 - **D6** *Fine-tuning* regional adiado para v1.1
 - **D7** ML é camada de estimativa; cálculo estrutural usa motores de engenharia validados
 
@@ -77,7 +77,14 @@
 - TimoDS (CC BY 4.0, 60 000 vigas) é sintético e só tem cargas unitárias: valida contra outro software FEM, não contra ensaios
 - The Well (16 datasets de PDE genéricas) **não tem dados de edifícios, microclima ou geografia**; F4 e F6 do PRD ficam sem base de dados
 
-**Pendente:** testes ao vivo (secção 6 de `data_sources.md`); decisões **P1–P5** (aprovação do utilizador antes de alterar PRD, arquitetura e tarefas); licença da camada florestal; PROF e corredores ecológicos não localizados
+**Decisões (aprovadas pelo utilizador em 2026-10-06)**
+- **D19** (P1) Serviço florestal usa o ArcGIS REST FeatureServer da DGT, não "OGC API InterGeoPT"
+- **D20** (P2) The Well fora do MVP; estrutural usa PyNite/anastruct validado com TimoDS
+- **D21** (P3) F6 sem fonte pública; depende de dados regionais reais do utilizador
+- **D22** (P4) GBIF filtrado por licença (sem CC BY-NC); licença de cada registo no relatório
+- **D23** (P5) O3 mede concordância com *benchmark* sintético; os relatórios di-lo
+
+**Pendente:** testes ao vivo (secção 6 de `data_sources.md`); licença da camada florestal; PROF e corredores ecológicos não localizados
 
 **Próximo passo:** fechar T0.5, depois T0.6
 
@@ -87,9 +94,9 @@
 |-------|-------|
 | ID | T0.5 |
 | Nome | Auditoria de fontes de dados |
-| Estado | `[~]` documento escrito; faltam testes ao vivo e decisões |
+| Estado | `[~]` documento escrito e decisões aplicadas; faltam os testes ao vivo |
 | Dependências | T0.4 |
-| Checklist | [x] `docs/data_sources.md` · [ ] testes ao vivo (secção 6) · [ ] aprovar/rejeitar P1–P5 · [ ] licença da camada florestal |
+| Checklist | [x] `docs/data_sources.md` · [ ] testes ao vivo (secção 6) · [x] aprovar P1–P5 · [x] aplicar aos docs · [ ] licença da camada florestal |
 
 ## 6.4 Fila de processos
 
@@ -116,15 +123,15 @@
 
 | ID | Risco | Prob. | Impacto | Mitigação |
 |----|-------|-------|---------|-----------|
-| R1 | Limites de taxa/indisponibilidade de APIs (GBIF, InterGeoPT) | Média | Alto | Cache, backoff, fallback estático |
-| R2 | Custo/tamanho do The Well | Alta | Médio | Streaming, subconjuntos, cache LRU |
-| R3 | Cobertura InterGeoPT incompleta | Média | Médio | Verificar em T0.5; dados estáticos de reserva |
+| R1 | Limites de taxa/indisponibilidade de APIs (GBIF, DGT) | Média | Alto | Cache, backoff, fallback estático |
+| R2 | ~~Custo/tamanho do The Well~~ | n/a | n/a | Encerrado: The Well fora do MVP (D20) |
+| R3 | Cobertura do serviço florestal da DGT incompleta | Média | Médio | Verificar em T0.5; dados estáticos de reserva |
 | R4 | Datasets sem cobertura em Portugal (CITYLID, Glasgow) | Alta | Médio | Usar para validar métodos, não como fonte local |
 | R5 | Responsabilidade por resultados de engenharia | Média | Alto | Aviso obrigatório, validação contra referências, rótulo de estimativa |
 | R6 | Licenças de datasets incompatíveis com uso comercial | Média | Alto | Auditoria em T0.5 |
 | R7 | Vendor lock-in Supabase | Baixa | Médio | PostgreSQL padrão |
 | R8 | Limite de tamanho de ficheiro do plano Supabase vs. LiDAR de até 5 GB | Média | Médio | Confirmar plano; upload resumível ou Cloudflare R2 |
-| R9 | The Well não tem dados de edifícios/microclima/geografia; F4 e F6 sem base de dados | Alta | Alto | Propostas P2 e P3 de `docs/data_sources.md` |
+| R9 | The Well não tem dados de edifícios/microclima/geografia; F4 e F6 sem base de dados | Alta | Alto | Decisões D20 e D21 (P2 e P3) |
 | R10 | Licença da camada "Regime florestal" por confirmar | Média | Médio | Consultar metadados DGT/SNIG antes de redistribuir |
 
 ## 6.7 Modelo de entrada diária (copiar)
@@ -143,3 +150,4 @@
 | Versão | Data | Alterações |
 |--------|------|------------|
 | 0.1.0 | 2026-10-06 | Documentação inicial |
+| 0.2.0 | 2026-10-06 | Decisões P1–P5 da auditoria de fontes aplicadas a PRD, arquitetura, Rules e Tasks |

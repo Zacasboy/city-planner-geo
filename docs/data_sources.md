@@ -13,7 +13,7 @@ ao vivo estão na secção 6 e devem ser corridos na máquina do utilizador.
 | GBIF occurrence API | REST, sem autenticação (pesquisa) | Por registo (CC0, CC BY, CC BY-NC) | ✅ Pronta |
 | Regime florestal (DGT) | ArcGIS REST FeatureServer | ❓ não confirmada | ⚠️ Pronta tecnicamente; licença e PROF por confirmar |
 | TimoDS | Download Zenodo (2 CSV) | CC BY 4.0 | ✅ Pronta, com ressalvas de uso (secção 4) |
-| The Well | Streaming Hugging Face (`the_well`) | CC BY 4.0 num dataset verificado; os restantes ❓ | ❌ **Não serve o caso de uso do MVP** (secção 5) |
+| The Well | Streaming Hugging Face (`the_well`) | CC BY 4.0 num dataset verificado; os restantes ❓ | ❌ **Fora do MVP** (P2 aprovada; secção 5) |
 
 ## 2. GBIF
 
@@ -97,7 +97,7 @@ curl -s "https://infogeo.dgterritorio.gov.pt/arcgis/rest/services/Hosted/Regime_
 curl -s "https://infogeo.dgterritorio.gov.pt/arcgis/rest/services/ptp_oigp/OGCFeatureServer/collections?f=json" | head -c 800; echo
 ```
 
-## 7. Decisões propostas (requerem aprovação; o PRD não foi alterado)
+## 7. Decisões (P1–P5 aprovadas em 2026-10-06 e aplicadas a PRD, arquitetura, Rules e Tasks)
 
 | # | Proposta | Documentos afetados |
 |---|----------|---------------------|
@@ -112,5 +112,5 @@ curl -s "https://infogeo.dgterritorio.gov.pt/arcgis/rest/services/ptp_oigp/OGCFe
 - [ ] Licença da camada "Regime florestal" (metadados DGT/SNIG)
 - [ ] Id e campos completos da camada; o que é a coleção `0` do OGC API da DGT
 - [ ] Existência e acesso a PROF e corredores ecológicos
-- [ ] Licença de cada um dos 15 datasets restantes do The Well (só se P2 for rejeitada)
+- [x] Licença dos 15 datasets restantes do The Well: dispensada (P2 aprovada)
 - [ ] Resultado dos testes da secção 6
