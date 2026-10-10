@@ -7,22 +7,22 @@
 - [x] **T0.2** `pyproject.toml` (Poetry), ruff, black, mypy, pytest, pre-commit, `.env.example`
 - [x] **T0.3** CI GitHub Actions (lint + testes em PR) (workflow concluído; falta o utilizador exigir o check `checks` na branch protection depois da primeira execução)
 - [x] **T0.4** Projeto Supabase: PostGIS, esquema inicial, RLS, buckets (migrações aplicadas e verificadas no projeto remoto; ver `supabase/README.md`)
-- [~] **T0.5** Auditoria de fontes: confirmar URL, licença, esquema e limites de cada dataset/API do MVP (GBIF, InterGeoPT, TimoDS, The Well); registar em `docs/data_sources.md` (documento `docs/data_sources.md` escrito; falta correr os testes ao vivo da secção 6 e aprovar as decisões P1–P5)
+- [~] **T0.5** Auditoria de fontes: confirmar URL, licença, esquema e limites de cada dataset/API do MVP (GBIF, InterGeoPT, TimoDS, The Well); registar em `docs/data_sources.md` (documento escrito e decisões P1–P5 aprovadas em 2026-10-06; falta correr os testes ao vivo da secção 6)
 - [ ] **T0.6** Configurar Sentry e CD para staging
 
 ## Fase 1 — MVP
 - [ ] **T1.1** Backend base: FastAPI, config Pydantic, logging, CORS, `/health`
 - [ ] **T1.2** Autenticação: validação JWT Supabase, dependency `get_current_user`
 - [ ] **T1.3** Serviço Geo: `POST /geo/validate`, conversões 4326↔3763, testes
-- [ ] **T1.4** Serviço Ecológico (GBIF) com cache e testes mock — `POST /ecology/species`
-- [ ] **T1.5** Serviço Florestal (InterGeoPT) — `POST /forest/overlap`
-- [ ] **T1.6** Serviço Estrutural: viga de aço com PyNite + validação com casos de referência/TimoDS — `POST /structural/beam`
+- [ ] **T1.4** Serviço Ecológico (GBIF) com cache e testes mock; filtro de licenças (sem CC BY-NC), `User-Agent`, backoff em HTTP 429, polígono anti-horário — `POST /ecology/species`
+- [ ] **T1.5** Serviço Florestal (DGT, ArcGIS REST FeatureServer; confirmar id da camada e licença) — `POST /forest/overlap`
+- [ ] **T1.6** Serviço Estrutural: viga de aço com PyNite + validação com casos analíticos e TimoDS (*benchmark* sintético, ver PRD 1.7) — `POST /structural/beam`
 - [ ] **T1.7** Orquestração: Celery + Redis, modelo de tarefa, `GET /analysis/{id}` com estado/progresso
 - [ ] **T1.8** Frontend base: `app.py`, multipage, login, sidebar, `DisclaimerBanner`
 - [ ] **T1.9** `MapSelector` (desenho de polígono, validação, envio)
 - [ ] **T1.10** Dashboards ecológico/florestal e `ProgressTracker`
 - [ ] **T1.11** Vista estrutural (formulário + resultados)
-- [ ] **T1.12** Relatório PDF (Jinja2 + WeasyPrint, upload a Storage, `GET /reports/{id}`)
+- [ ] **T1.12** Relatório PDF (Jinja2 + WeasyPrint, com fontes, licenças e o aviso do PRD 1.7; upload a Storage, `GET /reports/{id}`)
 - [ ] **T1.13** Teste end-to-end e deploy em staging
 
 ## Fase 2 — v1.0
@@ -30,13 +30,13 @@
 - [ ] **T2.2** Classificação morfológica (UMCC)
 - [ ] **T2.3** Catálogo de materiais + `GET /materials/suggest`
 - [ ] **T2.4** Quantidades IFC (IfcOpenShell; LivingBIM/IFC-Bench)
-- [ ] **T2.5** The Well em streaming com cache LRU + `POST /physics/simulate`
+- [ ] **T2.5** Fonte para simulações físicas/térmicas: avaliar alternativas (The Well está fora do âmbito, ver `docs/data_sources.md`); só implementar `POST /physics/simulate` se houver dados relevantes
 - [ ] **T2.6** Visualização 3D / LiDAR (PyDeck, PyVista; CITYLID/Glasgow para validação)
 - [ ] **T2.7** Dashboards de morfologia e materiais; exportação CSV/GeoJSON
 - [ ] **T2.8** Teste de carga (50 utilizadores), documentação OpenAPI, release v1.0.0
 
 ## Fase 3 — v1.1
-- [ ] **T3.1** Pipeline de *geographic fine-tuning* (região piloto: Lisboa) + gestão de checkpoints
+- [ ] **T3.1** Pipeline de *geographic fine-tuning* (região piloto: Lisboa) com dados regionais reais do utilizador (sem fonte pública) + gestão de checkpoints; condicionada à disponibilidade desses dados
 - [ ] **T3.2** Upload de dados do utilizador para *fine-tuning*
 - [ ] **T3.3** API REST pública: chaves, rate limiting, SDK Python
 - [ ] **T3.4** Exportação para QGIS/ArcGIS (GeoJSON, Shapefile)

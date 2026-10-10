@@ -17,7 +17,7 @@ area_m2 = largura_m * altura_m   # nome claro dispensa comentário
 
 **Geoespacial** — API em WGS84 (EPSG:4326); cálculos locais em EPSG:3763 (PT-TM06); validar polígonos com `shapely.validation.make_valid()`; áreas em m² na API.
 
-**Dados externos** — nunca hardcodar chaves (`os.getenv`); cache obrigatório para GBIF/InterGeoPT (TTL ≥ 24 h); timeout 30 s; retry com backoff exponencial (máx. 3); respeitar termos e licenças de cada dataset.
+**Dados externos** — nunca hardcodar chaves (`os.getenv`); cache obrigatório para GBIF e para o serviço florestal da DGT (TTL ≥ 24 h); timeout 30 s; retry com backoff exponencial (máx. 3); respeitar termos e licenças de cada dataset. GBIF: `User-Agent` identificado, backoff em HTTP 429, filtrar licenças (excluir CC BY-NC), guardar a licença de cada registo e enviar polígonos com anel anti-horário.
 
 **Engenharia (crítico)** — todo cálculo físico tem teste contra caso de referência conhecido; unidades explícitas (sufixos `_m`, `_kn`, `_mpa`); ML nunca substitui verificação normativa — resultados ML são rotulados como estimativa.
 
