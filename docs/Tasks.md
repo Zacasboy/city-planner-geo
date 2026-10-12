@@ -7,15 +7,15 @@
 - [x] **T0.2** `pyproject.toml` (Poetry), ruff, black, mypy, pytest, pre-commit, `.env.example`
 - [x] **T0.3** CI GitHub Actions (lint + testes em PR) (workflow concluído; falta o utilizador exigir o check `checks` na branch protection depois da primeira execução)
 - [x] **T0.4** Projeto Supabase: PostGIS, esquema inicial, RLS, buckets (migrações aplicadas e verificadas no projeto remoto; ver `supabase/README.md`)
-- [~] **T0.5** Auditoria de fontes: confirmar URL, licença, esquema e limites de cada dataset/API do MVP (GBIF, InterGeoPT, TimoDS, The Well); registar em `docs/data_sources.md` (documento escrito e decisões P1–P5 aprovadas em 2026-10-06; falta correr os testes ao vivo da secção 6)
+- [x] **T0.5** Auditoria de fontes: confirmar URL, licença, esquema e limites de cada dataset/API do MVP (GBIF, InterGeoPT, TimoDS, The Well); registar em `docs/data_sources.md` (concluída em 2026-10-06; a licença da camada florestal e o PROF passam a ser verificações da T1.5)
 - [ ] **T0.6** Configurar Sentry e CD para staging
 
 ## Fase 1 — MVP
 - [ ] **T1.1** Backend base: FastAPI, config Pydantic, logging, CORS, `/health`
 - [ ] **T1.2** Autenticação: validação JWT Supabase, dependency `get_current_user`
 - [ ] **T1.3** Serviço Geo: `POST /geo/validate`, conversões 4326↔3763, testes
-- [ ] **T1.4** Serviço Ecológico (GBIF) com cache e testes mock; filtro de licenças (sem CC BY-NC), `User-Agent`, backoff em HTTP 429, polígono anti-horário — `POST /ecology/species`
-- [ ] **T1.5** Serviço Florestal (DGT, ArcGIS REST FeatureServer; confirmar id da camada e licença) — `POST /forest/overlap`
+- [ ] **T1.4** Serviço Ecológico (GBIF) com cache e testes mock; filtro de licenças (só CC0 e CC BY), lista de espécies por facetas (`speciesKey`; nomes via `/species/{key}` por verificar), `User-Agent`, backoff em HTTP 429, polígono anti-horário — `POST /ecology/species`
+- [ ] **T1.5** Serviço Florestal (DGT, camada 1562 com 209 polígonos: avaliar sincronizar para o PostGIS em vez de consultar ao vivo; **confirmar a licença antes de redistribuir**) — `POST /forest/overlap`
 - [ ] **T1.6** Serviço Estrutural: viga de aço com PyNite + validação com casos analíticos e TimoDS (*benchmark* sintético, ver PRD 1.7) — `POST /structural/beam`
 - [ ] **T1.7** Orquestração: Celery + Redis, modelo de tarefa, `GET /analysis/{id}` com estado/progresso
 - [ ] **T1.8** Frontend base: `app.py`, multipage, login, sidebar, `DisclaimerBanner`

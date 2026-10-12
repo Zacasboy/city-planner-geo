@@ -49,8 +49,8 @@ Nem todas as fontes são obrigatórias. Escolhidas por fase:
 
 | Fonte | Uso | Fase | Notas |
 |-------|-----|------|-------|
-| GBIF API | Biodiversidade | MVP | Excluir licenças CC BY-NC; `User-Agent` identificado; tratar HTTP 429; `limit` máx. 300 e `offset` máx. 100 000 |
-| Regime florestal (DGT, ArcGIS REST FeatureServer) | Regime florestal PT | MVP | **[VERIFICAR]** licença e id da camada; PROF e corredores ecológicos não localizados |
+| GBIF API | Biodiversidade | MVP | Aceitar só CC0 e CC BY 4.0 (exclui CC BY-NC, `UNSPECIFIED` e `UNSUPPORTED`); lista de espécies por facetas; `User-Agent` identificado; tratar HTTP 429; `limit` máx. 300 e `offset` máx. 100 000 |
+| Regime florestal (DGT, ArcGIS REST FeatureServer) | Regime florestal PT | MVP | **[VERIFICAR]** licença; camada 1562 com 209 polígonos; PROF e corredores ecológicos não localizados |
 | TimoDS (Zenodo, DOI 10.5281/zenodo.19324945) | Validação de vigas de aço | MVP | CC BY 4.0; conjunto sintético com cargas unitárias |
 | The Well (`polymathic-ai/the_well`, Hugging Face) | Referência metodológica (arquiteturas e *checkpoints* de PDE) | **Fora do âmbito** | Sem dados de edifícios, microclima ou geografia; ver `docs/data_sources.md` |
 | OpenBuildingMap, DBSM | Pegadas de edifícios | v1.0 | **[VERIFICAR]** |
@@ -104,3 +104,4 @@ Modelação 3D em tempo real, geração automática de plantas, plug-ins de BIM 
 | 2026-10-06 | P3: F6 sem fonte pública; depende de dados regionais reais do utilizador | `docs/data_sources.md` §5 |
 | 2026-10-06 | P4: GBIF filtrado por licença; licença de cada registo no relatório | `docs/data_sources.md` §2 |
 | 2026-10-06 | P5: O3 mede concordância com *benchmark* sintético; dito nos relatórios | `docs/data_sources.md` §4 |
+| 2026-10-06 | P4 refinada: lista de permitidos (CC0 e CC BY 4.0) em vez de excluir só CC BY-NC | `docs/data_sources.md` §2 |
