@@ -41,7 +41,8 @@
 - [x] T0.5 Auditoria de fontes: confirmar URL, licença, esquema e limites de cada dataset/API do MVP (GBIF, InterGeoPT, TimoDS, The Well); registar em `docs/data_sources.md` - Concluído com ressalvas
 - [x] T0.6 Configurar Sentry e CD para staging - Configuração inicial concluída
 - [x] T1.1 Backend base: FastAPI, config Pydantic, logging, CORS, `/health` - Concluído com aprimoramentos
-- [~] T1.2 Autenticação: validação JWT Supabase, dependency `get_current_user` - Em progresso
+- [x] T1.2 Autenticação: validação JWT Supabase, dependency `get_current_user` - Concluído
+- [~] T1.3 Serviço Geo: `POST /geo/validate`, conversões 4326↔3763, testes - Iniciado
 
 **Decisões**
 - Versões de pacotes otimizadas para compatibilidade com Python 3.14.3
@@ -52,10 +53,10 @@
 - Concluída auditoria das fontes de dados do MVP (GBIF, InterGeoPT, TimoDS, The Well) - TimoDS e The Well requerem verificação adicional
 - Configurado monitoring básico com Sentry e preparei para CD staging
 - Concluído desenvolvimento do backend base com FastAPI (aprimorado com logging avançado e tratamento de erros)
-- Iniciado trabalho na autenticação JWT com Supabase
-- Implementado módulo de autenticação com validação JWT e dependency get_current_user
+- Concluído trabalho na autenticação JWT com Supabase (verify_supabase_jwt e get_current_user dependencies)
+- Iniciado desenvolvimento do serviço geo para validação e conversão de coordenadas
 
-**Próximo passo:** Continuar T1.2
+**Próximo passo:** Continuar T1.3
 
 ## 6.3 Processo atual (um por vez)
 
