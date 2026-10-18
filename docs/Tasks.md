@@ -7,7 +7,7 @@
 - [x] **T0.2** `pyproject.toml` (Poetry), ruff, black, mypy, pytest, pre-commit, `.env.example`
 - [x] **T0.3** CI GitHub Actions (lint + testes em PR)
 - [~] **T0.4** Projeto Supabase: PostGIS, esquema inicial, RLS, buckets
-- [ ] **T0.5** Auditoria de fontes: confirmar URL, licença, esquema e limites de cada dataset/API do MVP (GBIF, InterGeoPT, TimoDS, The Well); registar em `docs/data_sources.md`
+- [~] **T0.5** Auditoria de fontes: confirmar URL, licença, esquema e limites de cada dataset/API do MVP (GBIF, InterGeoPT, TimoDS, The Well); registar em `docs/data_sources.md`
 - [ ] **T0.6** Configurar Sentry e CD para staging
 
 ## Fase 1 — MVP

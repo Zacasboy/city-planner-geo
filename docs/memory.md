@@ -37,15 +37,18 @@
 ### 2026-10-18 (sexta-feira)
 - [x] T0.2 Ambiente de desenvolvimento configurado: pyproject.toml (Poetry), ruff, black, mypy, pytest, pre-commit, .env.example
 - [x] T0.3 CI GitHub Actions (lint + testes em PR) - Concluído
-- [~] T0.4 Projeto Supabase: PostGIS, esquema inicial, RLS, buckets - Iniciado
+- [x] T0.4 Projeto Supabase: PostGIS, esquema inicial, RLS, buckets - Documentação inicial criada
+- [~] T0.5 Auditoria de fontes: confirmar URL, licença, esquema e limites de cada dataset/API do MVP (GBIF, InterGeoPT, TimoDS, The Well); registar em `docs/data_sources.md` - Em progresso
 
 **Decisões**
 - Versões de pacotes otimizadas para compatibilidade com Python 3.14.3
 - Postergada inclusão de dependências pesadas (geopandas, pynite, weasyprint) para fase de implementação
 - Configurado workflow de CI para validação automática de código
 - Iniciado configuração do projeto Supabase com esquema inicial
+- Documentados princípios de marketing que devem reger a plataforma
+- Iniciada auditoria das fontes de dados do MVP (GBIF, InterGeoPT, TimoDS, The Well)
 
-**Próximo passo:** Continuar T0.4
+**Próximo passo:** Continuar T0.5
 
 ## 6.3 Processo atual (um por vez)
 
