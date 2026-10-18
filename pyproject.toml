@@ -1,0 +1,139 @@
+[tool.poetry]
+name = "city-planner-geo"
+version = "0.1.0"
+description = "Sistema de Planeamento de Cidades Geolocalizadas"
+authors = ["City Planner Dev"]
+readme = "README.md"
+license = "MIT"
+packages = [
+    { include = "backend" },
+    { include = "frontend" },
+    { include = "shared" },
+    { include = "models" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.115.0"
+uvicorn = { version = "^0.34.0", extras = ["standard"] }
+streamlit = "^1.41.0"
+supabase = "^2.8.1"
+pydantic = "^2.11.4"
+pydantic-settings = "^2.8.2"
+python-dotenv = "^1.0.1"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.8.3"
+black = "^24.10.0"
+mypy = "^1.13.0"
+pytest = "^8.3.4"
+pytest-asyncio = "^0.25.3"
+httpx = "^0.27.0"
+pre-commit = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+city-planner-geo = "backend.app.main:main"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E", "F", "W", "C90", "I"]
+ignore = []
+extend-ignore = ["E203", "E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+skip-string-normalization = true
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = false
+no_implicit_optional = true
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+files = ["backend/", "frontend/", "shared/", "tests/"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = ["-v", "--strict-markers"]
+markers = [
+    "unit: marks tests as unit tests",
+    "integration: marks tests as integration tests",
+    "api: marks tests as API tests",
+    "frontend: marks tests as frontend tests",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["backend", "frontend", "shared"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self\\.debug",
+    "if settings\\.DEBUG",
+    "if __name__ == .__main__:",
+]
+skip-covered = false
+precision = 2
+show_missing = true
+skip_empty = true
+
+[[tool.pre-commit.repo]]
+repo = "https://github.com/pre-commit/pre-commit-hooks"
+rev = "v4.6.0"
+[[tool.pre-commit.repo.hooks]]
+id = "trailing-whitespace"
+[[tool.pre-commit.repo.hooks]]
+id = "end-of-file-fixer"
+[[tool.pre-commit.repo.hooks]]
+id = "check-yaml"
+[[tool.pre-commit.repo.hooks]]
+id = "check-added-large-files"
+[[tool.pre-commit.repo.hooks]]
+id = "check-merge-conflict"
+[[tool.pre-commit.repo.hooks]]
+id = "check-json"
+[[tool.pre-commit.repo.hooks]]
+id = "debug-statements"
+[[tool.pre-commit.repo.hooks]]
+id = "requirements-txt-fixer"
+[[tool.pre-commit.repo.hooks]]
+id = "end-of-file-fixer"
+[[tool.pre-commit.repo.hooks]]
+id = "mixed-line-ending"
+args = ["--fix=lf"]
+
+[[tool.pre-commit.repo]]
+repo = "https://github.com/charliermarsh/ruff-pre-commit"
+rev = "v0.8.3"
+[[tool.pre-commit.repo.hooks]]
+id = "ruff"
+args = ["--fix", "--show-fixes"]
+
+[[tool.pre-commit.repo]]
+repo = "https://github.com/psf/black"
+rev = "24.10.0"
+[[tool.pre-commit.repo.hooks]]
+id = "black"
+language_version = "python3"

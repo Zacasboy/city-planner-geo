@@ -6,10 +6,10 @@
 
 | Campo | Valor |
 |-------|-------|
-| Última alteração | 2026-10-06 (fim do dia) |
+| Última alteração | 2026-10-18 (fim do dia) |
 | Fase | Fase 0 — Setup |
 | Versão | 0.1.0 (documentação) |
-| Processo ativo | Nenhum (próximo: T0.2) |
+| Processo ativo | Neném (próximo: T0.3) |
 | Bloqueios | Nenhum |
 | Risco principal | Fontes externas por verificar (licenças, limites, cobertura) |
 
@@ -33,6 +33,15 @@
 **Pendente (ação do utilizador):** criar o repositório remoto no GitHub, fazer push de `main` e `develop`, ativar branch protection.
 
 **Próximo passo:** T0.2
+
+### 2026-10-18 (sexta-feira)
+- [x] T0.2 Ambiente de desenvolvimento configurado: pyproject.toml (Poetry), ruff, black, mypy, pytest, pre-commit, .env.example
+
+**Decisões**
+- Versões de pacotes otimizadas para compatibilidade com Python 3.14.3
+- Postergada inclusão de dependências pesadas (geopandas, pynite, weasyprint) para fase de implementação
+
+**Próximo passo:** T0.3
 
 ## 6.3 Processo atual (um por vez)
 
