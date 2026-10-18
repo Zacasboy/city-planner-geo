@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+        cache: "poetry"
+
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+
+    - name: Configure Poetry
+      run: |
+        poetry config virtualenvs.in-project true
+        poetry config installer.max-workers 10
+
+    - name: Install dependencies
+      run: poetry install
+
+    - name: Lint with ruff
+      run: poetry run ruff check .
+
+    - name: Format check with black
+      run: poetry run black --check .
+
+    - name: Type check with mypy
+      run: poetry run mypy .
+
+    - name: Run tests
+      run: poetry run pytest
