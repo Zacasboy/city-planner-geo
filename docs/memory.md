@@ -40,6 +40,7 @@
 - [x] T0.4 Projeto Supabase: PostGIS, esquema inicial, RLS, buckets - Documentação inicial criada
 - [x] T0.5 Auditoria de fontes: confirmar URL, licença, esquema e limites de cada dataset/API do MVP (GBIF, InterGeoPT, TimoDS, The Well); registar em `docs/data_sources.md` - Concluído com ressalvas
 - [x] T0.6 Configurar Sentry e CD para staging - Configuração inicial concluída
+- [~] T1.1 Backend base: FastAPI, config Pydantic, logging, CORS, `/health` - Em progresso
 
 **Decisões**
 - Versões de pacotes otimizadas para compatibilidade com Python 3.14.3
@@ -49,8 +50,9 @@
 - Documentados princípios de marketing que devem reger a plataforma
 - Concluída auditoria das fontes de dados do MVP (GBIF, InterGeoPT, TimoDS, The Well) - TimoDS e The Well requerem verificação adicional
 - Configurado monitoring básico com Sentry e preparei para CD staging
+- Iniciado desenvolvimento do backend base com FastAPI
 
-**Próximo passo:** Iniciar Fase 1 - MVP (T1.1: Backend base)
+**Próximo passo:** Continuar T1.1
 
 ## 6.3 Processo atual (um por vez)
 
