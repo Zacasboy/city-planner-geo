@@ -51,6 +51,7 @@
 - Concluída auditoria das fontes de dados do MVP (GBIF, InterGeoPT, TimoDS, The Well) - TimoDS e The Well requerem verificação adicional
 - Configurado monitoring básico com Sentry e preparei para CD staging
 - Iniciado desenvolvimento do backend base com FastAPI
+- Aprimorado backend com middleware de logging, tratamento de erros e rastreamento de requisições
 
 **Próximo passo:** Continuar T1.1
 
