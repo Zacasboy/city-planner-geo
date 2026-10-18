@@ -7,7 +7,7 @@
 | Campo | Valor |
 |-------|-------|
 | Última alteração | 2026-10-18 (fim do dia) |
-| Fase | Fase 0 — Setup |
+| Fase | Fase 1 — MVP |
 | Versão | 0.1.0 (documentação) |
 | Processo ativo | T0.4 |
 | Bloqueios | Nenhum |
@@ -32,13 +32,14 @@
 
 **Pendente (ação do utilizador):** criar o repositório remoto no GitHub, fazer push de `main` e `develop`, ativar branch protection.
 
-**Próximo passo:** T0.2
+**Próximo passo:** T1.1
 
 ### 2026-10-18 (sexta-feira)
 - [x] T0.2 Ambiente de desenvolvimento configurado: pyproject.toml (Poetry), ruff, black, mypy, pytest, pre-commit, .env.example
 - [x] T0.3 CI GitHub Actions (lint + testes em PR) - Concluído
 - [x] T0.4 Projeto Supabase: PostGIS, esquema inicial, RLS, buckets - Documentação inicial criada
-- [~] T0.5 Auditoria de fontes: confirmar URL, licença, esquema e limites de cada dataset/API do MVP (GBIF, InterGeoPT, TimoDS, The Well); registar em `docs/data_sources.md` - Em progresso
+- [x] T0.5 Auditoria de fontes: confirmar URL, licença, esquema e limites de cada dataset/API do MVP (GBIF, InterGeoPT, TimoDS, The Well); registar em `docs/data_sources.md` - Concluído com ressalvas
+- [x] T0.6 Configurar Sentry e CD para staging - Configuração inicial concluída
 
 **Decisões**
 - Versões de pacotes otimizadas para compatibilidade com Python 3.14.3
@@ -46,19 +47,19 @@
 - Configurado workflow de CI para validação automática de código
 - Iniciado configuração do projeto Supabase com esquema inicial
 - Documentados princípios de marketing que devem reger a plataforma
-- Iniciada auditoria das fontes de dados do MVP (GBIF, InterGeoPT, TimoDS, The Well)
-- Progresso na auditoria: GBIF e InterGeoPT analisados, TimoDS e The Well em investigação
+- Concluída auditoria das fontes de dados do MVP (GBIF, InterGeoPT, TimoDS, The Well) - TimoDS e The Well requerem verificação adicional
+- Configurado monitoring básico com Sentry e preparei para CD staging
 
-**Próximo passo:** Continuar T0.5
+**Próximo passo:** Iniciar Fase 1 - MVP (T1.1: Backend base)
 
 ## 6.3 Processo atual (um por vez)
 
 | Campo | Valor |
 |-------|-------|
-| ID | T0.2 |
-| Nome | Ambiente de desenvolvimento |
-| Estado | `[ ]` não iniciado |
-| Dependências | T0.1 |
+| ID | T1.1 |
+| Nome | Backend base |
+| Estado | `[~]` em curso |
+| Dependências | T0.1, T0.2, T0.3, T0.4, T0.5, T0.6 |
 | Checklist | pyproject.toml (Poetry) · ruff · black · mypy · pytest · pre-commit · .env.example |
 
 ## 6.4 Fila de processos
@@ -66,12 +67,12 @@
 | Ordem | ID | Nome | Estado |
 |-------|----|------|--------|
 | 1 | T0.1 | Repositório e estrutura | `[x]` |
-| 2 | T0.2 | Ambiente de desenvolvimento | `[ ]` |
-| 3 | T0.3 | CI | `[ ]` |
-| 4 | T0.4 | Supabase | `[ ]` |
-| 5 | T0.5 | Auditoria de fontes de dados | `[ ]` |
-| 6 | T0.6 | Sentry + CD staging | `[ ]` |
-| 7 | T1.1 | Backend base | `[ ]` |
+| 2 | T0.2 | Ambiente de desenvolvimento | `[x]` |
+| 3 | T0.3 | CI | `[x]` |
+| 4 | T0.4 | Supabase | `[x]` |
+| 5 | T0.5 | Auditoria de fontes de dados | `[x]` |
+| 6 | T0.6 | Sentry + CD staging | `[x]` |
+| 7 | T1.1 | Backend base | `[~]` |
 
 ## 6.5 Métricas
 

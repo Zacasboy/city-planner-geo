@@ -6,12 +6,12 @@
 - [x] **T0.1** Criar repositório `city-planner-geo`, `.gitignore`, licença, README, estrutura de pastas (local concluído; remoto GitHub e branch protection pendentes, requerem a conta do utilizador)
 - [x] **T0.2** `pyproject.toml` (Poetry), ruff, black, mypy, pytest, pre-commit, `.env.example`
 - [x] **T0.3** CI GitHub Actions (lint + testes em PR)
-- [~] **T0.4** Projeto Supabase: PostGIS, esquema inicial, RLS, buckets
-- [~] **T0.5** Auditoria de fontes: confirmar URL, licença, esquema e limites de cada dataset/API do MVP (GBIF, InterGeoPT, TimoDS, The Well); registar em `docs/data_sources.md`
-- [ ] **T0.6** Configurar Sentry e CD para staging
+- [x] **T0.4** Projeto Supabase: PostGIS, esquema inicial, RLS, buckets
+- [x] **T0.5** Auditoria de fontes: confirmar URL, licença, esquema e limites de cada dataset/API do MVP (GBIF, InterGeoPT, TimoDS, The Well); registar em `docs/data_sources.md`
+- [x] **T0.6** Configurar Sentry e CD para staging
 
 ## Fase 1 — MVP
-- [ ] **T1.1** Backend base: FastAPI, config Pydantic, logging, CORS, `/health`
+- [~] **T1.1** Backend base: FastAPI, config Pydantic, logging, CORS, `/health`
 - [ ] **T1.2** Autenticação: validação JWT Supabase, dependency `get_current_user`
 - [ ] **T1.3** Serviço Geo: `POST /geo/validate`, conversões 4326↔3763, testes
 - [ ] **T1.4** Serviço Ecológico (GBIF) com cache e testes mock — `POST /ecology/species`
