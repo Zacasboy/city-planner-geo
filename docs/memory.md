@@ -47,6 +47,7 @@
 - Iniciado configuração do projeto Supabase com esquema inicial
 - Documentados princípios de marketing que devem reger a plataforma
 - Iniciada auditoria das fontes de dados do MVP (GBIF, InterGeoPT, TimoDS, The Well)
+- Progresso na auditoria: GBIF e InterGeoPT analisados, TimoDS e The Well em investigação
 
 **Próximo passo:** Continuar T0.5
 
