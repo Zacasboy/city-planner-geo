@@ -164,6 +164,19 @@ async def root():
 # app.include_router(reports.router, prefix="/reports", tags=["reports"])
 # app.include_router(analysis.router, prefix="/analysis", tags=["analysis"])
 
+# Example protected route to demonstrate authentication usage
+@app.get("/protected", tags=["auth"])
+async def protected_route(current_user: dict = Depends(get_current_user)):
+    """
+    Example protected route demonstrating JWT authentication.
+    Returns user information from the validated token.
+    """
+    return {
+        "message": f"Hello, {current_user.get('email', 'user')}!",
+        "user_id": current_user.get("sub"),
+        "authenticated": True
+    }
+
 # Startup event
 @app.on_event("startup")
 async def startup_event():
