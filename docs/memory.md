@@ -42,7 +42,7 @@
 - [x] T0.6 Configurar Sentry e CD para staging - Configuração inicial concluída
 - [x] T1.1 Backend base: FastAPI, config Pydantic, logging, CORS, `/health` - Concluído com aprimoramentos
 - [x] T1.2 Autenticação: validação JWT Supabase, dependency `get_current_user` - Concluído
-- [~] T1.3 Serviço Geo: `POST /geo/validate`, conversões 4326↔3763, testes - Iniciado
+- [~] T1.3 Serviço Geo: `POST /geo/validate`, conversões 4326↔3763, testes - Em progresso
 
 **Decisões**
 - Versões de pacotes otimizadas para compatibilidade com Python 3.14.3

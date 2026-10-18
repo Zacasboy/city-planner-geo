@@ -156,7 +156,9 @@ async def root():
     }
 
 # Include routers (uncomment as routers are implemented)
-# app.include_router(geo.router, prefix="/geo", tags=["geo"])
+from app.services.geo_service import router as geo_router
+
+app.include_router(geo_router, prefix="/geo", tags=["geo"])
 # app.include_router(ecology.router, prefix="/ecology", tags=["ecology"])
 # app.include_router(forest.router, prefix="/forest", tags=["forest"])
 # app.include_router(structural.router, prefix="/structural", tags=["structural"])
