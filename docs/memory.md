@@ -9,7 +9,7 @@
 | Última alteração | 2026-10-18 (fim do dia) |
 | Fase | Fase 0 — Setup |
 | Versão | 0.1.0 (documentação) |
-| Processo ativo | T0.3 |
+| Processo ativo | T0.4 |
 | Bloqueios | Nenhum |
 | Risco principal | Fontes externas por verificar (licenças, limites, cobertura) |
 
@@ -36,14 +36,16 @@
 
 ### 2026-10-18 (sexta-feira)
 - [x] T0.2 Ambiente de desenvolvimento configurado: pyproject.toml (Poetry), ruff, black, mypy, pytest, pre-commit, .env.example
-- [~] T0.3 CI GitHub Actions (lint + testes em PR) - Iniciado
+- [x] T0.3 CI GitHub Actions (lint + testes em PR) - Concluído
+- [~] T0.4 Projeto Supabase: PostGIS, esquema inicial, RLS, buckets - Iniciado
 
 **Decisões**
 - Versões de pacotes otimizadas para compatibilidade com Python 3.14.3
 - Postergada inclusão de dependências pesadas (geopandas, pynite, weasyprint) para fase de implementação
 - Configurado workflow de CI para validação automática de código
+- Iniciado configuração do projeto Supabase com esquema inicial
 
-**Próximo passo:** Continuar T0.3
+**Próximo passo:** Continuar T0.4
 
 ## 6.3 Processo atual (um por vez)
 
