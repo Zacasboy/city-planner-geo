@@ -11,8 +11,8 @@
 - [x] **T0.6** Configurar Sentry e CD para staging
 
 ## Fase 1 — MVP
-- [~] **T1.1** Backend base: FastAPI, config Pydantic, logging, CORS, `/health`
-- [ ] **T1.2** Autenticação: validação JWT Supabase, dependency `get_current_user`
+- [x] **T1.1** Backend base: FastAPI, config Pydantic, logging, CORS, `/health`
+- [~] **T1.2** Autenticação: validação JWT Supabase, dependency `get_current_user`
 - [ ] **T1.3** Serviço Geo: `POST /geo/validate`, conversões 4326↔3763, testes
 - [ ] **T1.4** Serviço Ecológico (GBIF) com cache e testes mock — `POST /ecology/species`
 - [ ] **T1.5** Serviço Florestal (InterGeoPT) — `POST /forest/overlap`
