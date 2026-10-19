@@ -40,7 +40,10 @@
       "Bash(/Users/zacasboy/Library/Caches/pypoetry/virtualenvs/city-planner-geo--TxP5-8A-py3.14/bin/pre-commit --version)",
       "Bash(PRE_COMMIT_ALLOW_NO_CONFIG=1 rtk git commit -m \"feat: reverse engineer naive.ai website - analyzed tech stack, structure, and resources using REA tools\")",
       "Bash(python3 -m py_compile backend/app/services/ecology_service.py)",
-      "Bash(mkdir -p /Users/zacasboy/Downloads/enfathise.ai)"
+      "Bash(mkdir -p /Users/zacasboy/Downloads/enfathise.ai)",
+      "Bash(python3 -m py_compile /Users/zacasboy/Downloads/city-planner-geo/backend/app/main.py)",
+      "Bash(uvicorn app.main:app --host 0.0.0.0 --port 8000)",
+      "Bash(rtk curl *)"
     ]
   }
 }

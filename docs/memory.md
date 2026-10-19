@@ -58,6 +58,13 @@
 
 **Próximo passo:** Continuar T1.3
 
+### 2026-10-19 (domingo)
+- Tarefa(s): T1.4 — em curso (ecology_service.py criado, main.py atualizado com imports corretos)
+- Decisões: 
+- Bloqueios: 
+- Próximo passo: concluir T1.4 (adicionar testes mock e finalizar rota POST /ecology/species)
+- Última alteração: 2026-10-19 (fim do dia)
+
 ## 6.3 Processo atual (um por vez)
 
 | Campo | Valor |
