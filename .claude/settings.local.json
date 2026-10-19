@@ -44,7 +44,10 @@
       "Bash(python3 -m py_compile /Users/zacasboy/Downloads/city-planner-geo/backend/app/main.py)",
       "Bash(uvicorn app.main:app --host 0.0.0.0 --port 8000)",
       "Bash(rtk curl *)",
-      "Bash(PRE_COMMIT_ALLOW_NO_CONFIG=1 rtk git commit -m \"fix: resolve import and undefined variable errors in main.py; create ecology service; update documentation\")"
+      "Bash(PRE_COMMIT_ALLOW_NO_CONFIG=1 rtk git commit -m \"fix: resolve import and undefined variable errors in main.py; create ecology service; update documentation\")",
+      "Bash(rtk pytest *)",
+      "Bash(PYTHONPATH=/Users/zacasboy/Downloads/city-planner-geo/backend poetry run pytest tests/test_ecology_service.py -v)",
+      "Read(//zacasboy/Downloads/city-planner-geo/**)"
     ]
   }
 }
