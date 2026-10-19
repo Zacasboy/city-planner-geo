@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rtk ls *)",
+      "Bash(rtk poetry *)",
+      "Bash(poetry env *)",
+      "Bash(tail -20 /Users/zacasboy/Library/Application Support/rtk/tee/1792361147_poetry_install.log)",
+      "Bash(poetry run *)",
+      "Bash(rtk read *)",
+      "Bash(PRE_COMMIT_ALLOW_NO_CONFIG=1 poetry run git commit -m 'chore: setup development environment with Poetry and code quality tools *)",
+      "Bash(PRE_COMMIT_ALLOW_NO_CONFIG=1 poetry run git commit -m 'feat: setup GitHub Actions CI for linting and testing *)",
+      "Bash(rtk find *)",
+      "Bash(PRE_COMMIT_ALLOW_NO_CONFIG=1 poetry run git commit -m 'feat: início do T0.4 - configuração inicial do Supabase *)",
+      "Bash(rtk grep *)",
+      "Bash(PRE_COMMIT_ALLOW_NO_CONFIG=1 poetry run git commit -m 'feat: document marketing principles and início do T0.5 - auditoria de fontes de dados *)",
+      "Bash(PRE_COMMIT_ALLOW_NO_CONFIG=1 poetry run git commit -m 'feat: progresso no T0.5 - auditoria detalhada das fontes de dados do MVP *)",
+      "Bash(/health)",
+      "Bash(PRE_COMMIT_ALLOW_NO_CONFIG=1 poetry run git commit -m 'feat: transição para Fase 1 - MVP concluindo Fase 0 e iniciando T1.1 *)",
+      "Bash(python3 -m py_compile backend/app/main.py)",
+      "Bash(python3 -m py_compile backend/app/config.py)",
+      "Bash(python3 -m py_compile backend/test_import.py)",
+      "Bash(python3 test_import.py)",
+      "Bash(PRE_COMMIT_ALLOW_NO_CONFIG=1 poetry run git commit -m 'feat: progresso no T1.1 - backend base com FastAPI *)",
+      "Bash(PRE_COMMIT_ALLOW_NO_CONFIG=1 poetry run git commit -m 'feat: aprimoramento do T1.1 - backend base com tratamento de erros e logging avançado *)",
+      "Bash(PRE_COMMIT_ALLOW_NO_CONFIG=1 poetry run git commit -m 'feat: conclusão do T1.1 e início do T1.2 - transição para autenticação *)",
+      "Bash(python3 -m py_compile backend/app/auth.py)",
+      "Bash(PRE_COMMIT_ALLOW_NO_CONFIG=1 poetry run git commit -m 'feat: início do T1.2 - autenticação JWT com Supabase *)",
+      "Bash(PRE_COMMIT_ALLOW_NO_CONFIG=1 poetry run git commit -m 'feat: conclusão do T1.2 e início do T1.3 - transição para serviço geo *)",
+      "Bash(python3 -m py_compile backend/app/services/geo_service.py)",
+      "Bash(PRE_COMMIT_ALLOW_NO_CONFIG=1 poetry run git commit -m 'feat: início do T1.3 - serviço geo com validação e conversão de coordenadas *)",
+      "WebSearch",
+      "mcp__rea__list_browser_targets",
+      "mcp__rea__inspect_web_page",
+      "mcp__rea__capture_browser_scenario",
+      "mcp__rea__inspect_analysis_view",
+      "mcp__rea__inspect_web_network_capture",
+      "Bash(git check-ignore *)"
+    ]
+  }
+}

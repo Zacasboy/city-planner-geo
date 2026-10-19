@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "naive-ai-browser",
+      "runtimeExecutable": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+      "runtimeArgs": ["--remote-debugging-port=9222", "https://naive.ai/en/"],
+      "port": 9222
+    }
+  ]
+}
