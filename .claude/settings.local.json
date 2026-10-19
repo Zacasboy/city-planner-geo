@@ -55,7 +55,24 @@
       "Skill(loop:*)",
       "Bash(PRE_COMMIT_ALLOW_NO_CONFIG=1 rtk git commit -m \"feat: implement steel beam analysis with PyNite, prepare orchestration service, complete geo/ecology/forest services, update dependencies\")",
       "Bash(python3 -m py_compile /Users/zacasboy/Downloads/city-planner-geo/frontend/app.py)",
-      "Bash(python3 -m py_compile /Users/zacasboy/Downloads/city-planner-geo/frontend/pages/login.py)"
+      "Bash(python3 -m py_compile /Users/zacasboy/Downloads/city-planner-geo/frontend/pages/login.py)",
+      "Bash(python3 -m py_compile /Users/zacasboy/Downloads/city-planner-geo/frontend/components/map_selector.py)",
+      "Bash(python3 -c \"from frontend.components.map_selector import render_map_selector, validate_polygon, send_polygon_to_backend; print\\('Import successful'\\)\")",
+      "Bash(python -m py_compile frontend/pages/structural.py)",
+      "Bash(python3 -m py_compile frontend/pages/structural.py)",
+      "Bash(python3 -c \"from app.services.structural_service import StructuralService; s = StructuralService\\(\\); print\\('StructuralService imported and instantiated successfully'\\)\")",
+      "Bash(PYTHONPATH=/Users/zacasboy/Downloads/city-planner-geo/backend python3 -c \"from app.services.structural_service import StructuralService; s = StructuralService\\(\\); print\\('StructuralService imported and instantiated successfully'\\)\")",
+      "Bash(SUPABASE_URL=\"http://fake\" SUPABASE_ANON_KEY=\"fake\" SUPABASE_SERVICE_KEY=\"fake\" SECRET_KEY=\"fake\" PYTHONPATH=/Users/zacasboy/Downloads/city-planner-geo/backend python3 -c \"from app.services.structural_service import StructuralService; s = StructuralService\\(\\); print\\('StructuralService imported and instantiated successfully'\\)\")",
+      "Bash(SUPABASE_URL=\"http://fake\" SUPABASE_ANON_KEY=\"fake\" SUPABASE_SERVICE_KEY=\"fake\" SECRET_KEY=\"fake\" PYTHONPATH=/Users/zacasboy/Downloads/city-planner-geo/backend python3 -c \"from app.services.ecology_service import EcologyService; s = EcologyService\\(\\); print\\('EcologyService imported and instantiated successfully'\\)\")",
+      "Bash(SUPABASE_URL=\"http://fake\" SUPABASE_ANON_KEY=\"fake\" SUPABASE_SERVICE_KEY=\"fake\" SECRET_KEY=\"fake\" PYTHONPATH=/Users/zacasboy/Downloads/city-planner-geo/backend python3 -c \"import cachetools; print\\('cachetools imported successfully'\\)\")",
+      "Bash(rtk pip *)",
+      "Bash(SUPABASE_URL=\"http://fake\" SUPABASE_ANON_KEY=\"fake\" SUPABASE_SERVICE_KEY=\"fake\" SECRET_KEY=\"fake\" PYTHONPATH=/Users/zacasboy/Downloads/city-planner-geo/backend python3 -c \"from app.services.forest_service import ForestService; s = ForestService\\(\\); print\\('ForestService imported and instantiated successfully'\\)\")",
+      "Bash(SUPABASE_URL=\"http://fake\" SUPABASE_ANON_KEY=\"fake\" SUPABASE_SERVICE_KEY=\"fake\" SECRET_KEY=\"fake\" PYTHONPATH=/Users/zacasboy/Downloads/city-planner-geo/backend python3 -c \"from app.services.morphology_service import MorphologyService; print\\('MorphologyService import successful'\\)\")",
+      "Bash(SUPABASE_URL=\"http://fake\" SUPABASE_ANON_KEY=\"fake\" SUPABASE_SERVICE_KEY=\"fake\" SECRET_KEY=\"fake\" PYTHONPATH=/Users/zacasboy/Downloads/city-planner-geo/backend python3 -c \"import rasterio; import numpy; from shapely.geometry import Polygon, Point; print\\('All imports successful'\\)\")",
+      "Bash(SUPABASE_URL=\"http://fake\" SUPABASE_ANON_KEY=\"fake\" SUPABASE_SERVICE_KEY=\"fake\" SECRET_KEY=\"fake\" PYTHONPATH=/Users/zacasboy/Downloads/city-planner-geo/backend python3 -c \"from app.services.morphology_service import GEOSPATIAL_AVAILABLE; print\\(f'GEOSPATIAL_AVAILABLE: {GEOSPATIAL_AVAILABLE}'\\)\")",
+      "Bash(SUPABASE_URL=http://fake SUPABASE_ANON_KEY=fake SUPABASE_SERVICE_KEY=fake SECRET_KEY=fake PYTHONPATH=/Users/zacasboy/Downloads/city-planner-geo/backend python3 -c ' *)",
+      "Bash(npm install *)",
+      "Bash(npm start *)"
     ]
   }
 }

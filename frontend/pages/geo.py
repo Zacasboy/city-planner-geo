@@ -3,9 +3,9 @@ Geo Validation Page
 T1.9: MapSelector (desenho de polígono, validação, envio)
 """
 import streamlit as st
-from components.map_selector import render_map_selector, validate_polygon, send_polygon_to_backend
-from components.sidebar import render_sidebar
-from components.disclaimer_banner import render_disclaimer_banner
+from ..components.map_selector import render_map_selector, validate_polygon, send_polygon_to_backend
+from ..components.sidebar import render_sidebar
+from ..components.disclaimer_banner import render_disclaimer_banner
 
 st.title("🌍 Geo Validation - Area Selection")
 
