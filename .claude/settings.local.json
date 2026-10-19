@@ -34,7 +34,11 @@
       "mcp__rea__capture_browser_scenario",
       "mcp__rea__inspect_analysis_view",
       "mcp__rea__inspect_web_network_capture",
-      "Bash(git check-ignore *)"
+      "Bash(git check-ignore *)",
+      "Bash(poetry shell *)",
+      "Bash(poetry add *)",
+      "Bash(/Users/zacasboy/Library/Caches/pypoetry/virtualenvs/city-planner-geo--TxP5-8A-py3.14/bin/pre-commit --version)",
+      "Bash(PRE_COMMIT_ALLOW_NO_CONFIG=1 rtk git commit -m \"feat: reverse engineer naive.ai website - analyzed tech stack, structure, and resources using REA tools\")"
     ]
   }
 }
