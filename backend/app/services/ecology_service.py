@@ -67,12 +67,14 @@ class SpeciesResponse(BaseModel):
 class EcologyService:
     """Service for GBIF ecological data integration with caching."""
 
-    def __init__(self):
-        self.http_client = httpx.AsyncClient(timeout=30.0)
+    def __init__(self, http_client: Optional[httpx.AsyncClient] = None):
+        self.http_client = http_client or httpx.AsyncClient(timeout=30.0)
+        self._owns_client = http_client is None
 
     async def close(self):
-        """Close the HTTP client."""
-        await self.http_client.aclose()
+        """Close the HTTP client if we own it."""
+        if self._owns_client:
+            await self.http_client.aclose()
 
     def _get_cache_key(self, scientific_name: str, **kwargs) -> str:
         """Generate a cache key for species lookup."""
