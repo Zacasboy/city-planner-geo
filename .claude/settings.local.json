@@ -50,7 +50,12 @@
       "Read(//zacasboy/Downloads/city-planner-geo/**)",
       "Read(//Users/zacasboy/Downloads/**)",
       "Bash(unzip -q \"EAIP_117_02 - Modelo de Capa de Trabalho Académico - ESTG.docx\" -d cover_template)",
-      "Bash(unzip -q \"Trabalho_DW_Gonçalves_et_al_2023.docx\" -d academic_work)"
+      "Bash(unzip -q \"Trabalho_DW_Gonçalves_et_al_2023.docx\" -d academic_work)",
+      "Skill(loop)",
+      "Skill(loop:*)",
+      "Bash(PRE_COMMIT_ALLOW_NO_CONFIG=1 rtk git commit -m \"feat: implement steel beam analysis with PyNite, prepare orchestration service, complete geo/ecology/forest services, update dependencies\")",
+      "Bash(python3 -m py_compile /Users/zacasboy/Downloads/city-planner-geo/frontend/app.py)",
+      "Bash(python3 -m py_compile /Users/zacasboy/Downloads/city-planner-geo/frontend/pages/login.py)"
     ]
   }
 }

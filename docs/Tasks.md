@@ -7,7 +7,6 @@
 - [x] **T0.2** `pyproject.toml` (Poetry), ruff, black, mypy, pytest, pre-commit, `.env.example`
 - [x] **T0.3** CI GitHub Actions (lint + testes em PR)
 - [x] **T0.4** Projeto Supabase: PostGIS, esquema inicial, RLS, buckets
-- [x] **T0.5** Auditoria de fontes: confirmar URL, licença, esquema e limites de cada dataset/API do MVP (GBIF, InterGeoPT, TimoDS, The Well); registar em `docs/data_sources.md`
 - [x] **T0.6** Configurar Sentry e CD para staging
 
 ## Fase 1 — MVP
@@ -17,9 +16,9 @@
 - [x] **T1.4** Serviço Ecológico (GBIF) com cache e testes mock — `POST /ecology/species`
 - [x] **T1.5** Serviço Florestal (InterGeoPT) — `POST /forest/overlap`
 - [ ] **T1.6** Serviço Estrutural: viga de aço com PyNite + validação com casos de referência/TimoDS — `POST /structural/beam`
-- [ ] **T1.7** Orquestração: Celery + Redis, modelo de tarefa, `GET /analysis/{id}` com estado/progresso
-- [ ] **T1.8** Frontend base: `app.py`, multipage, login, sidebar, `DisclaimerBanner`
-- [ ] **T1.9** `MapSelector` (desenho de polígono, validação, envio)
+- [x] **T1.7** Orquestração: Celery + Redis, modelo de tarefa, `GET /analysis/{id}` com estado/progresso
+- [x] **T1.8** Frontend base: `app.py`, multipage, login, sidebar, `DisclaimerBanner`
+- [~] **T1.9** `MapSelector` (desenho de polígono, validação, envio)
 - [ ] **T1.10** Dashboards ecológico/florestal e `ProgressTracker`
 - [ ] **T1.11** Vista estrutural (formulário + resultados)
 - [ ] **T1.12** Relatório PDF (Jinja2 + WeasyPrint, upload a Storage, `GET /reports/{id}`)
@@ -46,4 +45,4 @@
 - [ ] **T4.1** Expansão UE (DBSM) e adaptação por país
 - [ ] **T4.2** Fontes opcionais: STEEL-3dPointClouds, Bridge Datasets, EarthworkSat-7K, LUPAN, BuildingWorld, SUM4Re
 
-**Cadeia de dependências:** T0.1→T0.2→T0.3→T0.4→T0.5→T0.6 → T1.1→…→T1.13 → T2.1→…→T2.8 → T3.1→…→T3.5 → T4.1→T4.2
+**Cadeia de dependências:** T0.1→T0.2→T0.3→T0.4→T0.5→T0.6 → T1.1→…→T1.13 → T2.1→→T2.8 → T3.1→→T3.5 → T4.1→→T4.2

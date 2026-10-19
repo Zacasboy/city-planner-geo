@@ -12,6 +12,16 @@ from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 from backend.app.config import settings
 
+
+class TaskStatus(BaseModel):
+    """Model for task status."""
+    task_id: str
+    status: str  # e.g., PENDING, STARTED, SUCCESS, FAILURE
+    progress: Optional[float] = None  # 0.0 to 1.0
+    result: Optional[dict] = None
+    error: Optional[str] = None
+
+
 # Create router
 router = APIRouter()
 
@@ -41,16 +51,6 @@ class OrchestrationService:
 
         # Initialize Redis client for direct operations
         self.redis_client = Redis.from_url(settings.REDIS_URL)
-
-        # Task status mapping
-        self.TASK_STATUS_MAP = {
-            'PENDING': 'pending',
-            'STARTED': 'started',
-            'SUCCESS': 'success',
-            'FAILURE': 'failure',
-            'RETRY': 'retry',
-            'REVOKED': 'revoked'
-        }
 
     async def submit_task(self, task_type: str, payload: dict) -> str:
         """
@@ -117,9 +117,8 @@ class OrchestrationService:
             # If not in Redis, check Celery
             task_result = self.celery_app.AsyncResult(task_id)
 
-            # Map Celery status to our status format
+            # Get Celery status (uppercase string like 'SUCCESS', 'FAILURE', etc.)
             celery_status = task_result.status
-            mapped_status = self.TASK_STATUS_MAP.get(celery_status, 'unknown')
 
             # Get result if available
             result_data = None
@@ -131,11 +130,23 @@ class OrchestrationService:
                 else:
                     error_msg = str(task_result.result)
 
+            # Map status to progress
+            progress_map = {
+                'PENDING': 0.0,
+                'STARTED': 0.5,
+                'SUCCESS': 1.0,
+                'FAILURE': 1.0,
+                'RETRY': 0.5,
+                'REVOKED': 0.5,
+                'UNKNOWN': 0.5
+            }
+            progress = progress_map.get(celery_status, 0.0)
+
             # Create status object
-            status = TaskStatus(
+            task_status = TaskStatus(
                 task_id=task_id,
-                status=mapped_status,
-                progress=1.0 if mapped_status in ['SUCCESS', 'FAILURE'] else 0.5,
+                status=celery_status,
+                progress=progress,
                 result=result_data,
                 error=error_msg
             )
@@ -144,10 +155,10 @@ class OrchestrationService:
             self.redis_client.setex(
                 f"task:{task_id}",
                 3600,  # Expire after 1 hour
-                status.json()
+                task_status.json()
             )
 
-            return status
+            return task_status
 
         except Exception as e:
             logger.error(f"Failed to get task status: {str(e)}")
@@ -155,6 +166,10 @@ class OrchestrationService:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to get task status: {str(e)}"
             )
+
+    async def close(self):
+        """Close the service (no-op)."""
+        pass
 
 
 # Create service instance
@@ -165,6 +180,7 @@ orchestration_service = OrchestrationService()
 async def submit_task(task_type: str, payload: dict) -> str:
     """Submit a task for asynchronous processing."""
     return await orchestration_service.submit_task(task_type, payload)
+
 
 async def get_task_status(task_id: str) -> TaskStatus:
     """Get status of a task."""
