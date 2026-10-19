@@ -3,7 +3,8 @@ Application configuration using Pydantic Settings
 T1.1: Backend base: FastAPI, config Pydantic, logging, CORS, `/health`
 """
 
-from pydantic import BaseSettings, Field
+from pydantic import Field
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -28,6 +29,8 @@ class Settings(BaseSettings):
 
     # Redis (for Celery)
     REDIS_URL: str = Field(default="redis://localhost:6379/0", env="REDIS_URL")
+    # InterGeoPT API
+    INTERGEOPT_API_BASE: str = Field(default="", env="INTERGEOPT_API_BASE")
 
     # Security
     SECRET_KEY: str = Field(..., env="SECRET_KEY")
