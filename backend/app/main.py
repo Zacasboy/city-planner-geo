@@ -171,7 +171,7 @@ app.include_router(structural_router, prefix="/structural", tags=["structural"])
 # app.include_router(materials.router, prefix="/materials", tags=["materials"])
 # app.include_router(reports.router, prefix="/reports", tags=["reports"])
 # app.include_router(analysis.router, prefix="/analysis", tags=["analysis"])
-# app.include_router(orchestration_router, prefix="/orchestration", tags=["orchestration"])
+app.include_router(orchestration_router, prefix="/orchestration", tags=["orchestration"])
 
 # Example protected route to demonstrate authentication usage
 @app.get("/protected", tags=["auth"])
