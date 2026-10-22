@@ -25,14 +25,14 @@
 - [x] **T1.13** Teste end-to-end e deploy em staging
 
 ## Fase 2 — v1.0
-- [~] **T2.1** Morfologia: OpenBuildingMap/DBSM + métricas (densidade, altura, ocupação)
-- [ ] **T2.2** Classificação morfológica (UMCC)
-- [ ] **T2.3** Catálogo de materiais + `GET /materials/suggest`
-- [ ] **T2.4** Quantidades IFC (IfcOpenShell; LivingBIM/IFC-Bench)
-- [ ] **T2.5** The Well em streaming com cache LRU + `POST /physics/simulate`
-- [ ] **T2.6** Visualização 3D / LiDAR (PyDeck, PyVista; CITYLID/Glasgow para validação)
-- [ ] **T2.7** Dashboards de morfologia e materiais; exportação CSV/GeoJSON
-- [ ] **T2.8** Teste de carga (50 utilizadores), documentazione OpenAPI, release v1.0.0
+- [x] **T2.1** Morfologia: OpenBuildingMap/DBSM + métricas (densidade, altura, ocupação)
+- [x] **T2.2** Classificação morfológica (UMCC)
+- [x] **T2.3** Catálogo de materiais + `GET /materials/suggest`
+- [x] **T2.4** Quantidades IFC (IfcOpenShell; LivingBIM/IFC-Bench)
+- [x] **T2.5** The Well em streaming com cache LRU + `POST /physics/simulate`
+- [x] **T2.6** Visualização 3D / LiDAR (PyDeck, PyVista; CITYLID/Glasgow para validação)
+- [x] **T2.7** Dashboards de morfologia e materiais; exportação CSV/GeoJSON
+- [x] **T2.8** Teste de carga (50 utilizadores), documentação OpenAPI, release v1.0.0
 
 ## Fase 3 — v1.1
 - [ ] **T3.1** Pipeline de *geographic fine-tuning* (região piloto: Lisboa) + gestão de checkpoints
