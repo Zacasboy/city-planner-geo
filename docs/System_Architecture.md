@@ -12,17 +12,17 @@ Frontend — Streamlit (mapa, formulários, dashboards, progresso em streaming)
 Backend — FastAPI
    ├─ Serviço Geo        (validação, projeções)
    ├─ Serviço Ecológico  (GBIF)
-   ├─ Serviço Florestal  (OGC API InterGeoPT)
+   ├─ Serviço Florestal  (ArcGIS REST DGT)
    ├─ Serviço Estrutural (PyNite/anastruct + TimoDS)
-   ├─ Serviço Físico     (The Well, streaming)          [v1.0]
+   ├─ Serviço Físico     (fonte por definir)            [v1.0]
    ├─ Serviço Morfologia (OBM/DBSM/UMCC)                [v1.0]
    ├─ Serviço Materiais  (catálogo + IFC)               [v1.0]
-   ├─ Motor ML           (PyTorch, checkpoints regionais)
+   ├─ Motor ML           (PyTorch; checkpoints regionais em v1.1, se houver dados)
    └─ Orquestração       (Celery + Redis) para tarefas longas
         │
         ├─ Supabase PostgreSQL + PostGIS (dados, RLS)
         ├─ Supabase Storage (PDF, IFC, LiDAR, checkpoints)
-        └─ APIs/Datasets externos (GBIF, InterGeoPT, Hugging Face, Zenodo, Copernicus)
+        └─ APIs/Datasets externos (GBIF, DGT, Hugging Face, Zenodo, Copernicus)
 ```
 
 ## 2.2 Technology Stack
@@ -63,3 +63,9 @@ backend/ (app, services, api, tasks)   frontend/ (app.py, pages, components)
 shared/ (schemas, constants)           models/   data/ (gitignored)
 docs/   tests/ (fixtures)   scripts/   .github/workflows/
 ```
+
+## 2.7 Alterações aprovadas
+
+- 2026-10-06 (P1): serviço florestal usa o ArcGIS REST FeatureServer da DGT, não uma OGC API.
+- 2026-10-06 (P2): The Well retirado; o serviço físico (v1.0) fica sem fonte definida.
+- Detalhe e fontes: `docs/data_sources.md` §7.
