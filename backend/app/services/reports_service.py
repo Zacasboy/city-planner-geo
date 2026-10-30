@@ -8,8 +8,6 @@ from datetime import datetime
 from typing import Any
 
 from jinja2 import Template
-from weasyprint import CSS, HTML
-from weasyprint.text.fonts import FontConfiguration
 
 from backend.app.config import settings
 from supabase import Client
@@ -23,10 +21,6 @@ supabase: Client = Client(settings.SUPABASE_URL, settings.SUPABASE_SECRET_KEY)
 
 class ReportsService:
     """Service for generating and managing PDF reports."""
-
-    def __init__(self):
-        # Initialize font configuration for WeasyPrint
-        self.font_config = FontConfiguration()
 
     async def generate_structural_report(
         self,
@@ -164,10 +158,7 @@ class ReportsService:
             template = Template(html_template)
             html_string = template.render(**template_data)
 
-            # Convert HTML to PDF using WeasyPrint
-            html = HTML(string=html_string)
-            css = CSS(string="@page { size: A4; margin: 20mm }", font_config=self.font_config)
-            pdf_bytes = html.write_stylesheet([css], font_config=self.font_config)
+            pdf_bytes = self._render_pdf(html_string)
 
             # Upload PDF to Supabase Storage
             file_path = f"reports/{report_id}.pdf"
@@ -181,6 +172,20 @@ class ReportsService:
         except Exception as e:
             logger.error(f"Failed to generate report: {str(e)}", exc_info=True)
             raise
+
+    @staticmethod
+    def _render_pdf(html_string: str) -> bytes:
+        """Render HTML to PDF with WeasyPrint.
+
+        WeasyPrint is imported here because it needs system libraries (pango); importing
+        it at module level would make the whole API fail to start where they are missing.
+        """
+        from weasyprint import CSS, HTML
+        from weasyprint.text.fonts import FontConfiguration
+
+        font_config = FontConfiguration()
+        css = CSS(string="@page { size: A4; margin: 20mm }", font_config=font_config)
+        return HTML(string=html_string).write_pdf(stylesheets=[css], font_config=font_config)
 
     async def get_report(self, report_id: str) -> bytes:
         """Retrieve a PDF report from storage.
