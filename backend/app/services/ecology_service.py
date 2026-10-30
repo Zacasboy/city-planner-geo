@@ -1,4 +1,5 @@
-"""Ecological Service - GBIF Integration
+"""Ecological service backed by GBIF.
+
 T1.4: Serviço Ecológico (GBIF) com cache e testes mock — POST /ecology/species
 
 P4: occurrence data is only used when its license is on ``ALLOWED_LICENSES``
@@ -97,7 +98,7 @@ class SpeciesResponse(BaseModel):
 class AreaSpeciesRequest(BaseModel):
     """Request model for species observed inside an area."""
 
-    geojson: dict
+    geojson: dict[str, Any]
     limit: int = Field(default=DEFAULT_FACET_LIMIT, ge=1, le=MAX_FACET_LIMIT)
 
 
@@ -121,7 +122,7 @@ class AreaSpeciesResponse(BaseModel):
 
 def _polygons(area: BaseGeometry) -> list[Polygon]:
     """Flatten any polygonal geometry into its Polygon parts."""
-    if area.geom_type == "Polygon":
+    if isinstance(area, Polygon):
         return [area]
     return [p for part in getattr(area, "geoms", []) for p in _polygons(part)]
 
@@ -130,7 +131,7 @@ def _vertex_count(polygons: list[Polygon]) -> int:
     return sum(len(p.exterior.coords) for p in polygons)
 
 
-def _polygon_to_wkt(geojson: dict) -> str:
+def _polygon_to_wkt(geojson: dict[str, Any]) -> str:
     """Convert a GeoJSON area to anti-clockwise WKT, as GBIF requires."""
     area = parse_area(geojson)
     if _vertex_count(_polygons(area)) > SIMPLIFY_ABOVE_VERTICES:
@@ -148,7 +149,8 @@ def _polygon_to_wkt(geojson: dict) -> str:
 class EcologyService:
     """Service for GBIF ecological data integration with caching."""
 
-    def __init__(self, http_client: httpx.AsyncClient | None = None):
+    def __init__(self, http_client: httpx.AsyncClient | None = None) -> None:
+        """Use the given HTTP client, or create and own one."""
         self.http_client = http_client or httpx.AsyncClient(timeout=30.0)
         self._owns_client = http_client is None
 
@@ -180,7 +182,7 @@ class EcologyService:
             "genus": kwargs.get("genus", "").lower().strip() if kwargs.get("genus") else "",
         }
         key_string = json.dumps(key_data, sort_keys=True)
-        return hashlib.md5(key_string.encode()).hexdigest()
+        return hashlib.sha256(key_string.encode()).hexdigest()
 
     async def lookup_species(self, request: SpeciesRequest) -> SpeciesResponse:
         """Look up species information from GBIF with caching.
@@ -261,17 +263,17 @@ class EcologyService:
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,
                 detail=f"GBIF API error: {e.response.status_code} - {e.response.text}",
-            )
+            ) from e
         except httpx.RequestError as e:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail=f"GBIF API request failed: {str(e)}",
-            )
+            ) from e
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Species lookup failed: {str(e)}",
-            )
+            ) from e
 
     async def get_species_occurrences(self, species_key: int, limit: int = 100) -> dict[str, Any]:
         """Get occurrence data for a species from GBIF, restricted to allowed licenses.
@@ -296,17 +298,17 @@ class EcologyService:
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,
                 detail=f"GBIF occurrence API error: {e.response.status_code} - {e.response.text}",
-            )
+            ) from e
         except httpx.RequestError as e:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail=f"GBIF occurrence API request failed: {str(e)}",
-            )
+            ) from e
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Species occurrence lookup failed: {str(e)}",
-            )
+            ) from e
 
     async def _species_name(self, species_key: int) -> str | None:
         cache_key = f"name:{species_key}"
@@ -328,7 +330,9 @@ class EcologyService:
         try:
             wkt = _polygon_to_wkt(request.geojson)
         except ValueError as exc:
-            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc))
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)
+            ) from exc
 
         cache_key = hashlib.sha256(f"{wkt}|{request.limit}".encode()).hexdigest()
         if cache_key in area_cache:
@@ -356,12 +360,12 @@ class EcologyService:
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,
                 detail=f"GBIF API error: {e.response.status_code} - {e.response.text}",
-            )
+            ) from e
         except httpx.RequestError as e:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail=f"GBIF API request failed: {str(e)}",
-            )
+            ) from e
 
         total = int(allowed.get("count", 0))
         result = {
@@ -370,7 +374,7 @@ class EcologyService:
             "allowed_licenses": list(ALLOWED_LICENSES),
             "species": [
                 {"species_key": int(c["name"]), "scientific_name": n, "records": int(c["count"])}
-                for c, n in zip(counts, names)
+                for c, n in zip(counts, names, strict=True)
             ],
             "notes": [EFFORT_NOTE, ATTRIBUTION_NOTE],
         }
@@ -426,7 +430,7 @@ async def lookup_species_endpoint(request: SpeciesRequest) -> SpeciesResponse:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Species lookup failed: {str(e)}",
-        )
+        ) from e
 
 
 @router.get("/species/{species_key}/occurrences", tags=["ecology"])
@@ -448,7 +452,7 @@ async def get_species_occurrences_endpoint(species_key: int, limit: int = 100) -
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to get species occurrences: {str(e)}",
-        )
+        ) from e
 
 
 @router.get("/cache/stats", tags=["ecology"])

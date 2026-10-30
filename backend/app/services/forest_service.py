@@ -1,4 +1,5 @@
-"""Forest Service - DGT Regime Florestal
+"""Forest service backed by the DGT regime florestal.
+
 T1.5: Serviço Florestal (DGT, regime florestal) — POST /forest/overlap
 
 Source: Direção-Geral do Território, ArcGIS FeatureServer ``Regime_florestal`` (layer 1562).
@@ -12,6 +13,8 @@ import logging
 from typing import Any
 
 import httpx
+import numpy as np
+import shapely
 from cachetools import TTLCache
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
@@ -19,7 +22,7 @@ from pyproj import Transformer
 from shapely.geometry import shape
 from shapely.geometry.base import BaseGeometry
 from shapely.geometry.polygon import orient
-from shapely.ops import transform, unary_union
+from shapely.ops import unary_union
 
 from backend.app.config import settings
 from backend.app.services.geo_utils import parse_area
@@ -51,7 +54,7 @@ _to_area_crs = Transformer.from_crs("EPSG:4326", AREA_CRS, always_xy=True).trans
 class OverlapRequest(BaseModel):
     """Request model for forest overlap check."""
 
-    geojson: dict
+    geojson: dict[str, Any]
 
 
 class OverlapResponse(BaseModel):
@@ -59,7 +62,7 @@ class OverlapResponse(BaseModel):
 
     overlap_area_km2: float
     percentage_covered: float
-    details: dict
+    details: dict[str, Any]
 
 
 def _to_esri_polygon(area: BaseGeometry) -> dict[str, Any]:
@@ -73,7 +76,10 @@ def _to_esri_polygon(area: BaseGeometry) -> dict[str, Any]:
 
 
 def _area_m2(geometry: BaseGeometry) -> float:
-    return float(transform(_to_area_crs, geometry).area)
+    projected = shapely.transform(
+        geometry, lambda xy: np.column_stack(_to_area_crs(xy[:, 0], xy[:, 1]))
+    )
+    return float(projected.area)
 
 
 def _cache_key(area: BaseGeometry) -> str:
@@ -83,7 +89,8 @@ def _cache_key(area: BaseGeometry) -> str:
 class ForestService:
     """Service for DGT forest-regime data integration."""
 
-    def __init__(self, http_client: httpx.AsyncClient | None = None):
+    def __init__(self, http_client: httpx.AsyncClient | None = None) -> None:
+        """Use the given HTTP client, or create and own one."""
         self.settings = settings
         self.http_client = http_client or httpx.AsyncClient(timeout=30.0)
         self._owns_client = http_client is None
@@ -180,7 +187,9 @@ class ForestService:
         try:
             area = parse_area(request.geojson)
         except ValueError as exc:
-            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc))
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)
+            ) from exc
 
         key = _cache_key(area)
         if key not in _overlap_cache:
@@ -191,13 +200,13 @@ class ForestService:
                 raise HTTPException(
                     status_code=status.HTTP_502_BAD_GATEWAY,
                     detail=f"DGT API error: {exc.response.status_code} - {exc.response.text}",
-                )
+                ) from exc
             except httpx.RequestError as exc:
                 logger.error("DGT request failed: %s", exc)
                 raise HTTPException(
                     status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                     detail=f"DGT API request failed: {exc}",
-                )
+                ) from exc
             _overlap_cache[key] = self._summarise(area, features)
         return OverlapResponse(**_overlap_cache[key])
 

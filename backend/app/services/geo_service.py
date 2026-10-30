@@ -1,6 +1,9 @@
-"""Geo Validation and Coordinate Conversion Service
+"""Geo validation and coordinate conversion service.
+
 T1.3: Serviço Geo: POST /geo/validate, conversões 4326↔3763, testes
 """
+
+from typing import Any
 
 from fastapi import APIRouter, HTTPException, status
 from pyproj import CRS, Transformer
@@ -13,7 +16,8 @@ router = APIRouter()
 class GeoService:
     """Service for geo validation and coordinate conversion."""
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Create the WGS84 and PT-TM06 coordinate systems and their transformers."""
         # Define coordinate reference systems
         self.wgs84 = CRS.from_epsg(4326)  # WGS 84 (latitude/longitude)
         self.ptm06 = CRS.from_epsg(3763)  # PT-TM06 / ETRS89 (Portugal TM06)
@@ -78,12 +82,12 @@ class GeoService:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Invalid coordinate reference system: {str(e)}",
-            )
+            ) from e
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Coordinate conversion failed: {str(e)}",
-            )
+            ) from e
 
     def wgs84_to_tm06(self, lng: float, lat: float) -> tuple[float, float]:
         """Convert coordinates from WGS84 (EPSG:4326) to PT-TM06 (EPSG:3763).
@@ -102,7 +106,7 @@ class GeoService:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"WGS84 to TM06 conversion failed: {str(e)}",
-            )
+            ) from e
 
     def tm06_to_wgs84(self, easting: float, northing: float) -> tuple[float, float]:
         """Convert coordinates from PT-TM06 (EPSG:3763) to WGS84 (EPSG:4326).
@@ -121,14 +125,14 @@ class GeoService:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"TM06 to WGS84 conversion failed: {str(e)}",
-            )
+            ) from e
 
 
 # Create service instance
 geo_service = GeoService()
 
 
-def validate_geo_point(lng: float, lat: float) -> dict:
+def validate_geo_point(lng: float, lat: float) -> dict[str, Any]:
     """Validate a geographical point and return validation result.
 
     Args:
@@ -187,7 +191,7 @@ def tm06_to_wgs84(easting: float, northing: float) -> tuple[float, float]:
 
 # API Routes
 @router.post("/validate", tags=["geo"])
-async def validate_geo_point_endpoint(lng: float, lat: float):
+async def validate_geo_point_endpoint(lng: float, lat: float) -> dict[str, Any]:
     """Validate a geographical point.
 
     Args:
@@ -201,7 +205,9 @@ async def validate_geo_point_endpoint(lng: float, lat: float):
 
 
 @router.post("/convert", tags=["geo"])
-async def convert_coordinates_endpoint(lng: float, lat: float, source_epsg: int, target_epsg: int):
+async def convert_coordinates_endpoint(
+    lng: float, lat: float, source_epsg: int, target_epsg: int
+) -> dict[str, Any]:
     """Convert coordinates between different EPSG systems.
 
     Args:
@@ -223,11 +229,11 @@ async def convert_coordinates_endpoint(lng: float, lat: float, source_epsg: int,
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Coordinate conversion failed: {str(e)}",
-        )
+        ) from e
 
 
 @router.get("/wgs84-to-tm06/{lng}/{lat}", tags=["geo"])
-async def wgs84_to_tm06_endpoint(lng: float, lat: float):
+async def wgs84_to_tm06_endpoint(lng: float, lat: float) -> dict[str, Any]:
     """Convert coordinates from WGS84 (EPSG:4326) to PT-TM06 (EPSG:3763).
 
     Args:
@@ -247,11 +253,11 @@ async def wgs84_to_tm06_endpoint(lng: float, lat: float):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"WGS84 to TM06 conversion failed: {str(e)}",
-        )
+        ) from e
 
 
 @router.get("/tm06-to-wgs84/{easting}/{northing}", tags=["geo"])
-async def tm06_to_wgs84_endpoint(easting: float, northing: float):
+async def tm06_to_wgs84_endpoint(easting: float, northing: float) -> dict[str, Any]:
     """Convert coordinates from PT-TM06 (EPSG:3763) to WGS84 (EPSG:4326).
 
     Args:
@@ -271,4 +277,4 @@ async def tm06_to_wgs84_endpoint(easting: float, northing: float):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"TM06 to WGS84 conversion failed: {str(e)}",
-        )
+        ) from e
