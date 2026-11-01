@@ -14,7 +14,6 @@ REQUIRED = {
     "SUPABASE_URL": "http://fake",
     "SUPABASE_PUBLISHABLE_KEY": "fake",
     "SUPABASE_SECRET_KEY": "fake",
-    "SECRET_KEY": "fake",
 }
 
 
@@ -49,9 +48,10 @@ def test_default_host_is_local_only() -> None:
 def test_env_file_with_unknown_keys_is_ignored(tmp_path: Path) -> None:
     env_file = tmp_path / ".env"
     env_file.write_text(
-        "\n".join(f"{k}={v}" for k, v in REQUIRED.items()) + "\nHF_TOKEN=abc\nAPP_ENV=development\n"
+        "\n".join(f"{k}={v}" for k, v in REQUIRED.items())
+        + "\nHF_TOKEN=abc\nAPP_ENV=development\nSECRET_KEY=antigo\n"
     )
-    assert Settings(_env_file=env_file).SECRET_KEY == "fake"
+    assert Settings(_env_file=env_file).SUPABASE_SECRET_KEY == "fake"
 
 
 @pytest.mark.usefixtures("clean_env")

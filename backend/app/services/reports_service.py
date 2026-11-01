@@ -136,6 +136,18 @@ STRUCTURAL_REPORT_TEMPLATE = """\
 """
 
 
+REPORTS_BUCKET = "reports"
+
+
+class ReportNotFoundError(Exception):
+    """O relatório não existe ou pertence a outro utilizador."""
+
+
+def _report_path(user_id: str, report_id: str) -> str:
+    """Caminho no Storage; o prefixo do dono impede aceder a relatórios de outros."""
+    return f"{user_id}/{report_id}.pdf"
+
+
 class ReportsService:
     """Service for generating and managing PDF reports."""
 
@@ -143,14 +155,14 @@ class ReportsService:
         self,
         beam_data: dict[str, Any],
         analysis_results: dict[str, Any],
-        user_id: str | None = None,
+        user_id: str,
     ) -> str:
         """Generate a PDF report for structural beam analysis.
 
         Args:
             beam_data: Input beam parameters
             analysis_results: Results from beam analysis
-            user_id: Optional user ID for report ownership
+            user_id: Owner of the report; only this user can read or delete it
 
         Returns:
             str: Report ID (UUID) used for storage and retrieval
@@ -163,7 +175,7 @@ class ReportsService:
             template_data = {
                 "report_id": report_id,
                 "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "user_id": user_id or "anonymous",
+                "user_id": user_id,
                 "beam_data": beam_data,
                 "analysis_results": analysis_results,
                 "title": "Structural Beam Analysis Report",
@@ -174,10 +186,8 @@ class ReportsService:
 
             pdf_bytes = self._render_pdf(html_string)
 
-            # Upload PDF to Supabase Storage
-            file_path = f"reports/{report_id}.pdf"
-            supabase.storage.from_("reports").upload(
-                file_path, pdf_bytes, {"content-type": "application/pdf"}
+            supabase.storage.from_(REPORTS_BUCKET).upload(
+                _report_path(user_id, report_id), pdf_bytes, {"content-type": "application/pdf"}
             )
 
             logger.info(f"Generated and uploaded report {report_id}")
@@ -202,37 +212,41 @@ class ReportsService:
         pdf: bytes = HTML(string=html_string).write_pdf(stylesheets=[css], font_config=font_config)
         return pdf
 
-    async def get_report(self, report_id: str) -> bytes:
+    async def get_report(self, report_id: str, user_id: str) -> bytes:
         """Retrieve a PDF report from storage.
 
         Args:
             report_id: The report ID (UUID)
+            user_id: The requesting user; must be the owner
 
         Returns:
             bytes: PDF file content
+
+        Raises:
+            ReportNotFoundError: If the report does not exist or belongs to someone else
         """
         try:
-            file_path = f"reports/{report_id}.pdf"
-            response: bytes = supabase.storage.from_("reports").download(file_path)
-            return response
+            content: bytes = supabase.storage.from_(REPORTS_BUCKET).download(
+                _report_path(user_id, report_id)
+            )
         except Exception as e:
-            logger.error(f"Failed to retrieve report {report_id}: {str(e)}", exc_info=True)
+            if "not found" in str(e).lower():
+                raise ReportNotFoundError(report_id) from e
+            logger.error("Failed to retrieve report %s: %s", report_id, e, exc_info=True)
             raise
+        return content
 
-    async def delete_report(self, report_id: str) -> bool:
+    async def delete_report(self, report_id: str, user_id: str) -> None:
         """Delete a report from storage.
 
         Args:
             report_id: The report ID (UUID)
+            user_id: The requesting user; must be the owner
 
-        Returns:
-            bool: True if successful
+        Raises:
+            ReportNotFoundError: If the report does not exist or belongs to someone else
         """
-        try:
-            file_path = f"reports/{report_id}.pdf"
-            supabase.storage.from_("reports").remove([file_path])
-            logger.info(f"Deleted report {report_id}")
-            return True
-        except Exception as e:
-            logger.error(f"Failed to delete report {report_id}: {str(e)}", exc_info=True)
-            return False
+        removed = supabase.storage.from_(REPORTS_BUCKET).remove([_report_path(user_id, report_id)])
+        if not removed:
+            raise ReportNotFoundError(report_id)
+        logger.info("Deleted report %s", report_id)

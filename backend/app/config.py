@@ -45,9 +45,11 @@ class Settings(BaseSettings):
     DGT_REGIME_FLORESTAL_URL: str = DEFAULT_DGT_REGIME_FLORESTAL_URL
     GBIF_USER_AGENT: str = DEFAULT_GBIF_USER_AGENT
 
-    SECRET_KEY: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    ALGORITHM: str = "HS256"
+    # Validação dos JWT do Supabase (ver backend/app/auth.py).
+    # Com chaves assimétricas (ES256/RS256) usa-se o JWKS do projeto e este segredo não é preciso.
+    SUPABASE_JWT_SECRET: str = ""  # só para projetos com segredo partilhado (HS256)
+    SUPABASE_JWT_AUDIENCE: str = "authenticated"
+    SUPABASE_JWT_ISSUER: str = ""  # vazio = "<SUPABASE_URL>/auth/v1"
 
     LOG_LEVEL: str = "INFO"
 

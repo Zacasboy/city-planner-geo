@@ -1,15 +1,11 @@
 """Testes HTTP da rota /morphology/analyze e do endpoint /structural/beam."""
 
-import time
+from collections.abc import Callable
 
-import jwt
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.app.config import settings
 from backend.app.main import app
-
-pytestmark = pytest.mark.filterwarnings("ignore::jwt.warnings.InsecureKeyLengthWarning")
 
 SQUARE_FEATURE = {
     "type": "Feature",
@@ -18,13 +14,6 @@ SQUARE_FEATURE = {
         "coordinates": [[[0, 0], [0, 100], [100, 100], [100, 0], [0, 0]]],
     },
 }
-
-
-def _auth() -> dict[str, str]:
-    token = jwt.encode(
-        {"sub": "user-1", "exp": time.time() + 3600}, settings.SECRET_KEY, settings.ALGORITHM
-    )
-    return {"Authorization": f"Bearer {token}"}
 
 
 def test_morphology_route_is_registered_once() -> None:
@@ -38,11 +27,13 @@ def test_morphology_requires_authentication() -> None:
     assert response.status_code in (401, 403)
 
 
-def test_morphology_returns_serialisable_metrics_with_samples() -> None:
+def test_morphology_returns_serialisable_metrics_with_samples(
+    auth_headers: Callable[[str], dict[str, str]],
+) -> None:
     response = TestClient(app).post(
         "/morphology/analyze",
         json={"geojson": SQUARE_FEATURE, "include_detailed_metrics": True},
-        headers=_auth(),
+        headers=auth_headers("user-1"),
     )
     assert response.status_code == 200
     body = response.json()
@@ -51,9 +42,11 @@ def test_morphology_returns_serialisable_metrics_with_samples() -> None:
     assert len(body["details"]["building_samples"]) <= 5
 
 
-def test_morphology_rejects_invalid_geojson() -> None:
+def test_morphology_rejects_invalid_geojson(
+    auth_headers: Callable[[str], dict[str, str]],
+) -> None:
     response = TestClient(app).post(
-        "/morphology/analyze", json={"geojson": {"type": "Point"}}, headers=_auth()
+        "/morphology/analyze", json={"geojson": {"type": "Point"}}, headers=auth_headers("user-1")
     )
     assert response.status_code == 400
 
