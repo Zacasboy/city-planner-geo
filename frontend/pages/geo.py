@@ -1,12 +1,17 @@
-"""Geo Validation Page
-T1.9: MapSelector (desenho de polígono, validação, envio)
+"""Página de validação geográfica.
+
+T1.9: MapSelector (desenho de polígono, validação, envio).
 """
 
 import streamlit as st
 
-from ..components.disclaimer_banner import render_disclaimer_banner
-from ..components.map_selector import render_map_selector, send_polygon_to_backend, validate_polygon
-from ..components.sidebar import render_sidebar
+from frontend.components.disclaimer_banner import render_disclaimer_banner
+from frontend.components.map_selector import (
+    render_map_selector,
+    send_polygon_to_backend,
+    validate_polygon,
+)
+from frontend.components.sidebar import render_sidebar
 
 st.title("🌍 Geo Validation - Area Selection")
 

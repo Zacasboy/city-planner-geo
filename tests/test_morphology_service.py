@@ -44,7 +44,7 @@ def test_morphology_models():
     )
     assert request.geojson is not None
     assert request.data_source == "opendata"
-    assert request.include_detailed_metrics == True
+    assert request.include_detailed_metrics
 
     # Test MorphologyResponse
     response = MorphologyResponse(

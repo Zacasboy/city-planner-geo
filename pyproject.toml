@@ -68,8 +68,13 @@ plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
 # Sem stubs nem py.typed.
-module = ["celery.*", "weasyprint.*"]
+module = ["celery.*", "weasyprint.*", "streamlit_folium.*"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# O folium não anota os construtores dos plugins.
+module = ["frontend.components.map_selector"]
+disallow_untyped_calls = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

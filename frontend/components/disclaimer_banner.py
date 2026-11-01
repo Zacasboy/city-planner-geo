@@ -1,12 +1,13 @@
-"""Disclaimer Banner Component
-T1.8: Frontend base: disclaimer banner
+"""Aviso legal mostrado no fundo de cada página.
+
+T1.8: base do frontend, aviso legal.
 """
 
 import streamlit as st
 
 
-def render_disclaimer_banner():
-    """Render the disclaimer banner."""
+def render_disclaimer_banner() -> None:
+    """Mostra o aviso legal."""
     st.markdown("---")
     st.caption("""
         Disclaimer: This application is for demonstration purposes only.

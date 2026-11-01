@@ -1,10 +1,12 @@
-"""Home Page
-T1.8: Frontend base: home page
+"""Página inicial.
+
+T1.8: base do frontend.
 """
 
 import streamlit as st
-from components.disclaimer_banner import render_disclaimer_banner
-from components.sidebar import render_sidebar
+
+from frontend.components.disclaimer_banner import render_disclaimer_banner
+from frontend.components.sidebar import render_sidebar
 
 st.title("🏙️ City Planner Geo - Home")
 

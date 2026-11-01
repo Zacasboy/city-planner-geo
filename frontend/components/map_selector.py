@@ -1,22 +1,22 @@
-"""MapSelector Component
-T1.9: MapSelector (desenho de polígono, validação, envio)
+"""Seletor de área no mapa.
+
+T1.9: MapSelector (desenho de polígono, validação, envio).
 """
+
+from typing import Any
 
 import folium
 import streamlit as st
 from folium.plugins import Draw
 from streamlit_folium import st_folium
 
+LISBON_CENTER = [38.7223, -9.1393]
+DEFAULT_ZOOM = 12
+MIN_POLYGON_POINTS = 4  # o primeiro e o último ponto coincidem
 
-def render_map_selector(key="map_selector"):
-    """Render a map with drawing tools for polygon selection.
-    Returns the drawn polygon GeoJSON if a polygon is drawn, else None.
-    """
-    # Initialize a Folium map centered on a default location (e.g., Lisbon, Portugal)
-    m = folium.Map(location=[38.7223, -9.1393], zoom_start=12, tiles="OpenStreetMap")
 
-    # Add drawing tools
-    draw = Draw(
+def _draw_tool() -> Draw:
+    return Draw(
         export=True,
         filename="my_data",
         position="topleft",
@@ -27,82 +27,73 @@ def render_map_selector(key="map_selector"):
             "marker": False,
             "circlemarker": False,
             "polygon": {
-                "allowIntersection": False,  # Restrict shapes to simple polygons
+                "allowIntersection": False,
                 "drawError": {"color": "#e1e100", "message": "Overlapping not allowed"},
                 "shapeOptions": {"color": "#6bc2e5", "weight": 2, "opacity": 1},
             },
         },
-        edit_options={
-            "edit": False,  # Disable editing of existing features
-            "remove": True,  # Allow removing drawn features
-        },
+        edit_options={"edit": False, "remove": True},
     )
-    draw.add_to(m)
 
-    # Render the map and get the returned data (includes drawn objects)
-    map_data = st_folium(m, width=700, height=500, key=key)
 
-    # Process the returned data to extract the drawn polygon
-    if map_data and map_data.get("all_drawings"):
-        drawings = map_data["all_drawings"]
-        if len(drawings) > 0:
-            # Assume the last drawn polygon is the one we want
-            # We'll take the first drawing if multiple, but we could allow multiple and validate
-            # For simplicity, we take the first polygon
-            last_drawing = drawings[-1]
-            if last_drawing["geometry"]["type"] == "Polygon":
-                # Validate the polygon (e.g., check area > 0)
-                # We can compute area using geopy or shapely, but for simplicity we'll just check that it has coordinates
-                coords = last_drawing["geometry"]["coordinates"][0]
-                if len(coords) >= 4:  # Polygon needs at least 4 points (first==last)
-                    # Calculate approximate area to ensure it's not degenerate
-                    # We'll skip area calculation for simplicity, but we can add if needed
-                    # For now, we'll consider it valid if it has at least 4 points
-                    return last_drawing["geometry"]
-                else:
-                    st.warning(
-                        "Drawn polygon is too small (less than 4 points). Please draw a larger polygon."
-                    )
-                    return None
-            else:
-                st.info("Please draw a polygon.")
-                return None
-        else:
-            return None
-    else:
+def render_map_selector(key: str = "map_selector") -> dict[str, Any] | None:
+    """Mostra um mapa com ferramentas de desenho de polígonos.
+
+    Args:
+        key: Chave do componente Streamlit.
+
+    Returns:
+        A geometria GeoJSON do último polígono desenhado, ou None.
+    """
+    folium_map = folium.Map(location=LISBON_CENTER, zoom_start=DEFAULT_ZOOM, tiles="OpenStreetMap")
+    _draw_tool().add_to(folium_map)
+    map_data = st_folium(folium_map, width=700, height=500, key=key)
+
+    drawings = (map_data or {}).get("all_drawings")
+    if not drawings:
         return None
 
+    geometry: dict[str, Any] = drawings[-1]["geometry"]
+    if geometry["type"] != "Polygon":
+        st.info("Please draw a polygon.")
+        return None
+    if len(geometry["coordinates"][0]) < MIN_POLYGON_POINTS:
+        st.warning("Drawn polygon is too small (less than 4 points). Please draw a larger polygon.")
+        return None
+    return geometry
 
-def validate_polygon(polygon_geojson):
-    """Validate the polygon GeoJSON.
-    Returns True if valid, False otherwise.
-    Additionally, returns an error message if invalid.
+
+def validate_polygon(polygon_geojson: dict[str, Any] | None) -> tuple[bool, str]:
+    """Valida a geometria de um polígono GeoJSON.
+
+    Args:
+        polygon_geojson: Geometria do tipo Polygon.
+
+    Returns:
+        Um par (é_válido, mensagem_de_erro); a mensagem é vazia se for válido.
     """
+    if not polygon_geojson or polygon_geojson.get("type") != "Polygon":
+        return False, "Invalid polygon geometry"
     try:
-        if not polygon_geojson or polygon_geojson.get("type") != "Polygon":
-            return False, "Invalid polygon geometry"
         coords = polygon_geojson["coordinates"][0]
-        if len(coords) < 4:
-            return False, "Polygon must have at least 4 points"
-        # Check if first and last coordinates are the same (closed polygon)
-        if coords[0] != coords[-1]:
-            return False, "Polygon must be closed (first and last points must match)"
-        # Optional: check for self-intersection (requires shapely)
-        # We'll skip for simplicity
-        return True, ""
-    except Exception as e:
-        return False, f"Validation error: {str(e)}"
+    except (KeyError, IndexError, TypeError) as e:
+        return False, f"Validation error: {e}"
+    if len(coords) < MIN_POLYGON_POINTS:
+        return False, "Polygon must have at least 4 points"
+    if coords[0] != coords[-1]:
+        return False, "Polygon must be closed (first and last points must match)"
+    return True, ""
 
 
-def send_polygon_to_backend(polygon_geojson):
-    """Send the polygon to the backend.
-    For now, we'll mock this by storing in session state and showing a success message.
-    In the future, this would make an HTTP POST request to the backend.
+def send_polygon_to_backend(polygon_geojson: dict[str, Any]) -> tuple[bool, str]:
+    """Guarda o polígono na sessão (o envio real ao backend ainda não existe).
+
+    Args:
+        polygon_geojson: Geometria validada.
+
+    Returns:
+        Um par (sucesso, mensagem).
     """
-    try:
-        # Mock sending: store in session state
-        st.session_state.selected_polygon = polygon_geojson
-        st.session_state.polygon_sent = True
-        return True, "Polygon sent successfully (mock)"
-    except Exception as e:
-        return False, f"Failed to send polygon: {str(e)}"
+    st.session_state.selected_polygon = polygon_geojson
+    st.session_state.polygon_sent = True
+    return True, "Polygon sent successfully (mock)"

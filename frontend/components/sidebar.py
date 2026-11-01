@@ -1,19 +1,19 @@
-"""Sidebar Component
-T1.8: Frontend base: sidebar component
+"""Barra lateral com o utilizador e o botão de sair.
+
+T1.8: base do frontend, barra lateral.
 """
 
 import streamlit as st
 
 
-def render_sidebar():
-    """Render the sidebar with user info and logout button."""
+def render_sidebar() -> None:
+    """Mostra o utilizador e o botão de logout, ou o botão para ir ao login."""
     with st.sidebar:
         st.write("### City Planner Geo")
         if st.session_state.get("user"):
             st.write(f"**User:** {st.session_state.user.email}")
             st.write("---")
             if st.button("Logout", use_container_width=True):
-                # Clear session state
                 for key in list(st.session_state.keys()):
                     del st.session_state[key]
                 st.rerun()

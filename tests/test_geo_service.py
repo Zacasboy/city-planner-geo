@@ -31,25 +31,25 @@ def test_geo_service_init():
 def test_validate_coordinates():
     """Test coordinate validation."""
     # Outside the supported coverage (Portugal) even if valid WGS84
-    assert validate_coordinates(-75.0, 40.0) == False
-    assert validate_coordinates(0.0, 0.0) == False
+    assert not validate_coordinates(-75.0, 40.0)
+    assert not validate_coordinates(0.0, 0.0)
 
     # Invalid coordinates
-    assert validate_coordinates(-181.0, 0.0) == False  # Too far west
-    assert validate_coordinates(181.0, 0.0) == False  # Too far east
-    assert validate_coordinates(0.0, -91.0) == False  # Too far south
-    assert validate_coordinates(0.0, 91.0) == False  # Too far north
+    assert not validate_coordinates(-181.0, 0.0)  # Too far west
+    assert not validate_coordinates(181.0, 0.0)  # Too far east
+    assert not validate_coordinates(0.0, -91.0)  # Too far south
+    assert not validate_coordinates(0.0, 91.0)  # Too far north
 
     # Portugal region validation (approximate)
     # These should be valid (within Portugal bounds)
-    assert validate_coordinates(-8.0, 39.0) == True
-    assert validate_coordinates(-6.0, 42.0) == True
+    assert validate_coordinates(-8.0, 39.0)
+    assert validate_coordinates(-6.0, 42.0)
 
     # These should be invalid (outside Portugal bounds)
-    assert validate_coordinates(-11.0, 40.0) == False  # Too far west
-    assert validate_coordinates(-5.0, 40.0) == False  # Too far east
-    assert validate_coordinates(-7.0, 35.0) == False  # Too far south
-    assert validate_coordinates(-7.0, 45.0) == False  # Too far north
+    assert not validate_coordinates(-11.0, 40.0)  # Too far west
+    assert not validate_coordinates(-5.0, 40.0)  # Too far east
+    assert not validate_coordinates(-7.0, 35.0)  # Too far south
+    assert not validate_coordinates(-7.0, 45.0)  # Too far north
 
 
 def test_convert_coordinates():
@@ -111,7 +111,7 @@ def test_validate_geo_point():
     """Test the validate_geo_point endpoint function."""
     # Valid point
     result = validate_geo_point(-8.0, 38.0)
-    assert result["valid"] == True
+    assert result["valid"]
     assert "coordinates" in result
     assert result["coordinates"]["lng"] == -8.0
     assert result["coordinates"]["lat"] == 38.0
@@ -120,7 +120,7 @@ def test_validate_geo_point():
 
     # Invalid point
     result = validate_geo_point(-11.0, 38.0)  # Too far west
-    assert result["valid"] == False
+    assert not result["valid"]
     assert "coordinates" in result
     assert result["coordinates"]["lng"] == -11.0
     assert result["coordinates"]["lat"] == 38.0
@@ -133,8 +133,8 @@ def test_geo_service_class_methods():
     service = GeoService()
 
     # Test validate_coordinates method
-    assert service.validate_coordinates(-8.0, 38.0) == True
-    assert service.validate_coordinates(-11.0, 38.0) == False
+    assert service.validate_coordinates(-8.0, 38.0)
+    assert not service.validate_coordinates(-11.0, 38.0)
 
     # Test convert_coordinates method
     lng, lat = -8.0, 38.0

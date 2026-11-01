@@ -1,14 +1,17 @@
-"""Forest Dashboard
-T1.10: Dashboards ecológico/florestal e ProgressTracker
+"""Painel florestal.
+
+T1.10: dashboards ecológico/florestal e ProgressTracker.
 """
 
 import pandas as pd
 import streamlit as st
-from components.disclaimer_banner import render_disclaimer_banner
-from components.progress_tracker import render_progress_tracker
-from components.sidebar import render_sidebar
+
+from frontend.components.disclaimer_banner import render_disclaimer_banner
+from frontend.components.progress_tracker import render_progress_tracker
+from frontend.components.sidebar import render_sidebar
 
 st.title("🌲 Forest Dashboard")
+st.info("Sample data: this dashboard is not connected to the backend yet.")
 
 # Mock data for forest dashboard
 st.subheader("Forest Cover Overview")
