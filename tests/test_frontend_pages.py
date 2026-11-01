@@ -27,6 +27,13 @@ def _page(name: str, user: object | None = None) -> AppTest:
 LOGGED_IN = SimpleNamespace(email="ana@exemplo.pt")
 
 
+def _without_supabase_config(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Simula a falta de credenciais, mesmo que exista `.streamlit/secrets.toml`."""
+    monkeypatch.delenv("SUPABASE_URL", raising=False)
+    monkeypatch.delenv("SUPABASE_PUBLISHABLE_KEY", raising=False)
+    monkeypatch.setattr("frontend.components.supabase_client.get_setting", lambda *_a, **_k: "")
+
+
 @pytest.mark.parametrize(
     "name",
     ["home.py", "geo.py", "ecology.py", "forest.py", "structural.py", "orchestration.py"],
@@ -49,16 +56,14 @@ def test_home_page_asks_for_login_when_anonymous() -> None:
 
 
 def test_login_without_credentials_stops_with_warning(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv("SUPABASE_URL", raising=False)
-    monkeypatch.delenv("SUPABASE_PUBLISHABLE_KEY", raising=False)
+    _without_supabase_config(monkeypatch)
     app = _page("login.py").run()
     assert not app.exception
     assert any("credentials not configured" in w.value for w in app.warning)
 
 
 def test_signup_without_credentials_stops_with_warning(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv("SUPABASE_URL", raising=False)
-    monkeypatch.delenv("SUPABASE_PUBLISHABLE_KEY", raising=False)
+    _without_supabase_config(monkeypatch)
     app = _page("signup.py").run()
     assert not app.exception
     assert any("credentials not configured" in w.value for w in app.warning)
@@ -200,8 +205,7 @@ def test_reports_page_sends_the_session_token() -> None:
 
 
 def test_app_shows_login_when_anonymous(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv("SUPABASE_URL", raising=False)
-    monkeypatch.delenv("SUPABASE_PUBLISHABLE_KEY", raising=False)
+    _without_supabase_config(monkeypatch)
     app = AppTest.from_file(
         str(REPO_ROOT / "frontend" / "app.py"), default_timeout=SCRIPT_TIMEOUT_S
     ).run()
@@ -217,3 +221,20 @@ def test_app_shows_home_when_logged_in() -> None:
     app.run()
     assert not app.exception
     assert "Home" in app.title[0].value
+
+
+def test_anonymous_user_can_navigate_between_login_and_signup(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("SUPABASE_URL", "http://fake")
+    monkeypatch.setenv("SUPABASE_PUBLISHABLE_KEY", "fake")
+    with patch("frontend.components.supabase_client.create_client", return_value=MagicMock()):
+        app = AppTest.from_file(
+            str(REPO_ROOT / "frontend" / "app.py"), default_timeout=SCRIPT_TIMEOUT_S
+        ).run()
+        next(b for b in app.button if "Sign up" in b.label).click().run()
+        assert not app.exception
+        assert "Sign Up" in app.title[0].value
+        next(b for b in app.button if "Login" in b.label).click().run()
+        assert not app.exception
+        assert app.title[0].value.endswith("Login to City Planner Geo")
