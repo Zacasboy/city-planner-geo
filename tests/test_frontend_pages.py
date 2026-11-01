@@ -217,3 +217,20 @@ def test_app_shows_home_when_logged_in() -> None:
     app.run()
     assert not app.exception
     assert "Home" in app.title[0].value
+
+
+def test_anonymous_user_can_navigate_between_login_and_signup(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("SUPABASE_URL", "http://fake")
+    monkeypatch.setenv("SUPABASE_PUBLISHABLE_KEY", "fake")
+    with patch("frontend.components.supabase_client.create_client", return_value=MagicMock()):
+        app = AppTest.from_file(
+            str(REPO_ROOT / "frontend" / "app.py"), default_timeout=SCRIPT_TIMEOUT_S
+        ).run()
+        next(b for b in app.button if "Sign up" in b.label).click().run()
+        assert not app.exception
+        assert "Sign Up" in app.title[0].value
+        next(b for b in app.button if "Login" in b.label).click().run()
+        assert not app.exception
+        assert app.title[0].value.endswith("Login to City Planner Geo")

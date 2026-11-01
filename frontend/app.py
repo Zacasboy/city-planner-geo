@@ -24,7 +24,10 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-login_page = st.Page("pages/login.py", title="Login", icon="🔐")
+ANONYMOUS_PAGES = [
+    st.Page("pages/login.py", title="Login", icon="🔐"),
+    st.Page("pages/signup.py", title="Sign up", icon="📝"),
+]
 
 LOGGED_IN_PAGES = [
     st.Page("pages/home.py", title="Home", icon="🏠"),
@@ -37,7 +40,7 @@ LOGGED_IN_PAGES = [
 ]
 
 if st.session_state.user is None:
-    navigation = st.navigation([login_page])
+    navigation = st.navigation(ANONYMOUS_PAGES)
 else:
     navigation = st.navigation(LOGGED_IN_PAGES)
 
