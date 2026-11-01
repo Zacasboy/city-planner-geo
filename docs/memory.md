@@ -9,7 +9,7 @@
 | Última alteração | 2026-10-06 (fim do dia) |
 | Fase | Fase 0 — Setup |
 | Versão | 0.1.0 (documentação) |
-| Processo ativo | T0.5 (decisões aprovadas e aplicadas; faltam os testes ao vivo) |
+| Processo ativo | Nenhum (próximo: T0.6) |
 | Bloqueios | Nenhum |
 | Risco principal | Fontes externas por verificar (licenças, limites, cobertura) |
 
@@ -68,7 +68,7 @@
 **Por testar:** as migrações foram testadas num PostgreSQL local com um mock de `auth`/`storage`, não no Supabase real. Policies de UPDATE/DELETE do Storage sem teste dedicado.
 
 ### 2026-10-06 (terça-feira), T0.5
-- [~] T0.5 Auditoria de fontes do MVP: `docs/data_sources.md` (GBIF, regime florestal, TimoDS, The Well)
+- [x] T0.5 Auditoria de fontes do MVP: `docs/data_sources.md` (GBIF, regime florestal, TimoDS, The Well)
 - Branch: `docs/data-sources-audit`
 
 **Achados**
@@ -81,22 +81,24 @@
 - **D19** (P1) Serviço florestal usa o ArcGIS REST FeatureServer da DGT, não "OGC API InterGeoPT"
 - **D20** (P2) The Well fora do MVP; estrutural usa PyNite/anastruct validado com TimoDS
 - **D21** (P3) F6 sem fonte pública; depende de dados regionais reais do utilizador
-- **D22** (P4) GBIF filtrado por licença (sem CC BY-NC); licença de cada registo no relatório
+- **D22** (P4) GBIF filtrado por lista de permitidos (só CC0 e CC BY 4.0; o GBIF também tem `UNSPECIFIED` e `UNSUPPORTED`); licença de cada registo no relatório
 - **D23** (P5) O3 mede concordância com *benchmark* sintético; os relatórios di-lo
 
-**Pendente:** testes ao vivo (secção 6 de `data_sources.md`); licença da camada florestal; PROF e corredores ecológicos não localizados
+**Testes ao vivo (2026-10-06):** GBIF devolveu 19 965 ocorrências num polígono de ~3,8 km² (17 146 com licença permitida); facetas por espécie funcionam num só pedido; camada florestal 1562 tem só **209 polígonos** (cabe num pedido: sincronizar para PostGIS); a coleção `0` da OGC API da DGT é `PTP_AIGP` (não é regime florestal)
 
-**Próximo passo:** fechar T0.5, depois T0.6
+**Pendente (passa para a T1.5):** licença da camada florestal (bloqueia a redistribuição); PROF e corredores ecológicos não localizados; confirmar se os 209 polígonos são a cobertura completa
+
+**Próximo passo:** T0.6
 
 ## 6.3 Processo atual (um por vez)
 
 | Campo | Valor |
 |-------|-------|
-| ID | T0.5 |
-| Nome | Auditoria de fontes de dados |
-| Estado | `[~]` documento escrito e decisões aplicadas; faltam os testes ao vivo |
-| Dependências | T0.4 |
-| Checklist | [x] `docs/data_sources.md` · [ ] testes ao vivo (secção 6) · [x] aprovar P1–P5 · [x] aplicar aos docs · [ ] licença da camada florestal |
+| ID | T0.6 |
+| Nome | Sentry + CD de staging |
+| Estado | `[ ]` não iniciado |
+| Dependências | T0.3, T0.4 |
+| Checklist | escolher alojamento do backend (Render ou Fly.io) · Sentry · workflow de deploy · decidir como aplicar as migrações do Supabase (integração GitHub ou Actions) |
 
 ## 6.4 Fila de processos
 
@@ -106,7 +108,7 @@
 | 2 | T0.2 | Ambiente de desenvolvimento | `[x]` |
 | 3 | T0.3 | CI | `[x]` |
 | 4 | T0.4 | Supabase | `[x]` |
-| 5 | T0.5 | Auditoria de fontes de dados | `[~]` |
+| 5 | T0.5 | Auditoria de fontes de dados | `[x]` |
 | 6 | T0.6 | Sentry + CD staging | `[ ]` |
 | 7 | T1.1 | Backend base | `[ ]` |
 
@@ -114,7 +116,7 @@
 
 | Métrica | Atual | Meta MVP |
 |---------|-------|----------|
-| Tarefas de setup concluídas | 4 | 6 |
+| Tarefas de setup concluídas | 5 | 6 |
 | Cobertura de testes | 0% | 70% |
 | Fontes integradas | 0 | 4 |
 | Staging | não | sim |
@@ -132,7 +134,7 @@
 | R7 | Vendor lock-in Supabase | Baixa | Médio | PostgreSQL padrão |
 | R8 | Limite de tamanho de ficheiro do plano Supabase vs. LiDAR de até 5 GB | Média | Médio | Confirmar plano; upload resumível ou Cloudflare R2 |
 | R9 | The Well não tem dados de edifícios/microclima/geografia; F4 e F6 sem base de dados | Alta | Alto | Decisões D20 e D21 (P2 e P3) |
-| R10 | Licença da camada "Regime florestal" por confirmar | Média | Médio | Consultar metadados DGT/SNIG antes de redistribuir |
+| R10 | Licença da camada "Regime florestal" por confirmar | Média | Médio | Bloqueio da T1.5: confirmar com ICNF/DGT antes de redistribuir |
 
 ## 6.7 Modelo de entrada diária (copiar)
 
@@ -151,3 +153,4 @@
 |--------|------|------------|
 | 0.1.0 | 2026-10-06 | Documentação inicial |
 | 0.2.0 | 2026-10-06 | Decisões P1–P5 da auditoria de fontes aplicadas a PRD, arquitetura, Rules e Tasks |
+| 0.2.1 | 2026-10-06 | T0.5 concluída: testes ao vivo registados; regra de licenças do GBIF por lista de permitidos |
