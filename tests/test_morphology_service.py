@@ -36,7 +36,9 @@ def test_morphology_models():
             "type": "Feature",
             "geometry": {
                 "type": "Polygon",
-                "coordinates": [[[0, 0], [0, 100], [100, 100], [100, 0], [0, 0]]],
+                "coordinates": [
+                    [[-9.14, 38.72], [-9.14, 38.73], [-9.13, 38.73], [-9.13, 38.72], [-9.14, 38.72]]
+                ],
             },
         },
         data_source="opendata",
@@ -111,7 +113,9 @@ async def test_morphology_analyze_with_valid_geojson():
             "type": "Feature",
             "geometry": {
                 "type": "Polygon",
-                "coordinates": [[[0, 0], [0, 100], [100, 100], [100, 0], [0, 0]]],
+                "coordinates": [
+                    [[-9.14, 38.72], [-9.14, 38.73], [-9.13, 38.73], [-9.13, 38.72], [-9.14, 38.72]]
+                ],
             },
         },
         data_source="auto",
@@ -178,7 +182,9 @@ async def test_morphology_analyze_different_data_sources():
             "type": "Feature",
             "geometry": {
                 "type": "Polygon",
-                "coordinates": [[[0, 0], [0, 50], [50, 50], [50, 0], [0, 0]]],
+                "coordinates": [
+                    [[-9.14, 38.72], [-9.14, 38.73], [-9.13, 38.73], [-9.13, 38.72], [-9.14, 38.72]]
+                ],
             },
         },
         data_source="opendata",

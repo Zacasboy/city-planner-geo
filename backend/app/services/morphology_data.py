@@ -12,7 +12,7 @@ from shapely.geometry import Point, Polygon
 logger = logging.getLogger(__name__)
 
 MOCK_SEED = 42
-MOCK_GRID_SPACING = 20  # unidades de coordenada entre edifícios
+MOCK_GRID_SPACING = 20  # metros entre edifícios (polígono em EPSG:3763)
 MOCK_WIDTH_RANGE = (8, 20)
 MOCK_LENGTH_RANGE = (8, 25)
 MOCK_HEIGHT_RANGE = (5, 25)
@@ -61,7 +61,8 @@ def generate_mock_buildings(polygon: Polygon) -> list[Building]:
     """Gera edifícios simulados numa grelha dentro do polígono (determinístico).
 
     Args:
-        polygon: Área de análise.
+        polygon: Área de análise em coordenadas métricas (EPSG:3763); os centroides
+            saem nas mesmas coordenadas.
 
     Returns:
         Lista de edifícios com área, altura e pisos.
