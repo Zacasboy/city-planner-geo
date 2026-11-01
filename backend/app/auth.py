@@ -1,6 +1,10 @@
-"""Supabase JWT Authentication
-T1.2: Autenticação: validação JWT Supabase, dependency `get_current_user`
+"""Autenticação por JWT do Supabase.
+
+T1.2: validação do JWT e dependência `get_current_user`.
 """
+
+import logging
+from typing import Annotated, Any
 
 import jwt
 from fastapi import Depends, HTTPException, status
@@ -8,107 +12,66 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from backend.app.config import settings
 
-# HTTP Bearer token scheme
+logger = logging.getLogger(__name__)
+
 security = HTTPBearer()
 
+_UNAUTHORIZED_HEADERS = {"WWW-Authenticate": "Bearer"}
 
-def verify_supabase_jwt(token: str) -> dict:
-    """Verify Supabase JWT token and return user payload.
+
+def _unauthorized(detail: str) -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail=detail,
+        headers=_UNAUTHORIZED_HEADERS,
+    )
+
+
+def verify_supabase_jwt(token: str) -> dict[str, Any]:
+    """Valida um JWT e devolve o seu conteúdo.
+
+    A assinatura é verificada com `SECRET_KEY` (HS256). A passagem para JWKS
+    fica para a decisão pendente da T1.2.
 
     Args:
-        token: JWT token string
+        token: JWT recebido no cabeçalho Authorization.
 
     Returns:
-        dict: Decoded token payload with user information
+        Conteúdo (claims) do token.
 
     Raises:
-        HTTPException: If token is invalid or expired
+        HTTPException: 401 se o token for inválido, expirado ou sem `sub`.
     """
     try:
-        # Decode and verify the JWT
-        # Supabase uses HS256 algorithm with the JWT secret
-        # Note: In production, you should verify the signature using Supabase's JWKS
-        # For development, we're using the secret key approach
-
-        payload = jwt.decode(
+        payload: dict[str, Any] = jwt.decode(
             token,
             settings.SECRET_KEY,
             algorithms=[settings.ALGORITHM],
             options={"verify_exp": True},
         )
+    except jwt.ExpiredSignatureError as exc:
+        raise _unauthorized("Token has expired") from exc
+    except jwt.InvalidTokenError as exc:
+        logger.info("JWT rejeitado: %s", type(exc).__name__)
+        raise _unauthorized("Could not validate credentials") from exc
 
-        # Additional validation: check if token is from Supabase
-        # Supabase tokens typically have 'aud' claim or specific issuer
-        # For now, we'll validate basic structure
-
-        # Check required fields
-        if "sub" not in payload:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token: missing subject",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-
-        # Check token expiration (already handled by jwt.decode with verify_exp=True)
-        # Additional checks can be added here if needed
-
-        return payload
-
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token has expired",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    except jwt.JWTError as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Could not validate credentials: {str(e)}",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    if "sub" not in payload:
+        raise _unauthorized("Invalid token: missing subject")
+    return payload
 
 
-async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
-    """Dependency to get the current authenticated user from Supabase JWT.
-
-    This function will be used in path dependencies like:
-    @app.get("/protected")
-    async def protected_route(current_user: dict = Depends(get_current_user)):
-        ...
+async def get_current_user(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
+) -> dict[str, Any]:
+    """Devolve o utilizador autenticado a partir do JWT do pedido.
 
     Args:
-        credentials: HTTP Authorization credentials from the request
+        credentials: Credenciais Bearer extraídas do pedido.
 
     Returns:
-        dict: User information from the validated JWT token
+        Claims do token validado.
 
     Raises:
-        HTTPException: If authentication fails
+        HTTPException: 401 se a autenticação falhar.
     """
-    token = credentials.credentials
-    user = verify_supabase_jwt(token)
-    return user
-
-
-# Optional: Alternative implementation using Supabase's JWKS for production
-# This is more secure but requires fetching JWKS from Supabase
-"""
-import requests
-import json
-
-def get_supabase_jwks():
-    '''Fetch Supabase JWKS for token verification'''
-    jwks_url = f"{settings.SUPABASE_URL}/.well-known/jwks.json"
-    response = requests.get(jwks_url)
-    response.raise_for_status()
-    return response.json()
-
-def verify_supabase_jwt_production(token: str) -> dict:
-    '''Verify JWT using Supabase JWKS (more secure for production)'''
-    # Implementation would involve:
-    # 1. Fetch JWKS from Supabase
-    # 2. Extract key from token header
-    # 3. Verify signature using the appropriate key
-    # 4. Validate claims
-    pass
-"""
+    return verify_supabase_jwt(credentials.credentials)

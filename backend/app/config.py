@@ -1,62 +1,64 @@
-"""Application configuration using Pydantic Settings
-T1.1: Backend base: FastAPI, config Pydantic, logging, CORS, `/health`
+"""Configuração da aplicação (Pydantic Settings).
+
+T1.1: base do backend com FastAPI, configuração, logging, CORS e `/health`.
 """
 
-from pydantic import Field
-from pydantic_settings import BaseSettings
+from pydantic import Field, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+DEFAULT_CORS_ORIGINS = ["http://localhost:8501"]
+DEFAULT_DGT_REGIME_FLORESTAL_URL = (
+    "https://infogeo.dgterritorio.gov.pt/arcgis/rest/services/Hosted/"
+    "Regime_florestal/FeatureServer/1562"
+)
+DEFAULT_GBIF_USER_AGENT = "city-planner-geo/0.1.0 (https://github.com/city-planner-geo)"
 
 
 class Settings(BaseSettings):
-    """Application settings."""
+    """Definições da aplicação, lidas de variáveis de ambiente e de `.env`."""
 
-    # Application
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        # O `.env.example` tem chaves que ainda não são campos (HF_TOKEN, ...).
+        extra="ignore",
+    )
+
     APP_NAME: str = "City Planner Geo"
     APP_VERSION: str = "0.1.0"
     DEBUG: bool = False
 
-    # Server
-    HOST: str = "0.0.0.0"
+    # Por omissão só escuta localmente; em contentores definir HOST explicitamente.
+    HOST: str = "127.0.0.1"
     PORT: int = 8000
 
-    # CORS
-    BACKEND_CORS_ORIGINS: list = ["*"]
+    # Lista JSON, por exemplo '["https://app.exemplo.pt"]'.
+    BACKEND_CORS_ORIGINS: list[str] = Field(default_factory=lambda: list(DEFAULT_CORS_ORIGINS))
 
-    # Database (Supabase)
-    SUPABASE_URL: str = Field(..., env="SUPABASE_URL")
-    SUPABASE_PUBLISHABLE_KEY: str = Field(..., env="SUPABASE_PUBLISHABLE_KEY")
-    SUPABASE_SECRET_KEY: str = Field(..., env="SUPABASE_SECRET_KEY")
+    SUPABASE_URL: str
+    SUPABASE_PUBLISHABLE_KEY: str
+    SUPABASE_SECRET_KEY: str
 
-    # Redis (for Celery)
-    REDIS_URL: str = Field(default="redis://localhost:6379/0", env="REDIS_URL")
+    REDIS_URL: str = "redis://localhost:6379/0"
 
-    # DGT - Regime Florestal (ArcGIS REST FeatureServer, layer 1562)
-    DGT_REGIME_FLORESTAL_URL: str = Field(
-        default=(
-            "https://infogeo.dgterritorio.gov.pt/arcgis/rest/services/Hosted/"
-            "Regime_florestal/FeatureServer/1562"
-        ),
-        env="DGT_REGIME_FLORESTAL_URL",
-    )
+    DGT_REGIME_FLORESTAL_URL: str = DEFAULT_DGT_REGIME_FLORESTAL_URL
+    GBIF_USER_AGENT: str = DEFAULT_GBIF_USER_AGENT
 
-    # GBIF
-    GBIF_USER_AGENT: str = Field(
-        default="city-planner-geo/0.1.0 (https://github.com/city-planner-geo)",
-        env="GBIF_USER_AGENT",
-    )
-
-    # Security
-    SECRET_KEY: str = Field(..., env="SECRET_KEY")
+    SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     ALGORITHM: str = "HS256"
 
-    # Logging
     LOG_LEVEL: str = "INFO"
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = True
+    @field_validator("BACKEND_CORS_ORIGINS")
+    @classmethod
+    def _reject_wildcard_origin(cls, origins: list[str]) -> list[str]:
+        """Impede `*`, porque a API responde com credenciais (cookies/Authorization)."""
+        if "*" in origins:
+            msg = "BACKEND_CORS_ORIGINS não pode conter '*' (a API usa credenciais)"
+            raise ValueError(msg)
+        return origins
 
 
-# Create settings instance
 settings = Settings()
