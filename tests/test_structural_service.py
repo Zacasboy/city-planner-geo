@@ -1,166 +1,164 @@
-"""
-Tests for structural service with comprehensive analysis tests.
-"""
+"""Testes do motor estrutural contra soluções analíticas fechadas (Rules: engenharia)."""
 
-import os
+import math
 
-# Set environment variables for required settings before importing the module
-os.environ["SUPABASE_URL"] = "http://fake"
-os.environ["SUPABASE_PUBLISHABLE_KEY"] = "fake"
-os.environ["SUPABASE_SECRET_KEY"] = "fake"
-os.environ["SECRET_KEY"] = "fakesecret"
-
-
+import numpy as np
 import pytest
 from pydantic import ValidationError
 
-from backend.app.services.structural_service import BeamRequest, BeamResponse, StructuralService
+from backend.app.services.structural_fem import GRAVITY_MS2, solve_beam
+from backend.app.services.structural_models import BeamRequest
+from backend.app.services.structural_service import StructuralService
+
+E = 210e9
+B, H, L = 0.2, 0.4, 6.0
+INERTIA = B * H**3 / 12
+AREA = B * H
+EI = E * INERTIA
+REL = 1e-5
+PIN_ROLLER = [{"position": 0.0, "type": "pin"}, {"position": L, "type": "roller"}]
 
 
-def test_structural_service_import():
-    """Test that the structural service can be imported."""
-    assert StructuralService is not None
-    assert BeamRequest is not None
-    assert BeamResponse is not None
+def _beam(**overrides: object) -> BeamRequest:
+    data: dict[str, object] = {
+        "length": L,
+        "width": B,
+        "height": H,
+        "youngs_modulus": E,
+        "density": 7850,
+        "yield_stress": 275e6,
+        "supports": PIN_ROLLER,
+        "include_self_weight": False,
+    }
+    data.update(overrides)
+    return BeamRequest.model_validate(data)
 
 
-def test_beam_models():
-    """Test that BeamRequest and BeamResponse models work."""
-    req = BeamRequest(
-        length=5.0,
-        width=0.3,
-        height=0.5,
-        youngs_modulus=200e9,
-        density=7850,
-        yield_stress=250e6,
-        point_loads=[{"position": 2.5, "magnitude": 10000.0}],
-        supports=[{"position": 0.0, "type": "pin"}, {"position": 5.0, "type": "roller"}],
-    )
-    assert req.length == 5.0
-    assert req.width == 0.3
-    assert req.height == 0.5
-    assert req.youngs_modulus == 200e9
-    assert req.density == 7850
-    assert req.yield_stress == 250e6
-    assert len(req.point_loads) == 1
-    assert req.point_loads[0]["position"] == 2.5
-    assert req.point_loads[0]["magnitude"] == 10000.0
-    assert len(req.supports) == 2
-    assert req.supports[0]["position"] == 0.0
-    assert req.supports[0]["type"] == "pin"
-    assert req.supports[1]["position"] == 5.0
-    assert req.supports[1]["type"] == "roller"
-
-    resp = BeamResponse(
-        max_deflection=0.005, max_stress=150e6, utilization_ratio=0.6, details={"analysis": "test"}
-    )
-    assert resp.max_deflection == 0.005
-    assert resp.max_stress == 150e6
-    assert resp.utilization_ratio == 0.6
-    assert resp.details["analysis"] == "test"
+def test_simply_supported_midspan_point_load() -> None:
+    load = 20_000.0
+    r = solve_beam(_beam(point_loads=[{"position": L / 2, "magnitude": load}]))
+    assert r.max_deflection_m == pytest.approx(load * L**3 / (48 * EI), rel=REL)
+    assert r.max_moment_nm == pytest.approx(load * L / 4, rel=REL)
+    assert r.max_shear_n == pytest.approx(load / 2, rel=REL)
+    assert r.reactions_n[0.0] == pytest.approx(load / 2, rel=REL)
+    assert r.reactions_n[L] == pytest.approx(load / 2, rel=REL)
 
 
-@pytest.mark.asyncio
-async def test_analytical_fallback_beam_analysis():
-    """Test beam analysis using analytical formulas (when PyNite unavailable)."""
-    service = StructuralService()
-    # Simple beam: length 5m, width 0.3m, height 0.5m, E=200 GPa, density 7850 kg/m3, yield 250 MPa
-    # Point load 10 kN at midspan (2.5m from left)
-    request = BeamRequest(
-        length=5.0,
-        width=0.3,
-        height=0.5,
-        youngs_modulus=200e9,
-        density=7850,
-        yield_stress=250e6,
-        point_loads=[{"position": 2.5, "magnitude": 10000.0}],
-        supports=[{"position": 0.0, "type": "pin"}, {"position": 5.0, "type": "roller"}],
-    )
+def test_simply_supported_off_centre_point_load() -> None:
+    load, a = 30_000.0, 2.0
+    b = L - a
+    r = solve_beam(_beam(point_loads=[{"position": a, "magnitude": load}]))
 
-    response = await service.analyze_beam(request)
+    x = np.linspace(0, L, 200_001)
+    left = load * b * x * (L**2 - b**2 - x**2) / (6 * EI * L)
+    right = load * a * (L - x) * (2 * L * x - x**2 - a**2) / (6 * EI * L)
+    reference_deflection = np.where(x <= a, left, right).max()
 
-    # Expected values for simply supported beam with point load at midspan:
-    # Max deflection = (P * L^3) / (48 * E * I)
-    # I = b * h^3 / 12 = 0.3 * 0.5^3 / 12 = 0.3 * 0.125 / 12 = 0.0375 / 12 = 0.003125 m^4
-    # Deflection = (10000 * 5^3) / (48 * 200e9 * 0.003125) = (10000 * 125) / (48 * 200e9 * 0.003125)
-    # = 1,250,000 / (48 * 200e9 * 0.003125) = 1,250,000 / (30e6) = 0.0416667 m
-    # Max moment = P * L / 4 = 10000 * 5 / 4 = 12500 Nm
-    # Max stress = (M * c) / I, c = h/2 = 0.25 m
-    # Stress = (12500 * 0.25) / 0.003125 = 3125 / 0.003125 = 1,000,000 Pa = 1.0 MPa
-    # Utilization ratio = stress / yield = 1.0e6 / 250e6 = 0.004
-
-    length = request.length
-    width = request.width
-    height = request.height
-    modulus = request.youngs_modulus
-    inertia = width * height**3 / 12
-    load = request.point_loads[0]["magnitude"]
-    expected_deflection = (load * length**3) / (48 * modulus * inertia)
-    expected_moment = load * length / 4
-    expected_stress = (expected_moment * (height / 2)) / inertia
-    expected_utilization = expected_stress / request.yield_stress
-
-    assert abs(response.max_deflection - expected_deflection) < 1e-6
-    assert abs(response.max_stress - expected_stress) < 1e-6
-    assert abs(response.utilization_ratio - expected_utilization) < 1e-6
-    assert (
-        response.details["analysis_method"]
-        == "Analytical (simply supported beam with point load at midspan)"
-    )
+    assert r.max_deflection_m == pytest.approx(reference_deflection, rel=1e-3)
+    assert r.max_moment_nm == pytest.approx(load * a * b / L, rel=REL)
+    assert r.reactions_n[0.0] == pytest.approx(load * b / L, rel=REL)
+    assert r.reactions_n[L] == pytest.approx(load * a / L, rel=REL)
 
 
-@pytest.mark.asyncio
-async def test_beam_analysis_with_zero_load():
-    """Test beam analysis with zero load returns zero deflection and stress."""
-    service = StructuralService()
-    request = BeamRequest(
-        length=5.0,
-        width=0.3,
-        height=0.5,
-        youngs_modulus=200e9,
-        density=7850,
-        yield_stress=250e6,
-        point_loads=[],  # No loads
-        supports=[{"position": 0.0, "type": "pin"}, {"position": 5.0, "type": "roller"}],
-    )
-
-    response = await service.analyze_beam(request)
-
-    assert response.max_deflection == 0.0
-    assert response.max_stress == 0.0
-    assert response.utilization_ratio == 0.0
-    assert (
-        response.details["analysis_method"]
-        == "Analytical (simply supported beam with point load at midspan)"
-    )
+def test_simply_supported_uniform_load() -> None:
+    w = 12_000.0
+    r = solve_beam(_beam(uniform_load=w))
+    assert r.max_deflection_m == pytest.approx(5 * w * L**4 / (384 * EI), rel=REL)
+    assert r.max_moment_nm == pytest.approx(w * L**2 / 8, rel=REL)
+    assert r.max_shear_n == pytest.approx(w * L / 2, rel=REL)
 
 
-@pytest.mark.asyncio
-async def test_beam_analysis_missing_yield_stress():
-    """Um pedido sem yield_stress é rejeitado pela validação do Pydantic."""
-    with pytest.raises(ValidationError):
-        BeamRequest(
-            length=5.0,
-            width=0.3,
-            height=0.5,
-            youngs_modulus=200e9,
-            density=7850,
-            # yield_stress missing
-            point_loads=[{"position": 2.5, "magnitude": 10000.0}],
-            supports=[{"position": 0.0, "type": "pin"}, {"position": 5.0, "type": "roller"}],
+def test_self_weight_equals_the_equivalent_uniform_load() -> None:
+    w = 7850 * GRAVITY_MS2 * AREA
+    with_self_weight = solve_beam(_beam(include_self_weight=True))
+    equivalent = solve_beam(_beam(uniform_load=w))
+    assert with_self_weight.self_weight_n_per_m == pytest.approx(w)
+    assert with_self_weight.max_deflection_m == pytest.approx(equivalent.max_deflection_m)
+    assert with_self_weight.max_moment_nm == pytest.approx(w * L**2 / 8, rel=REL)
+
+
+def test_cantilever_tip_load() -> None:
+    load = 15_000.0
+    r = solve_beam(
+        _beam(
+            supports=[{"position": 0.0, "type": "fixed"}],
+            point_loads=[{"position": L, "magnitude": load}],
         )
+    )
+    assert r.max_deflection_m == pytest.approx(load * L**3 / (3 * EI), rel=REL)
+    assert r.max_moment_nm == pytest.approx(load * L, rel=REL)
+    assert r.reactions_n[0.0] == pytest.approx(load, rel=REL)
+
+
+def test_overhanging_beam_uniform_load_matches_statics() -> None:
+    w, span = 10_000.0, 4.0
+    r = solve_beam(
+        _beam(
+            supports=[{"position": 0.0, "type": "pin"}, {"position": span, "type": "roller"}],
+            uniform_load=w,
+        )
+    )
+    reaction_right = w * L**2 / (2 * span)
+    assert r.reactions_n[span] == pytest.approx(reaction_right, rel=REL)
+    assert r.reactions_n[0.0] == pytest.approx(w * L - reaction_right, rel=REL)
+    overhang = L - span
+    assert r.max_moment_nm == pytest.approx(w * overhang**2 / 2, rel=REL)
+
+
+def test_two_symmetric_point_loads_superpose() -> None:
+    load, a = 10_000.0, 1.5
+    r = solve_beam(
+        _beam(
+            point_loads=[
+                {"position": a, "magnitude": load},
+                {"position": L - a, "magnitude": load},
+            ]
+        )
+    )
+    assert r.max_moment_nm == pytest.approx(load * a, rel=REL)
+    assert r.max_deflection_m == pytest.approx(
+        load * a * (3 * L**2 - 4 * a**2) / (24 * EI), rel=REL
+    )
+
+
+def test_results_scale_linearly_with_the_load() -> None:
+    one = solve_beam(_beam(point_loads=[{"position": 2.0, "magnitude": 1_000.0}]))
+    two = solve_beam(_beam(point_loads=[{"position": 2.0, "magnitude": 2_000.0}]))
+    assert two.max_deflection_m == pytest.approx(2 * one.max_deflection_m, rel=REL)
+    assert two.max_moment_nm == pytest.approx(2 * one.max_moment_nm, rel=REL)
 
 
 @pytest.mark.asyncio
-async def test_structural_service_init():
-    """Test structural service initialization."""
-    service = StructuralService()
-    assert service is not None
+async def test_service_reports_stress_and_utilisation() -> None:
+    load = 20_000.0
+    response = await StructuralService().analyze_beam(
+        _beam(point_loads=[{"position": L / 2, "magnitude": load}])
+    )
+    stress = (load * L / 4) * (H / 2) / INERTIA
+    assert response.max_stress == pytest.approx(stress, rel=REL)
+    assert response.utilization_ratio == pytest.approx(stress / 275e6, rel=REL)
+    assert response.details["analysis_method"].startswith("FEM")
+    assert "does not replace" in response.details["note"]
+    assert math.isclose(response.details["total_load_n"], load)
 
 
-@pytest.mark.asyncio
-async def test_structural_service_close():
-    """Test that the service can be closed (does nothing)."""
-    service = StructuralService()
-    # Should not raise
-    await service.close()
+@pytest.mark.parametrize(
+    ("overrides", "message"),
+    [
+        ({"point_loads": [{"position": L + 1, "magnitude": 1.0}]}, "outside the beam"),
+        ({"supports": [{"position": 0.0, "type": "pin"}]}, "unstable"),
+        (
+            {"supports": [{"position": 0.0, "type": "roller"}, {"position": L, "type": "roller"}]},
+            "unstable",
+        ),
+        (
+            {"supports": [{"position": 1.0, "type": "pin"}, {"position": 1.0, "type": "roller"}]},
+            "same position",
+        ),
+        ({"supports": []}, "at least 1"),
+        ({"supports": [{"position": 0.0, "type": "spring"}]}, "Input should be"),
+    ],
+)
+def test_invalid_beams_are_rejected(overrides: dict[str, object], message: str) -> None:
+    with pytest.raises(ValidationError, match=message):
+        _beam(**overrides)

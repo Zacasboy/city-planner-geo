@@ -113,6 +113,7 @@ def test_structural_page_shows_backend_results() -> None:
         app.button[0].click().run()
     assert not app.exception
     assert post.call_args.kwargs["json"]["youngs_modulus"] == 200e9
+    assert post.call_args.kwargs["json"]["include_self_weight"] is True
     assert [m.value for m in app.metric][0] == "41.70 mm"
 
 

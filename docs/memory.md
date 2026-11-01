@@ -105,11 +105,12 @@
 - **D26** Estado de tarefas só em cache quando final (SUCCESS/FAILURE)
 - **D27** Áreas fora da zona de validade do EPSG:3763 são rejeitadas em vez de calculadas com distorção; Angola exige outra projeção (P6–P10)
 - **D28** Staging: backend no Render (Docker, deploy automático do `develop` depois de o CI passar), frontend no Streamlit Community Cloud, Sentry sem PII; migrações do Supabase aplicadas à mão com `supabase db push` até haver necessidade de automatizar
+- **D29** Estrutural: motor FEM (PyNite) para viga de secção retangular em flexão plana, peso próprio incluído por defeito; validado só contra soluções analíticas. A comparação com o TimoDS (O3) exige descarregar os CSV do Zenodo e conhecer as colunas
 
 **Pendente**
 - Verificar o login com o Supabase real (`iss`/`aud`); limite de pedidos (`slowapi`) por decidir
 - Painel florestal com dados reais; relatório PDF com contexto ecológico
-- Estrutural só analítico (sem FEM, apoios e peso próprio ignorados); licença DGT; PROF; T0.6; PR #11 (Angola) e decisões P6–P10 por aprovar
+- Estrutural: falta validar com o TimoDS e suportar perfis IPE/HEA/HEB; licença DGT; PROF; T0.6; PR #11 (Angola) e decisões P6–P10 por aprovar
 
 **Próximo passo:** T0.6 (Sentry + CD) ou T1.6 (FEM/TimoDS)
 - Última alteração: 2026-11-01 (fim do dia)
