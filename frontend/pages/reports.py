@@ -28,7 +28,10 @@ def _generate_report(beam_data: dict[str, Any]) -> None:
     try:
         with st.spinner("Generating report..."):
             analysis = requests.post(
-                f"{backend_url()}/structural/beam", json=beam_data, timeout=REQUEST_TIMEOUT_S
+                f"{backend_url()}/structural/beam",
+                json=beam_data,
+                headers=auth_headers(),
+                timeout=REQUEST_TIMEOUT_S,
             )
             if analysis.status_code != requests.codes.ok:
                 st.error(f"Analysis failed: {analysis.status_code} - {analysis.text}")

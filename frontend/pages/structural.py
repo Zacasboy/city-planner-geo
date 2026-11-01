@@ -9,7 +9,7 @@ import requests
 import streamlit as st
 
 from frontend.components.disclaimer_banner import render_disclaimer_banner
-from frontend.components.settings import REQUEST_TIMEOUT_S, backend_url
+from frontend.components.settings import REQUEST_TIMEOUT_S, auth_headers, backend_url
 from frontend.components.sidebar import render_sidebar
 
 GPA_TO_PA = 1e9
@@ -51,7 +51,10 @@ def _analyze(beam_data: dict[str, Any]) -> None:
     try:
         with st.spinner("Analyzing beam..."):
             response = requests.post(
-                f"{backend_url()}/structural/beam", json=beam_data, timeout=REQUEST_TIMEOUT_S
+                f"{backend_url()}/structural/beam",
+                json=beam_data,
+                headers=auth_headers(),
+                timeout=REQUEST_TIMEOUT_S,
             )
     except requests.exceptions.ConnectionError:
         st.error("Could not connect to backend. Please ensure the backend is running.")
