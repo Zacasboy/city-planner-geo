@@ -122,8 +122,8 @@ with st.form("beam_analysis_form"):
 
     st.subheader("Loads and Supports")
     st.info(
-        "For simplicity, this version assumes a single point load at midspan "
-        "and simple supports at both ends."
+        "This form uses a single point load at midspan and simple supports at both ends. "
+        "The calculation (finite elements) also accepts other loads and supports through the API."
     )
     point_load_kn = st.number_input(
         "Point Load (kN)",
@@ -131,6 +131,12 @@ with st.form("beam_analysis_form"):
         value=10.0,
         step=0.5,
         help="Point load applied at midspan (positive downward)",
+    )
+
+    include_self_weight = st.checkbox(
+        "Include the beam's self weight",
+        value=True,
+        help="Adds density x gravity x cross-section area as a uniform load",
     )
 
     submitted = st.form_submit_button("Analyze Beam", type="primary")
@@ -144,6 +150,7 @@ if submitted:
             "youngs_modulus": youngs_modulus_gpa * GPA_TO_PA,
             "density": density,
             "yield_stress": yield_stress_mpa * MPA_TO_PA,
+            "include_self_weight": include_self_weight,
             "point_loads": [{"position": length / 2, "magnitude": point_load_kn * KN_TO_N}],
             "supports": [
                 {"position": 0.0, "type": "pin"},

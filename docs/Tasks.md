@@ -16,7 +16,7 @@
 - [x] **T1.3** Serviço Geo: `POST /geo/validate`, conversões 4326↔3763, testes
 - [x] **T1.4** Serviço Ecológico (GBIF) com cache e testes mock; filtro de licenças (só CC0 e CC BY), lista de espécies por facetas (`speciesKey`; nomes via `/species/{key}` por verificar), `User-Agent`, backoff em HTTP 429, polígono anti-horário — `POST /ecology/area-species` (cache 24 h, retry)
 - [x] **T1.5** Serviço Florestal (DGT, camada 1562 com 209 polígonos: avaliar sincronizar para o PostGIS em vez de consultar ao vivo; **confirmar a licença antes de redistribuir**) — `POST /forest/overlap`
-- [~] **T1.6** Serviço Estrutural: viga de aço, `POST /structural/beam` (só cálculo analítico de viga simplesmente apoiada, cargas pontuais a meio vão, sem peso próprio; falta PyNite/FEM e validação com TimoDS, ver PRD 1.7)
+- [~] **T1.6** Serviço Estrutural: viga de aço, `POST /structural/beam` (FEM com PyNite: apoios `pin`/`roller`/`fixed`, cargas pontuais, carga uniforme e peso próprio, validado contra 8 soluções analíticas; falta a validação com o benchmark TimoDS e perfis IPE/HEA/HEB, ver PRD 1.7)
 - [x] **T1.7** Orquestração: Celery + Redis, modelo de tarefa, estado/progresso em `/orchestration` (tarefas com dono; 404 para quem não é dono)
 - [x] **T1.8** Frontend base: `app.py`, multipage, login, sidebar, `DisclaimerBanner`
 - [x] **T1.9** `MapSelector` (desenho de polígono, validação, envio) (usado pelo painel ecológico; `send_polygon_to_backend` da página Geo ainda é simulado)

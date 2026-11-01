@@ -68,7 +68,7 @@ plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
 # Sem stubs nem py.typed.
-module = ["celery.*", "weasyprint.*", "streamlit_folium.*"]
+module = ["celery.*", "weasyprint.*", "streamlit_folium.*", "Pynite.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
