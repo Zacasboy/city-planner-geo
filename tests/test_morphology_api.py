@@ -51,7 +51,9 @@ def test_morphology_rejects_invalid_geojson(
     assert response.status_code == 400
 
 
-def test_structural_beam_endpoint_matches_closed_form() -> None:
+def test_structural_beam_endpoint_matches_closed_form(
+    auth_headers: Callable[[str], dict[str, str]],
+) -> None:
     body = {
         "length": 5.0,
         "width": 0.3,
@@ -62,7 +64,7 @@ def test_structural_beam_endpoint_matches_closed_form() -> None:
         "point_loads": [{"position": 2.5, "magnitude": 10000.0}],
         "supports": [{"position": 0.0, "type": "pin"}, {"position": 5.0, "type": "roller"}],
     }
-    response = TestClient(app).post("/structural/beam", json=body)
+    response = TestClient(app).post("/structural/beam", json=body, headers=auth_headers("user-1"))
     assert response.status_code == 200
     result = response.json()
     assert result["max_deflection"] == pytest.approx(10000 * 5**3 / (48 * 200e9 * 0.003125))

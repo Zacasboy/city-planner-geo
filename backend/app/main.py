@@ -18,7 +18,7 @@ from fastapi.responses import JSONResponse, Response
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from backend.app.api import morphology, reports
-from backend.app.auth import get_current_user
+from backend.app.auth import get_current_user, get_current_user_id
 from backend.app.config import settings
 from backend.app.services.ecology_service import router as ecology_router
 from backend.app.services.forest_service import router as forest_router
@@ -192,10 +192,14 @@ async def root() -> dict[str, str]:
     }
 
 
-app.include_router(geo_router, prefix="/geo", tags=["geo"])
-app.include_router(ecology_router, prefix="/ecology", tags=["ecology"])
-app.include_router(forest_router, prefix="/forest", tags=["forest"])
-app.include_router(structural_router, prefix="/structural", tags=["structural"])
+PROTECTED = [Depends(get_current_user_id)]
+
+app.include_router(geo_router, prefix="/geo", tags=["geo"], dependencies=PROTECTED)
+app.include_router(ecology_router, prefix="/ecology", tags=["ecology"], dependencies=PROTECTED)
+app.include_router(forest_router, prefix="/forest", tags=["forest"], dependencies=PROTECTED)
+app.include_router(
+    structural_router, prefix="/structural", tags=["structural"], dependencies=PROTECTED
+)
 app.include_router(morphology.router)
 app.include_router(reports.router)
 app.include_router(orchestration_router, prefix="/orchestration", tags=["orchestration"])

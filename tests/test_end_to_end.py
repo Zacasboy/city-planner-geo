@@ -34,7 +34,7 @@ def test_health_endpoint():
     assert data["status"] == "healthy"
 
 
-def test_structural_analysis_endpoint():
+def test_structural_analysis_endpoint(auth_headers):
     """Test the structural analysis endpoint with sample data."""
     # Sample beam data
     beam_data = {
@@ -48,7 +48,7 @@ def test_structural_analysis_endpoint():
         "supports": [{"position": 0.0, "type": "pin"}, {"position": 5.0, "type": "roller"}],
     }
 
-    response = client.post("/structural/beam", json=beam_data)
+    response = client.post("/structural/beam", json=beam_data, headers=auth_headers("user-1"))
     assert response.status_code == 200
 
     data = response.json()
@@ -116,7 +116,7 @@ def test_reports_endpoint_structural():
         assert get_response.status_code in [200, 401, 403, 404]
 
 
-def test_complete_workflow_simulation():
+def test_complete_workflow_simulation(auth_headers):
     """
     Simulate a complete user workflow:
     1. Check health
@@ -140,7 +140,9 @@ def test_complete_workflow_simulation():
         "supports": [{"position": 0.0, "type": "pin"}, {"position": 6.0, "type": "roller"}],
     }
 
-    analysis_response = client.post("/structural/beam", json=beam_data)
+    analysis_response = client.post(
+        "/structural/beam", json=beam_data, headers=auth_headers("user-1")
+    )
     # Accept success or auth errors
     assert analysis_response.status_code in [200, 401, 403]
 
