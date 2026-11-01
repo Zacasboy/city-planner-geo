@@ -88,8 +88,9 @@ O regime florestal existe noutro serviço, **ArcGIS REST FeatureServer** (não O
   1. É um conjunto **sintético**: valida o nosso motor contra *outro software de elementos finitos*, não contra ensaios reais.
   2. Só tem cargas **unitárias**: cargas reais exigem sobreposição; o objetivo O3 (< 5%) mede concordância com este *benchmark*.
   3. Apoios elásticos gerais: apoios simples ou encastrados do PyNite têm de ser mapeados para rigidezes (livre ↔ quase encastrado).
-  4. O repositório do pipeline indicado no registo parece ser um marcador de posição (`yourusername`) ❓: não contar com ele.
-  5. Não substitui a verificação normativa (Eurocódigos).
+  4. A descrição do registo ainda mostra um marcador (`yourusername`), mas os metadados apontam para um repositório real, https://github.com/YDERRAZI/TimoDS_pipeline ✅ (não consultado a partir do ambiente de desenvolvimento).
+  5. Convenções deduzidas dos dados (unidades kN e m; `Lcase` 1 a 6 = Fx, Fy, Fz, Mx, My, Mz unitários em `a·L`; molas `k_*`/`c_*` nos extremos A e B; vigas de Timoshenko): ver `backend/app/services/timods_benchmark.py`.
+  6. Não substitui a verificação normativa (Eurocódigos).
 
 ## 5. The Well
 
