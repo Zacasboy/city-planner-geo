@@ -11,22 +11,22 @@
 - [ ] **T0.6** Configurar Sentry e CD para staging
 
 ## Fase 1 — MVP
-- [ ] **T1.1** Backend base: FastAPI, config Pydantic, logging, CORS, `/health`
-- [ ] **T1.2** Autenticação: validação JWT Supabase, dependency `get_current_user`
-- [ ] **T1.3** Serviço Geo: `POST /geo/validate`, conversões 4326↔3763, testes
-- [ ] **T1.4** Serviço Ecológico (GBIF) com cache e testes mock; filtro de licenças (só CC0 e CC BY), lista de espécies por facetas (`speciesKey`; nomes via `/species/{key}` por verificar), `User-Agent`, backoff em HTTP 429, polígono anti-horário — `POST /ecology/species`
-- [ ] **T1.5** Serviço Florestal (DGT, camada 1562 com 209 polígonos: avaliar sincronizar para o PostGIS em vez de consultar ao vivo; **confirmar a licença antes de redistribuir**) — `POST /forest/overlap`
-- [ ] **T1.6** Serviço Estrutural: viga de aço com PyNite + validação com casos analíticos e TimoDS (*benchmark* sintético, ver PRD 1.7) — `POST /structural/beam`
-- [ ] **T1.7** Orquestração: Celery + Redis, modelo de tarefa, `GET /analysis/{id}` com estado/progresso
-- [ ] **T1.8** Frontend base: `app.py`, multipage, login, sidebar, `DisclaimerBanner`
-- [ ] **T1.9** `MapSelector` (desenho de polígono, validação, envio)
-- [ ] **T1.10** Dashboards ecológico/florestal e `ProgressTracker`
-- [ ] **T1.11** Vista estrutural (formulário + resultados)
-- [ ] **T1.12** Relatório PDF (Jinja2 + WeasyPrint, com fontes, licenças e o aviso do PRD 1.7; upload a Storage, `GET /reports/{id}`)
+- [x] **T1.1** Backend base: FastAPI, config Pydantic, logging, CORS, `/health` (CORS restrito por defeito a `http://localhost:8501`, `*` rejeitado; `HOST` 127.0.0.1)
+- [x] **T1.2** Autenticação: validação JWT Supabase (JWKS ES256/RS256 e HS256; `exp`, `sub`, `aud`, `iss` obrigatórios), dependency `get_current_user`; exigida em `/geo`, `/ecology`, `/forest`, `/structural`, `/morphology`, `/reports`, `/orchestration` (falta verificar o login com o Supabase real; limite de pedidos por fazer)
+- [x] **T1.3** Serviço Geo: `POST /geo/validate`, conversões 4326↔3763, testes
+- [x] **T1.4** Serviço Ecológico (GBIF) com cache e testes mock; filtro de licenças (só CC0 e CC BY), lista de espécies por facetas (`speciesKey`; nomes via `/species/{key}` por verificar), `User-Agent`, backoff em HTTP 429, polígono anti-horário — `POST /ecology/area-species` (cache 24 h, retry)
+- [x] **T1.5** Serviço Florestal (DGT, camada 1562 com 209 polígonos: avaliar sincronizar para o PostGIS em vez de consultar ao vivo; **confirmar a licença antes de redistribuir**) — `POST /forest/overlap`
+- [~] **T1.6** Serviço Estrutural: viga de aço, `POST /structural/beam` (só cálculo analítico de viga simplesmente apoiada, cargas pontuais a meio vão, sem peso próprio; falta PyNite/FEM e validação com TimoDS, ver PRD 1.7)
+- [x] **T1.7** Orquestração: Celery + Redis, modelo de tarefa, estado/progresso em `/orchestration` (tarefas com dono; 404 para quem não é dono)
+- [x] **T1.8** Frontend base: `app.py`, multipage, login, sidebar, `DisclaimerBanner`
+- [x] **T1.9** `MapSelector` (desenho de polígono, validação, envio) (usado pelo painel ecológico; `send_polygon_to_backend` da página Geo ainda é simulado)
+- [~] **T1.10** Dashboards ecológico/florestal e `ProgressTracker` (ecológico com dados reais do GBIF via `/ecology/area-species`; florestal ainda com dados de exemplo)
+- [x] **T1.11** Vista estrutural (formulário + resultados)
+- [x] **T1.12** Relatório PDF (Jinja2 + WeasyPrint, com fontes, licenças e o aviso do PRD 1.7; upload a Storage, `GET /reports/{id}`; ficheiros em `<user_id>/<report_id>.pdf`, só o dono acede; ainda sem contexto ecológico)
 - [ ] **T1.13** Teste end-to-end e deploy em staging
 
 ## Fase 2 — v1.0
-- [ ] **T2.1** Morfologia: OpenBuildingMap/DBSM + métricas (densidade, altura, ocupação)
+- [~] **T2.1** Morfologia: OpenBuildingMap/DBSM + métricas (densidade, altura, ocupação) (`POST /morphology/analyze` com edifícios simulados; área em m² via EPSG:3763, só Portugal continental; falta OpenBuildingMap/DBSM)
 - [ ] **T2.2** Classificação morfológica (UMCC)
 - [ ] **T2.3** Catálogo de materiais + `GET /materials/suggest`
 - [ ] **T2.4** Quantidades IFC (IfcOpenShell; LivingBIM/IFC-Bench)
@@ -45,5 +45,7 @@
 ## Fase 4 — v2.0
 - [ ] **T4.1** Expansão UE (DBSM) e adaptação por país
 - [ ] **T4.2** Fontes opcionais: STEEL-3dPointClouds, Bridge Datasets, EarthworkSat-7K, LUPAN, BuildingWorld, SUM4Re
+
+**Estado (2026-11-01):** CI (`checks`) verde, 199 testes, cobertura ≥ 85%. Pendentes: T0.6, T1.6 (FEM/TimoDS), T1.13, painel florestal real, licença DGT.
 
 **Cadeia de dependências:** T0.1→T0.2→T0.3→T0.4→T0.5→T0.6 → T1.1→…→T1.13 → T2.1→…→T2.8 → T3.1→…→T3.5 → T4.1→T4.2

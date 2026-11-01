@@ -6,12 +6,12 @@
 
 | Campo | Valor |
 |-------|-------|
-| Última alteração | 2026-10-06 (fim do dia) |
-| Fase | Fase 0 — Setup |
-| Versão | 0.1.0 (documentação) |
-| Processo ativo | Nenhum (próximo: T0.6) |
+| Última alteração | 2026-11-01 (fim do dia) |
+| Fase | Fase 1 — MVP (T1.1–T1.12 implementadas, com ressalvas) |
+| Versão | 0.3.0 |
+| Processo ativo | Nenhum (próximo: T0.6 ou T1.6 FEM/TimoDS) |
 | Bloqueios | Nenhum |
-| Risco principal | Fontes externas por verificar (licenças, limites, cobertura) |
+| Risco principal | Cálculo estrutural simplificado; login por verificar com o Supabase real; licença da camada DGT |
 
 ## 6.2 Registo diário
 
@@ -90,6 +90,29 @@
 
 **Próximo passo:** T0.6
 
+### 2026-11-01 (domingo)
+- [x] CI `checks` verde (ruff, black, mypy strict, pytest): 199 testes, cobertura ≥ 85% (PR #12)
+- [x] Backend T1.1–T1.7, frontend T1.8–T1.11 e relatório T1.12 implementados; T2.1 (morfologia) com dados simulados
+- [x] Autorização (PR #13): relatórios em `<user_id>/<report_id>.pdf`, tarefas Celery com dono, `report_id` UUID, erros 500 genéricos
+- [x] JWT Supabase (PR #13): JWKS (ES256/RS256) e HS256, `exp`/`sub`/`aud`/`iss` obrigatórios, JWKS indisponível → 503
+- [x] Rotas `/geo`, `/ecology`, `/forest`, `/structural` autenticadas (PR #14)
+- [x] Morfologia: área em m² via EPSG:3763, 400 fora de Portugal continental (PR #15, R1)
+- [x] Painel ecológico ligado a `POST /ecology/area-species`: primeiro resultado real para o objetivo O2
+
+**Decisões**
+- **D24** CORS restrito por defeito; `*` rejeitado na configuração
+- **D25** O algoritmo do cabeçalho do JWT só escolhe a fonte da chave (evita confusão de algoritmos)
+- **D26** Estado de tarefas só em cache quando final (SUCCESS/FAILURE)
+- **D27** Áreas fora da zona de validade do EPSG:3763 são rejeitadas em vez de calculadas com distorção; Angola exige outra projeção (P6–P10)
+
+**Pendente**
+- Verificar o login com o Supabase real (`iss`/`aud`); limite de pedidos (`slowapi`) por decidir
+- Painel florestal com dados reais; relatório PDF com contexto ecológico
+- Estrutural só analítico (sem FEM, apoios e peso próprio ignorados); licença DGT; PROF; T0.6; PR #11 (Angola) e decisões P6–P10 por aprovar
+
+**Próximo passo:** T0.6 (Sentry + CD) ou T1.6 (FEM/TimoDS)
+- Última alteração: 2026-11-01 (fim do dia)
+
 ## 6.3 Processo atual (um por vez)
 
 | Campo | Valor |
@@ -110,15 +133,17 @@
 | 4 | T0.4 | Supabase | `[x]` |
 | 5 | T0.5 | Auditoria de fontes de dados | `[x]` |
 | 6 | T0.6 | Sentry + CD staging | `[ ]` |
-| 7 | T1.1 | Backend base | `[ ]` |
+| 7 | T1.6 | Estrutural: FEM e TimoDS | `[~]` |
+| 8 | T1.10 | Painel florestal real | `[~]` |
+| 9 | T1.13 | E2E e staging | `[ ]` |
 
 ## 6.5 Métricas
 
 | Métrica | Atual | Meta MVP |
 |---------|-------|----------|
 | Tarefas de setup concluídas | 5 | 6 |
-| Cobertura de testes | 0% | 70% |
-| Fontes integradas | 0 | 4 |
+| Cobertura de testes | ≥ 85% (199 testes) | 70% |
+| Fontes integradas | 2 (GBIF, DGT; TimoDS por validar) | 4 |
 | Staging | não | sim |
 
 ## 6.6 Riscos
@@ -135,6 +160,8 @@
 | R8 | Limite de tamanho de ficheiro do plano Supabase vs. LiDAR de até 5 GB | Média | Médio | Confirmar plano; upload resumível ou Cloudflare R2 |
 | R9 | The Well não tem dados de edifícios/microclima/geografia; F4 e F6 sem base de dados | Alta | Alto | Decisões D20 e D21 (P2 e P3) |
 | R10 | Licença da camada "Regime florestal" por confirmar | Média | Médio | Bloqueio da T1.5: confirmar com ICNF/DGT antes de redistribuir |
+| R11 | Cálculo estrutural simplificado pode ser lido como dimensionamento | Média | Alto | Aviso obrigatório; FEM e TimoDS na T1.6 |
+| R12 | Sem limite de pedidos nas rotas autenticadas | Média | Médio | Avaliar `slowapi` (nova dependência) |
 
 ## 6.7 Modelo de entrada diária (copiar)
 
@@ -154,3 +181,4 @@
 | 0.1.0 | 2026-10-06 | Documentação inicial |
 | 0.2.0 | 2026-10-06 | Decisões P1–P5 da auditoria de fontes aplicadas a PRD, arquitetura, Rules e Tasks |
 | 0.2.1 | 2026-10-06 | T0.5 concluída: testes ao vivo registados; regra de licenças do GBIF por lista de permitidos |
+| 0.3.0 | 2026-11-01 | Estado após T1.1–T1.12 e T2.1 (parcial): CI verde, autorização, JWT, rotas autenticadas, morfologia em m², painel ecológico real |
