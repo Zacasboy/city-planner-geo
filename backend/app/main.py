@@ -17,13 +17,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from backend.app.api import reports
+from backend.app.api import morphology, reports
 from backend.app.auth import get_current_user
 from backend.app.config import settings
 from backend.app.services.ecology_service import router as ecology_router
 from backend.app.services.forest_service import router as forest_router
 from backend.app.services.geo_service import router as geo_router
-from backend.app.services.morphology_service import router as morphology_router
 from backend.app.services.orchestration_service import router as orchestration_router
 from backend.app.services.structural_service import router as structural_router
 
@@ -197,7 +196,7 @@ app.include_router(geo_router, prefix="/geo", tags=["geo"])
 app.include_router(ecology_router, prefix="/ecology", tags=["ecology"])
 app.include_router(forest_router, prefix="/forest", tags=["forest"])
 app.include_router(structural_router, prefix="/structural", tags=["structural"])
-app.include_router(morphology_router, prefix="/morphology", tags=["morphology"])
+app.include_router(morphology.router)
 app.include_router(reports.router)
 app.include_router(orchestration_router, prefix="/orchestration", tags=["orchestration"])
 
