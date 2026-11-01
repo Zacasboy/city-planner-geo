@@ -144,3 +144,18 @@ def test_geojson_helpers() -> None:
     assert extract_polygon(feature) is not None
     assert extract_polygon({"type": "FeatureCollection", "features": []}) is None
     assert extract_polygon({"type": "Feature", "geometry": None}) is None
+
+
+def test_polygon_projection_gives_square_metres() -> None:
+    from backend.app.services.geo_utils import polygon_wgs84_to_tm06
+
+    block = Polygon([(-9.14, 38.72), (-9.14, 38.73), (-9.13, 38.73), (-9.13, 38.72)])
+    projected = polygon_wgs84_to_tm06(block)
+    assert 0.9e6 < projected.area < 1.0e6  # ~0,0087° x 0,011° ≈ 0,96 km²
+
+
+def test_polygon_projection_rejects_degrees_outside_portugal() -> None:
+    from backend.app.services.geo_utils import polygon_wgs84_to_tm06
+
+    with pytest.raises(ValueError, match="EPSG:3763"):
+        polygon_wgs84_to_tm06(Polygon([(0, 0), (0, 100), (100, 100), (100, 0)]))

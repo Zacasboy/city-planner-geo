@@ -4,6 +4,8 @@ from collections.abc import Callable
 
 import pytest
 from fastapi.testclient import TestClient
+from pyproj import Geod
+from shapely.geometry import shape
 
 from backend.app.main import app
 
@@ -11,9 +13,35 @@ SQUARE_FEATURE = {
     "type": "Feature",
     "geometry": {
         "type": "Polygon",
-        "coordinates": [[[0, 0], [0, 100], [100, 100], [100, 0], [0, 0]]],
+        "coordinates": [
+            [[-9.14, 38.72], [-9.14, 38.73], [-9.13, 38.73], [-9.13, 38.72], [-9.14, 38.72]]
+        ],
     },
 }
+
+
+LISBON_BLOCK_AREA_M2 = abs(
+    Geod(ellps="GRS80").geometry_area_perimeter(shape(SQUARE_FEATURE["geometry"]))[0]
+)
+
+
+def test_morphology_rejects_area_outside_portugal(
+    auth_headers: Callable[[str], dict[str, str]],
+) -> None:
+    luanda = {
+        "type": "Feature",
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [[13.20, -8.85], [13.20, -8.84], [13.21, -8.84], [13.21, -8.85], [13.20, -8.85]]
+            ],
+        },
+    }
+    response = TestClient(app).post(
+        "/morphology/analyze", json={"geojson": luanda}, headers=auth_headers("user-1")
+    )
+    assert response.status_code == 400
+    assert "EPSG:3763" in response.json()["error"]["message"]
 
 
 def test_morphology_route_is_registered_once() -> None:
@@ -37,7 +65,11 @@ def test_morphology_returns_serialisable_metrics_with_samples(
     )
     assert response.status_code == 200
     body = response.json()
-    assert body["analysis_area_m2"] == 10_000
+    assert body["analysis_area_m2"] == pytest.approx(LISBON_BLOCK_AREA_M2, rel=1e-3)
+    for sample in body["details"]["building_samples"]:
+        lng, lat = sample["centroid"]
+        assert -9.14 < lng < -9.13
+        assert 38.72 < lat < 38.73
     assert body["building_count"] > 0
     assert len(body["details"]["building_samples"]) <= 5
 

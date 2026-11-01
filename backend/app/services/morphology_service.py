@@ -11,6 +11,7 @@ from fastapi import HTTPException, status
 from shapely.geometry import Polygon
 
 from backend.app.services import morphology_metrics as metrics
+from backend.app.services.geo_utils import point_tm06_to_wgs84, polygon_wgs84_to_tm06
 from backend.app.services.morphology_data import (
     Building,
     extract_polygon,
@@ -57,7 +58,13 @@ class MorphologyService:
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="Could not extract valid polygon from GeoJSON",
                 )
-            return self._analyze_polygon(polygon, request)
+            try:
+                polygon_m = polygon_wgs84_to_tm06(polygon)
+            except ValueError as exc:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
+                ) from exc
+            return self._analyze_polygon(polygon_m, request)
         except HTTPException:
             raise
         except Exception as e:
@@ -67,9 +74,14 @@ class MorphologyService:
                 detail=f"Morphology analysis failed: {e}",
             ) from e
 
-    def _analyze_polygon(self, polygon: Polygon, request: MorphologyRequest) -> MorphologyResponse:
-        area_m2 = polygon.area
-        buildings: list[Building] = generate_mock_buildings(polygon)
+    def _analyze_polygon(
+        self, polygon_m: Polygon, request: MorphologyRequest
+    ) -> MorphologyResponse:
+        """Analisa um polígono já projetado em EPSG:3763 (metros); a API devolve WGS84."""
+        area_m2 = polygon_m.area
+        buildings: list[Building] = generate_mock_buildings(polygon_m)
+        for building in buildings:
+            building["centroid"] = list(point_tm06_to_wgs84(*building["centroid"]))
 
         details: dict[str, Any] = {
             "analysis_area_m2": area_m2,
