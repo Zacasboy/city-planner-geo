@@ -1,49 +1,71 @@
 """Painel ecológico.
 
-T1.10: dashboards ecológico/florestal e ProgressTracker.
+T1.10: dashboard ecológico com dados reais do GBIF (objetivo O2).
 """
+
+from typing import Any
 
 import pandas as pd
 import streamlit as st
 
 from frontend.components.disclaimer_banner import render_disclaimer_banner
-from frontend.components.progress_tracker import render_progress_tracker
+from frontend.components.ecology_client import fetch_area_species
+from frontend.components.map_selector import render_map_selector, validate_polygon
 from frontend.components.sidebar import render_sidebar
 
+RESULT_KEY = "ecology_result"
+CHART_TOP_N = 15
+
 st.title("🌱 Ecological Dashboard")
-st.info("Sample data: this dashboard is not connected to the backend yet.")
+st.write("Draw a polygon to list the species recorded in the area (source: GBIF).")
 
-# Mock data for ecological dashboard
-# In a real app, this would come from backend API or analysis results
-st.subheader("Species Diversity Overview")
 
-# Mock species counts data
-species_data = pd.DataFrame(
-    {
-        "Species Group": ["Birds", "Mammals", "Insects", "Plants", "Fungi"],
-        "Count": [120, 85, 340, 210, 45],
-    }
-)
+def _render_result(data: dict[str, Any]) -> None:
+    species = pd.DataFrame(data["species"])
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Species found", len(species))
+    col2.metric("Records used", data["total_records"])
+    col3.metric("Records excluded (license)", data["records_excluded_by_license"])
+    if species.empty:
+        st.info("No allowed-license records found in this area.")
+    else:
+        top = species.head(CHART_TOP_N).set_index("scientific_name")["records"]
+        st.subheader(f"Top {min(CHART_TOP_N, len(species))} species by records")
+        st.bar_chart(top)
+        st.dataframe(
+            species[["scientific_name", "records"]],
+            hide_index=True,
+            width="stretch",
+        )
+    st.caption(
+        "Only records licensed "
+        + " / ".join(data["allowed_licenses"])
+        + ". Counts show observation effort, not abundance."
+    )
+    for note in data["notes"]:
+        st.caption(note)
 
-st.bar_chart(species_data.set_index("Species Group"))
 
-# Mock habitat quality metrics
-st.subheader("Habitat Quality Indicators")
-col1, col2, col3 = st.columns(3)
-with col1:
-    st.metric("Air Quality Index", "45", "Good")
-with col2:
-    st.metric("Water pH", "7.2", "Optimal")
-with col3:
-    st.metric("Soil Nitrogen", "2.1%", "Adequate")
+polygon = render_map_selector(key="ecology_map")
 
-# Progress tracker for ecological analysis steps
-st.subheader("Analysis Progress")
-steps = ["Data Collection", "Species Identification", "Habitat Assessment", "Analysis Complete"]
-# Simulate current step (in a real app, this would come from backend or session state)
-current_step = 2  # 0-based index, so step 2 = Habitat Assessment
-render_progress_tracker(steps, current_step)
+if polygon is None:
+    st.info("Please draw a polygon on the map to select an area.")
+else:
+    is_valid, error_msg = validate_polygon(polygon)
+    if not is_valid:
+        st.error(f"Invalid polygon: {error_msg}")
+    else:
+        if st.button("Query species in this area", type="primary"):
+            with st.spinner("Querying GBIF..."):
+                data, error = fetch_area_species(polygon)
+            if error:
+                st.session_state.pop(RESULT_KEY, None)
+                st.error(error)
+            else:
+                st.session_state[RESULT_KEY] = {"polygon": polygon, "data": data}
+        stored = st.session_state.get(RESULT_KEY)
+        if stored and stored["polygon"] == polygon:
+            _render_result(stored["data"])
 
-# Render sidebar and disclaimer
 render_sidebar()
 render_disclaimer_banner()
