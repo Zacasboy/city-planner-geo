@@ -4,6 +4,7 @@ T1.2: validação do JWT e dependência `get_current_user`.
 """
 
 import logging
+import re
 from typing import Annotated, Any
 
 import jwt
@@ -17,6 +18,9 @@ logger = logging.getLogger(__name__)
 security = HTTPBearer()
 
 _UNAUTHORIZED_HEADERS = {"WWW-Authenticate": "Bearer"}
+
+# O `sub` entra em caminhos do Storage e em chaves do Redis: só caracteres seguros.
+USER_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,128}$")
 
 
 def _unauthorized(detail: str) -> HTTPException:
@@ -75,3 +79,26 @@ async def get_current_user(
         HTTPException: 401 se a autenticação falhar.
     """
     return verify_supabase_jwt(credentials.credentials)
+
+
+async def get_current_user_id(
+    claims: Annotated[dict[str, Any], Depends(get_current_user)],
+) -> str:
+    """Devolve o identificador do utilizador autenticado (`sub`), já validado.
+
+    Args:
+        claims: Claims do token validado.
+
+    Returns:
+        O `sub` do token.
+
+    Raises:
+        HTTPException: 401 se o `sub` tiver caracteres não permitidos.
+    """
+    user_id = str(claims.get("sub", ""))
+    if not USER_ID_PATTERN.fullmatch(user_id):
+        raise _unauthorized("Invalid token: bad subject")
+    return user_id
+
+
+CurrentUserId = Annotated[str, Depends(get_current_user_id)]

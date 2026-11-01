@@ -65,7 +65,7 @@ async def test_generated_html_escapes_request_values(monkeypatch):
     assert "<script>" not in rendered["html"]
     assert "&lt;script&gt;" in rendered["html"]
     assert "&lt;b&gt;x&lt;/b&gt;" in rendered["html"]
-    assert uploads[0][0] == f"reports/{report_id}.pdf"
+    assert uploads[0][0] == f"<b>x</b>/{report_id}.pdf"
     assert uploads[0][1] == b"%PDF-fake"
 
 
@@ -79,7 +79,7 @@ async def test_generated_html_shows_safe_status(monkeypatch):
     )
     monkeypatch.setattr(reports_service, "supabase", MagicMock())
 
-    await ReportsService().generate_structural_report(BEAM, RESULTS)
+    await ReportsService().generate_structural_report(BEAM, RESULTS, user_id="ana")
 
     assert "SAFE" in rendered["html"]
     assert "UNSAFE" not in rendered["html"]
