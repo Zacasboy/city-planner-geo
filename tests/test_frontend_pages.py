@@ -111,6 +111,74 @@ def test_structural_page_shows_backend_results() -> None:
     assert [m.value for m in app.metric][0] == "41.70 mm"
 
 
+AREA = {
+    "type": "Polygon",
+    "coordinates": [
+        [[-9.14, 38.72], [-9.14, 38.73], [-9.13, 38.73], [-9.13, 38.72], [-9.14, 38.72]]
+    ],
+}
+AREA_SPECIES = {
+    "total_records": 12,
+    "records_excluded_by_license": 3,
+    "allowed_licenses": ["CC0_1_0", "CC_BY_4_0"],
+    "species": [
+        {"species_key": 1, "scientific_name": "Passer domesticus", "records": 8},
+        {"species_key": 2, "scientific_name": "Turdus merula", "records": 4},
+    ],
+    "notes": ["Nota de teste."],
+}
+
+
+def test_ecology_page_asks_for_a_polygon_first() -> None:
+    with patch("frontend.components.map_selector.render_map_selector", return_value=None):
+        app = _page("ecology.py", LOGGED_IN).run()
+    assert not app.exception
+    assert any("draw a polygon" in i.value for i in app.info)
+    assert not any(b.label.startswith("Query") for b in app.button)
+
+
+def test_ecology_page_queries_backend_with_token_and_shows_results() -> None:
+    response = MagicMock(status_code=200)
+    response.json.return_value = AREA_SPECIES
+    with (
+        patch("frontend.components.map_selector.render_map_selector", return_value=AREA),
+        patch("requests.post", return_value=response) as post,
+    ):
+        app = _page("ecology.py", LOGGED_IN).run()
+        app.button[0].click().run()
+    assert not app.exception
+    call = post.call_args
+    assert call.args[0].endswith("/ecology/area-species")
+    assert call.kwargs["json"]["geojson"] == AREA
+    assert call.kwargs["headers"] == {"Authorization": "Bearer token-de-teste"}
+    assert [m.value for m in app.metric] == ["2", "12", "3"]
+    assert any("observation effort" in c.value for c in app.caption)
+    assert len(app.dataframe) == 1
+
+
+def test_ecology_page_shows_backend_errors() -> None:
+    response = MagicMock(status_code=401)
+    with (
+        patch("frontend.components.map_selector.render_map_selector", return_value=AREA),
+        patch("requests.post", return_value=response),
+    ):
+        app = _page("ecology.py", LOGGED_IN).run()
+        app.button[0].click().run()
+    assert not app.exception
+    assert any("log in" in e.value for e in app.error)
+    assert len(app.metric) == 0
+
+
+def test_ecology_page_rejects_invalid_polygon() -> None:
+    with patch(
+        "frontend.components.map_selector.render_map_selector",
+        return_value={"type": "Polygon", "coordinates": [[[0, 0], [1, 1], [2, 2], [3, 3]]]},
+    ):
+        app = _page("ecology.py", LOGGED_IN).run()
+    assert any("Invalid polygon" in e.value for e in app.error)
+    assert not any(b.label.startswith("Query") for b in app.button)
+
+
 def test_reports_page_sends_the_session_token() -> None:
     analysis = MagicMock(status_code=200)
     analysis.json.return_value = {
