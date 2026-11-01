@@ -1,0 +1,42 @@
+# Staging no Render. O deploy só corre depois de o CI (check `checks`) passar no `develop`.
+services:
+  - type: web
+    name: city-planner-geo-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    branch: develop
+    autoDeployTrigger: checksPass
+    healthCheckPath: /health
+    plan: free
+    region: frankfurt
+    envVars:
+      - key: DEBUG
+        value: "false"
+      - key: SENTRY_ENVIRONMENT
+        value: staging
+      - key: HOST
+        value: 0.0.0.0
+      # Valores secretos: o Render pede-os no painel ao criar o Blueprint
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+      # Origem do frontend (JSON), por exemplo ["https://o-meu-app.streamlit.app"]
+      - key: BACKEND_CORS_ORIGINS
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: city-planner-geo-redis
+          property: connectionString
+
+  - type: keyvalue
+    name: city-planner-geo-redis
+    plan: free
+    region: frankfurt
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []
