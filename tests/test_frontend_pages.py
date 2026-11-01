@@ -10,7 +10,8 @@ from streamlit.testing.v1 import AppTest
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PAGES = REPO_ROOT / "frontend" / "pages"
-SCRIPT_TIMEOUT_S = 30
+# Teto, não duração típica: o primeiro import do folium em frio pode demorar.
+SCRIPT_TIMEOUT_S = 120
 
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
