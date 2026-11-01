@@ -1,8 +1,10 @@
-"""Reports API Router
-T1.12: Relatório PDF (Jinja2 + WeasyPrint, upload a Storage, GET /reports/{id})
+"""Rotas da API de relatórios.
+
+T1.12: relatório PDF (Jinja2 + WeasyPrint, upload para Storage, `GET /reports/{id}`).
 """
 
 import io
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
@@ -21,15 +23,16 @@ reports_service = ReportsService()
 class StructuralReportRequest(BaseModel):
     """Request model for generating a structural analysis report."""
 
-    beam_data: dict
-    analysis_results: dict
+    beam_data: dict[str, Any]
+    analysis_results: dict[str, Any]
     user_id: str | None = None
 
 
 @router.post("/structural", status_code=status.HTTP_201_CREATED)
 async def generate_structural_report(
-    request: StructuralReportRequest, current_user: dict = Depends(get_current_user)
-):
+    request: StructuralReportRequest,
+    current_user: Annotated[dict[str, Any], Depends(get_current_user)],
+) -> dict[str, str]:
     """Generate a PDF report for structural beam analysis.
 
     Args:
@@ -58,11 +61,11 @@ async def generate_structural_report(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to generate report: {str(e)}",
-        )
+        ) from e
 
 
 @router.get("/{report_id}")
-async def get_report(report_id: str):
+async def get_report(report_id: str) -> StreamingResponse:
     """Retrieve a PDF report by ID.
 
     Args:
@@ -90,11 +93,14 @@ async def get_report(report_id: str):
                 else status.HTTP_500_INTERNAL_SERVER_ERROR
             ),
             detail=f"Failed to retrieve report: {str(e)}",
-        )
+        ) from e
 
 
 @router.delete("/{report_id}", status_code=status.HTTP_200_OK)
-async def delete_report(report_id: str, current_user: dict = Depends(get_current_user)):
+async def delete_report(
+    report_id: str,
+    current_user: Annotated[dict[str, Any], Depends(get_current_user)],
+) -> dict[str, str]:
     """Delete a report by ID.
 
     Args:
@@ -119,4 +125,4 @@ async def delete_report(report_id: str, current_user: dict = Depends(get_current
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to delete report: {str(e)}",
-        )
+        ) from e

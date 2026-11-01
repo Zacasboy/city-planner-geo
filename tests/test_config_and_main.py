@@ -51,7 +51,7 @@ def test_env_file_with_unknown_keys_is_ignored(tmp_path: Path) -> None:
     env_file.write_text(
         "\n".join(f"{k}={v}" for k, v in REQUIRED.items()) + "\nHF_TOKEN=abc\nAPP_ENV=development\n"
     )
-    assert Settings(_env_file=env_file).SECRET_KEY == "fake"  # noqa: S105
+    assert Settings(_env_file=env_file).SECRET_KEY == "fake"
 
 
 @pytest.mark.usefixtures("clean_env")

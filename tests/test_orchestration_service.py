@@ -87,7 +87,7 @@ async def test_get_task_status_success():
         progress=1.0,
         result={"output": "task completed"},
         error=None,
-    ).json()
+    ).model_dump_json()
 
     with patch.object(service, "redis_client") as mock_redis:
         mock_redis.get.return_value = cached_status
@@ -286,7 +286,7 @@ async def test_concurrent_task_handling():
                             progress=1.0,
                             result={"result": "done"},
                             error=None,
-                        ).json(),
+                        ).model_dump_json(),
                         None,  # Second call returns None (not cached)
                     ]
 

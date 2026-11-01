@@ -1,9 +1,11 @@
-"""Orchestration Service - Celery + Redis Integration
-T1.7: Orquestração: Celery + Redis, modelo de tarefa, GET /analysis/{id} com estado/progresso
+"""Orquestração de tarefas com Celery e Redis.
+
+T1.7: modelo de tarefa e `GET /analysis/{id}` com estado e progresso.
 """
 
 import logging
 import uuid
+from typing import Any
 
 from celery import Celery
 from fastapi import APIRouter, HTTPException, status
@@ -19,7 +21,7 @@ class TaskStatus(BaseModel):
     task_id: str
     status: str  # e.g., PENDING, STARTED, SUCCESS, FAILURE
     progress: float | None = None  # 0.0 to 1.0
-    result: dict | None = None
+    result: dict[str, Any] | None = None
     error: str | None = None
 
 
@@ -33,8 +35,8 @@ logger = logging.getLogger(__name__)
 class OrchestrationService:
     """Service for Celery + Redis task orchestration."""
 
-    def __init__(self):
-        # Initialize Celery app
+    def __init__(self) -> None:
+        """Cria a aplicação Celery e o cliente Redis."""
         self.celery_app = Celery(
             "city_planner", broker=settings.REDIS_URL, backend=settings.REDIS_URL
         )
@@ -51,7 +53,7 @@ class OrchestrationService:
         # Initialize Redis client for direct operations
         self.redis_client = Redis.from_url(settings.REDIS_URL)
 
-    async def submit_task(self, task_type: str, payload: dict) -> str:
+    async def submit_task(self, task_type: str, payload: dict[str, Any]) -> str:
         """Submit a task for asynchronous processing.
 
         Args:
@@ -66,14 +68,14 @@ class OrchestrationService:
             task_id = str(uuid.uuid4())
 
             # Submit task to Celery
-            task = self.celery_app.send_task(f"tasks.{task_type}", args=[payload], task_id=task_id)
+            self.celery_app.send_task(f"tasks.{task_type}", args=[payload], task_id=task_id)
 
             # Store initial status in Redis for quick access
             initial_status = TaskStatus(
                 task_id=task_id, status="PENDING", progress=0.0, result=None, error=None
             )
             self.redis_client.setex(
-                f"task:{task_id}", 3600, initial_status.json()  # Expire after 1 hour
+                f"task:{task_id}", 3600, initial_status.model_dump_json()  # Expire after 1 hour
             )
 
             logger.info(f"Submitted task {task_id} of type {task_type}")
@@ -84,7 +86,7 @@ class OrchestrationService:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to submit task: {str(e)}",
-            )
+            ) from e
 
     async def get_task_status(self, task_id: str) -> TaskStatus:
         """Get status of a task.
@@ -99,7 +101,7 @@ class OrchestrationService:
             # First check Redis for cached status
             cached_status = self.redis_client.get(f"task:{task_id}")
             if cached_status:
-                return TaskStatus.parse_raw(cached_status)
+                return TaskStatus.model_validate_json(cached_status)
 
             # If not in Redis, check Celery
             task_result = self.celery_app.AsyncResult(task_id)
@@ -140,7 +142,7 @@ class OrchestrationService:
 
             # Cache the status for future requests
             self.redis_client.setex(
-                f"task:{task_id}", 3600, task_status.json()  # Expire after 1 hour
+                f"task:{task_id}", 3600, task_status.model_dump_json()  # Expire after 1 hour
             )
 
             return task_status
@@ -150,11 +152,10 @@ class OrchestrationService:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to get task status: {str(e)}",
-            )
+            ) from e
 
-    async def close(self):
-        """Close the service (no-op)."""
-        pass
+    async def close(self) -> None:
+        """Fecha o serviço (não faz nada por agora)."""
 
 
 # Create service instance
@@ -162,7 +163,7 @@ orchestration_service = OrchestrationService()
 
 
 # Convenience functions
-async def submit_task(task_type: str, payload: dict) -> str:
+async def submit_task(task_type: str, payload: dict[str, Any]) -> str:
     """Submit a task for asynchronous processing."""
     return await orchestration_service.submit_task(task_type, payload)
 
@@ -174,7 +175,7 @@ async def get_task_status(task_id: str) -> TaskStatus:
 
 # API Routes
 @router.post("/tasks/{task_type}", tags=["orchestration"])
-async def submit_task_endpoint(task_type: str, payload: dict):
+async def submit_task_endpoint(task_type: str, payload: dict[str, Any]) -> str:
     """Submit a task for asynchronous processing.
 
     Args:
@@ -192,11 +193,11 @@ async def submit_task_endpoint(task_type: str, payload: dict):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to submit task: {str(e)}",
-        )
+        ) from e
 
 
 @router.get("/analysis/{task_id}", tags=["orchestration"])
-async def get_analysis_status_endpoint(task_id: str):
+async def get_analysis_status_endpoint(task_id: str) -> TaskStatus:
     """Get status of an analysis task.
 
     Args:
@@ -213,4 +214,4 @@ async def get_analysis_status_endpoint(task_id: str):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to get task status: {str(e)}",
-        )
+        ) from e
