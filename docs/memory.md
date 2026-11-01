@@ -104,6 +104,7 @@
 - **D25** O algoritmo do cabeçalho do JWT só escolhe a fonte da chave (evita confusão de algoritmos)
 - **D26** Estado de tarefas só em cache quando final (SUCCESS/FAILURE)
 - **D27** Áreas fora da zona de validade do EPSG:3763 são rejeitadas em vez de calculadas com distorção; Angola exige outra projeção (P6–P10)
+- **D28** Staging: backend no Render (Docker, deploy automático do `develop` depois de o CI passar), frontend no Streamlit Community Cloud, Sentry sem PII; migrações do Supabase aplicadas à mão com `supabase db push` até haver necessidade de automatizar
 
 **Pendente**
 - Verificar o login com o Supabase real (`iss`/`aud`); limite de pedidos (`slowapi`) por decidir

@@ -20,6 +20,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from backend.app.api import morphology, reports
 from backend.app.auth import get_current_user, get_current_user_id
 from backend.app.config import settings
+from backend.app.observability import init_sentry
 from backend.app.services.ecology_service import router as ecology_router
 from backend.app.services.forest_service import router as forest_router
 from backend.app.services.geo_service import router as geo_router
@@ -35,6 +36,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 UNKNOWN_REQUEST_ID = "N/A"
+
+init_sentry(settings)
 
 
 def _request_id(request: Request) -> str | None:

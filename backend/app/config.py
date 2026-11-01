@@ -53,6 +53,11 @@ class Settings(BaseSettings):
 
     LOG_LEVEL: str = "INFO"
 
+    # Observabilidade (T0.6). Sem DSN o Sentry fica desligado.
+    SENTRY_DSN: str = ""
+    SENTRY_ENVIRONMENT: str = ""  # vazio = "development" ou "production" conforme DEBUG
+    SENTRY_TRACES_SAMPLE_RATE: float = Field(default=0.0, ge=0.0, le=1.0)
+
     @field_validator("BACKEND_CORS_ORIGINS")
     @classmethod
     def _reject_wildcard_origin(cls, origins: list[str]) -> list[str]:

@@ -8,7 +8,7 @@
 - [x] **T0.3** CI GitHub Actions (lint + testes em PR) (workflow concluído; falta o utilizador exigir o check `checks` na branch protection depois da primeira execução)
 - [x] **T0.4** Projeto Supabase: PostGIS, esquema inicial, RLS, buckets (migrações aplicadas e verificadas no projeto remoto; ver `supabase/README.md`)
 - [x] **T0.5** Auditoria de fontes: confirmar URL, licença, esquema e limites de cada dataset/API do MVP (GBIF, InterGeoPT, TimoDS, The Well); registar em `docs/data_sources.md` (concluída em 2026-10-06; a licença da camada florestal e o PROF passam a ser verificações da T1.5)
-- [ ] **T0.6** Configurar Sentry e CD para staging
+- [~] **T0.6** Configurar Sentry e CD para staging (código pronto: Sentry opcional por `SENTRY_DSN`, `Dockerfile`, `render.yaml` com deploy após CI verde; falta criar as contas e seguir `docs/deploy.md`)
 
 ## Fase 1 — MVP
 - [x] **T1.1** Backend base: FastAPI, config Pydantic, logging, CORS, `/health` (CORS restrito por defeito a `http://localhost:8501`, `*` rejeitado; `HOST` 127.0.0.1)
