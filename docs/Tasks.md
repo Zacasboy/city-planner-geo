@@ -17,7 +17,7 @@
 - [x] **T1.4** Serviço Ecológico (GBIF) com cache e testes mock; filtro de licenças (só CC0 e CC BY), lista de espécies por facetas (`speciesKey`; nomes via `/species/{key}` por verificar), `User-Agent`, backoff em HTTP 429, polígono anti-horário — `POST /ecology/area-species` (cache 24 h, retry)
 - [x] **T1.5** Serviço Florestal (DGT, camada 1562 com 209 polígonos: avaliar sincronizar para o PostGIS em vez de consultar ao vivo; **confirmar a licença antes de redistribuir**) — `POST /forest/overlap`
 - [x] **T1.6** Serviço Estrutural: viga de aço, `POST /structural/beam` (FEM de Timoshenko com apoios `pin`/`roller`/`fixed`, cargas pontuais, carga uniforme e peso próprio; secção retangular ou propriedades explícitas de um perfil; validado contra soluções analíticas e contra o TimoDS: flexão e axial com erro < 0,011 % em 2000 instâncias, ver `docs/memory.md` D30). **Torção não validada e não suportada** (T1.6b); catálogo IPE/HEA/HEB com alturas por criar (T1.6c)
-- [ ] **T1.6b** Torção: a mola `c_x_B` do TimoDS não é compatível com o equilíbrio dos seus próprios resultados; analisar as 314 instâncias do caso 4
+- [ ] **T1.6b** Torção: a mola `c_x_B` do TimoDS não é compatível com o equilíbrio dos seus próprios resultados; `scripts/diagnose_timods_torsion.py` infere as molas implícitas; falta correr com os CSV e interpretar a saída
 - [ ] **T1.6c** Catálogo de perfis IPE/HEA/HEB (o CSV do TimoDS dá S, I, J e áreas de corte mas não a altura da secção)
 - [x] **T1.7** Orquestração: Celery + Redis, modelo de tarefa, estado/progresso em `/orchestration` (tarefas com dono; 404 para quem não é dono)
 - [x] **T1.8** Frontend base: `app.py`, multipage, login, sidebar, `DisclaimerBanner`
