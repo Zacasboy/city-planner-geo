@@ -138,7 +138,7 @@
 | 6 | T0.6 | Sentry + CD staging | `[ ]` |
 | 7 | T1.6 | Estrutural: FEM e TimoDS | `[x]` (torção: T1.6b) |
 | 8 | T1.10 | Painel florestal real | `[~]` |
-| 9 | T1.13 | E2E e staging | `[ ]` |
+| 9 | T1.13 | E2E e staging | `[~]` (testes feitos; falta o deploy) |
 
 ## 6.5 Métricas
 

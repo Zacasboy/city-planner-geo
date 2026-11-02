@@ -25,7 +25,7 @@
 - [~] **T1.10** Dashboards ecológico/florestal e `ProgressTracker` (ecológico com dados reais do GBIF via `/ecology/area-species`; florestal ainda com dados de exemplo)
 - [x] **T1.11** Vista estrutural (formulário + resultados)
 - [x] **T1.12** Relatório PDF (Jinja2 + WeasyPrint, com fontes, licenças e o aviso do PRD 1.7; upload a Storage, `GET /reports/{id}`; ficheiros em `<user_id>/<report_id>.pdf`, só o dono acede; ainda sem contexto ecológico)
-- [ ] **T1.13** Teste end-to-end e deploy em staging
+- [~] **T1.13** Teste end-to-end e deploy em staging (`tests/test_e2e_flow.py` cobre análise → relatório PDF real → isolamento entre utilizadores; `scripts/smoke_staging.py` verifica um backend publicado; falta criar as contas e fazer o deploy, ver `docs/deploy.md`)
 
 ## Fase 2 — v1.0
 - [~] **T2.1** Morfologia: OpenBuildingMap/DBSM + métricas (densidade, altura, ocupação) (`POST /morphology/analyze` com edifícios simulados; área em m² via EPSG:3763, só Portugal continental; falta OpenBuildingMap/DBSM)

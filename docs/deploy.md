@@ -39,6 +39,16 @@ Nunca pôr `SUPABASE_SECRET_KEY` no frontend.
 - Authentication → URL Configuration: acrescentar o URL do frontend em Site URL / Redirect URLs.
 - Migrações: `supabase db push` à mão, a partir da máquina do programador (decisão D28).
 
-## 5. Pendente de verificar
+## 5. Verificar o backend publicado
+```
+SMOKE_TOKEN=<JWT de um utilizador de teste> \
+  poetry run python scripts/smoke_staging.py https://<serviço>.onrender.com
+```
+Confirma `/health`, que as rotas protegidas recusam pedidos anónimos e que uma viga conhecida dá
+a flecha da solução fechada. Sem `SMOKE_TOKEN` só faz as duas primeiras verificações. O JWT obtém-se
+iniciando sessão no frontend com um utilizador de teste; não o cole em conversas nem em commits.
+O primeiro pedido pode demorar até um minuto (o plano gratuito adormece).
+
+## 6. Pendente de verificar
 - O `Dockerfile` não foi construído neste ambiente (sem daemon Docker). Verificar o primeiro build
   no Render; se faltar uma biblioteca de sistema do WeasyPrint, o erro aparece ao gerar um PDF.
