@@ -233,6 +233,15 @@ def test_jwks_unreachable_is_503(
     assert _status_of(_es256_token(signing_key)) == 503
 
 
+def test_jwks_that_is_not_json_is_503(
+    signing_key: ec.EllipticCurvePrivateKey, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    error = json.JSONDecodeError("Expecting value", "<html>", 0)
+    client = _FakeJwksClient([], error=error)
+    monkeypatch.setattr(auth, "_jwks_client", lambda: client)
+    assert _status_of(_es256_token(signing_key)) == 503
+
+
 def test_jwks_url_comes_from_supabase_url() -> None:
     auth._jwks_client.cache_clear()
     assert auth._jwks_client().uri == f"{settings.SUPABASE_URL}/auth/v1/.well-known/jwks.json"
