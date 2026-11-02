@@ -50,6 +50,10 @@ a flecha da solução fechada. Sem `SMOKE_TOKEN` só faz as duas primeiras verif
 iniciando sessão no frontend com um utilizador de teste; não o cole em conversas nem em commits.
 O primeiro pedido pode demorar até um minuto (o plano gratuito adormece).
 
-## 6. Pendente de verificar
+## 6. Erros de configuração já vistos
+- `SUPABASE_URL` tem de ser `https://<identificador>.supabase.co` (Project Settings → API → Project URL). O URL do painel (`https://supabase.com/dashboard/...`) dá `405` no registo e erro `Expecting value` no backend.
+- Branch do Streamlit: `develop`, não `main`.
+
+## 7. Pendente de verificar
 - O `Dockerfile` não foi construído neste ambiente (sem daemon Docker). Verificar o primeiro build
   no Render; se faltar uma biblioteca de sistema do WeasyPrint, o erro aparece ao gerar um PDF.
