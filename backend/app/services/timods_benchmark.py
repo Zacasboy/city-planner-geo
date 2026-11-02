@@ -12,6 +12,8 @@ from dataclasses import dataclass
 import numpy as np
 from Pynite import FEModel3D
 
+from backend.app.services import timoshenko
+
 YOUNGS_MODULUS_KN_M2 = 210e6
 POISSON_RATIO = 0.3
 STATIONS = [round(i * 0.05, 2) for i in range(21)]
@@ -50,6 +52,8 @@ class BenchmarkBeam:
     springs: dict[str, float]  # chaves como `k_x_A`, `c_z_B` (kN/m ou kN·m/rad)
     load_case: int
     load_position: float  # fração do comprimento
+    shear_area_y_m2: float = float("inf")  # só o solver de Timoshenko usa as áreas de corte
+    shear_area_z_m2: float = float("inf")
 
 
 def _node_positions(load_position: float) -> list[float]:
@@ -118,3 +122,57 @@ def normalised_error(computed: np.ndarray, reference: np.ndarray) -> float:
     if peak == 0.0:
         return 0.0 if float(np.max(np.abs(computed))) == 0.0 else float("inf")
     return float(np.max(np.abs(computed - reference)) / peak)
+
+
+def _stations_from_nodes(fractions: list[float], values: np.ndarray) -> np.ndarray:
+    """Valores nodais nas 21 posições do TimoDS (os nós incluem todas essas posições)."""
+    return np.array(
+        [values[min(range(len(fractions)), key=lambda i: abs(fractions[i] - s))] for s in STATIONS]
+    )
+
+
+def solve_timoshenko_beam(beam: BenchmarkBeam) -> dict[str, np.ndarray]:
+    """Resolve uma instância com vigas de Timoshenko (inclui o esforço transverso).
+
+    Args:
+        beam: Instância do benchmark, com as áreas de corte preenchidas.
+
+    Returns:
+        As grandezas do caso de carga nas 21 posições; as restantes ficam a zero.
+    """
+    fractions = _node_positions(beam.load_position)
+    xs = [f * beam.length_m for f in fractions]
+    lengths = [b - a for a, b in zip(xs, xs[1:], strict=False)]
+    load_node = min(range(len(fractions)), key=lambda i: abs(fractions[i] - beam.load_position))
+    last = len(fractions) - 1
+    e, g = YOUNGS_MODULUS_KN_M2, YOUNGS_MODULUS_KN_M2 / (2 * (1 + POISSON_RATIO))
+    out = {q: np.zeros(len(STATIONS)) for q in NODE_ATTRIBUTE}
+    case = beam.load_case
+
+    def springs(key: str, dof: int) -> list[timoshenko.Spring]:
+        return [(0, dof, beam.springs[f"{key}_A"]), (last, dof, beam.springs[f"{key}_B"])]
+
+    if case in (1, 4):
+        stiffness = e * beam.area_m2 if case == 1 else g * beam.torsion_j_m4
+        key, name = ("k_x", "ux") if case == 1 else ("c_x", "rx")
+        elements = [timoshenko.axial_element(stiffness, h) for h in lengths]
+        u = timoshenko.solve_chain(xs, elements, 1, springs(key, 0), [(load_node, 0, 1.0)])
+        out[name] = _stations_from_nodes(fractions, u[:, 0])
+        return out
+
+    plane_y = case in (2, 6)
+    inertia = beam.inertia_z_m4 if plane_y else beam.inertia_y_m4
+    shear_area = beam.shear_area_y_m2 if plane_y else beam.shear_area_z_m2
+    elements = [timoshenko.timoshenko_element(e, inertia, g, shear_area, h) for h in lengths]
+    k_key, c_key = ("k_y", "c_z") if plane_y else ("k_z", "c_y")
+    node_springs = springs(k_key, 0) + springs(c_key, 1)
+    # ry = -theta, por isso o momento My entra com sinal trocado
+    load = {2: (0, 1.0), 3: (0, 1.0), 6: (1, 1.0), 5: (1, -1.0)}[case]
+    u = timoshenko.solve_chain(xs, elements, 2, node_springs, [(load_node, load[0], load[1])])
+    displacement = _stations_from_nodes(fractions, u[:, 0])
+    rotation = _stations_from_nodes(fractions, u[:, 1])
+    if plane_y:
+        out["uy"], out["rz"] = displacement, rotation
+    else:
+        out["uz"], out["ry"] = displacement, -rotation
+    return out

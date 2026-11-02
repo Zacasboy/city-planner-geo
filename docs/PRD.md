@@ -38,7 +38,7 @@ Plataforma web em Python, com análise por streaming de dados, que ajuda **profi
 | F1 | Seleção geográfica | Mapa interativo; coordenadas, concelho, bounding box, upload GeoJSON; validação de área | MVP |
 | F2 | Contexto ecológico | GBIF (ocorrências por polígono, filtradas por licença; a licença de cada registo consta do relatório) + regime florestal (DGT, ArcGIS REST FeatureServer); PROF e corredores ecológicos por localizar | MVP |
 | F3 | Morfologia urbana | OpenBuildingMap/OSM, DBSM, UMCC; métricas de densidade, altura média, coeficiente de ocupação | v1.0 |
-| F4 | Cálculo físico/estrutural | Vigas de aço (IPE/HEA/HEB) com PyNite/anastruct/sectionproperties, validado com TimoDS (*benchmark* sintético, ver 1.7); simulações térmicas/fluidos: fonte de dados por definir em v1.0 (The Well fora do âmbito, ver `docs/data_sources.md`) | MVP (básico) / v1.0 |
+| F4 | Cálculo físico/estrutural | Vigas de aço em flexão (elementos de Timoshenko; perfis por propriedades explícitas, catálogo IPE/HEA/HEB por criar), validado com TimoDS (torção não suportada) (*benchmark* sintético, ver 1.7); simulações térmicas/fluidos: fonte de dados por definir em v1.0 (The Well fora do âmbito, ver `docs/data_sources.md`) | MVP (básico) / v1.0 |
 | F5 | Materiais | Catálogo (custo, carbono, durabilidade); extração de quantidades IFC (LivingBIM, IFC-Bench) | v1.0 |
 | F6 | *Geographic fine-tuning* | Pré-treino + adaptação regional **apenas com dados regionais reais fornecidos pelo utilizador**; não existe fonte pública definida | v1.1 (condicionada) |
 | F7 | Relatórios | PDF; exportação GeoJSON/CSV/IFC; API REST | MVP (PDF) / v1.1 (API) |
