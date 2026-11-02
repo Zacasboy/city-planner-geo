@@ -283,6 +283,26 @@ def test_reports_page_sends_the_session_token() -> None:
     assert "11111111" in app.session_state["last_report_id"]
 
 
+def test_reports_page_sends_ecology_when_available() -> None:
+    analysis = MagicMock(status_code=200)
+    analysis.json.return_value = {"max_deflection": 0, "max_stress": 0, "utilization_ratio": 0}
+    created = MagicMock(status_code=201)
+    created.json.return_value = {"report_id": "11111111-2222-3333-4444-555555555555"}
+    ecology = {"total_records": 1, "species": []}
+    with patch("requests.post", side_effect=[analysis, created]) as post:
+        app = _page("reports.py", LOGGED_IN)
+        app.session_state["ecology_result"] = {"polygon": {}, "data": ecology}
+        app.run()
+        assert app.checkbox[0].value is True
+        app.button[0].click().run()
+    assert post.call_args_list[1].kwargs["json"]["ecology"] == ecology
+
+
+def test_reports_page_without_ecology_disables_checkbox() -> None:
+    app = _page("reports.py", LOGGED_IN).run()
+    assert app.checkbox[0].disabled
+
+
 def test_app_shows_login_when_anonymous(monkeypatch: pytest.MonkeyPatch) -> None:
     _without_supabase_config(monkeypatch)
     app = AppTest.from_file(

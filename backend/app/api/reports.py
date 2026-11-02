@@ -11,7 +11,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from backend.app.auth import CurrentUserId
 from backend.app.services.reports_service import ReportNotFoundError, ReportsService
@@ -27,11 +27,34 @@ def _not_found() -> HTTPException:
     return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Report not found")
 
 
+MAX_ECOLOGY_SPECIES = 100
+MAX_ECOLOGY_NOTES = 10
+MAX_TEXT_LENGTH = 500
+
+
+class EcologySpecies(BaseModel):
+    """Uma espécie do contexto ecológico."""
+
+    scientific_name: str | None = Field(default=None, max_length=MAX_TEXT_LENGTH)
+    records: int = Field(ge=0)
+
+
+class EcologyContext(BaseModel):
+    """Resultado de `/ecology/area-species` que acompanha o relatório."""
+
+    total_records: int = Field(ge=0)
+    records_excluded_by_license: int = Field(ge=0)
+    allowed_licenses: list[str] = Field(max_length=MAX_ECOLOGY_NOTES)
+    species: list[EcologySpecies] = Field(max_length=MAX_ECOLOGY_SPECIES)
+    notes: list[str] = Field(default_factory=list, max_length=MAX_ECOLOGY_NOTES)
+
+
 class StructuralReportRequest(BaseModel):
     """Request model for generating a structural analysis report."""
 
     beam_data: dict[str, Any]
     analysis_results: dict[str, Any]
+    ecology: EcologyContext | None = None
 
 
 def _internal_error(action: str, error: Exception) -> HTTPException:
@@ -59,6 +82,7 @@ async def generate_structural_report(
             beam_data=request.beam_data,
             analysis_results=request.analysis_results,
             user_id=user_id,
+            ecology=request.ecology.model_dump() if request.ecology else None,
         )
     except Exception as e:
         raise _internal_error("generate report", e) from e

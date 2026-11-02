@@ -23,7 +23,16 @@ def _connection_error() -> None:
     st.error("Could not connect to backend. Please ensure the backend is running.")
 
 
-def _generate_report(beam_data: dict[str, Any]) -> None:
+def _ecology_for_report() -> dict[str, Any] | None:
+    """Devolve o último resultado ecológico da sessão, se existir."""
+    stored = st.session_state.get("ecology_result")
+    if isinstance(stored, dict) and isinstance(stored.get("data"), dict):
+        data: dict[str, Any] = stored["data"]
+        return data
+    return None
+
+
+def _generate_report(beam_data: dict[str, Any], ecology: dict[str, Any] | None = None) -> None:
     """Analisa a viga no backend e pede o relatório PDF com esse resultado."""
     try:
         with st.spinner("Generating report..."):
@@ -39,7 +48,11 @@ def _generate_report(beam_data: dict[str, Any]) -> None:
             analysis_results = analysis.json()
             response = requests.post(
                 f"{backend_url()}/reports/structural",
-                json={"beam_data": beam_data, "analysis_results": analysis_results},
+                json={
+                    "beam_data": beam_data,
+                    "analysis_results": analysis_results,
+                    "ecology": ecology,
+                },
                 headers=auth_headers(),
                 timeout=REQUEST_TIMEOUT_S,
             )
@@ -147,6 +160,13 @@ with st.form("manual_report_form"):
             "Yield Stress (MPa)", min_value=1.0, value=250.0, step=1.0
         )
     point_load_kn = st.number_input("Point Load (kN)", min_value=0.0, value=10.0, step=0.5)
+    ecology_available = _ecology_for_report() is not None
+    include_ecology = st.checkbox(
+        "Include ecological context (GBIF)",
+        value=ecology_available,
+        disabled=not ecology_available,
+        help="Run the Ecology page first; its last result is added to the PDF.",
+    )
     submitted = st.form_submit_button("Generate Report from Manual Data", type="secondary")
 
 if submitted:
@@ -163,7 +183,8 @@ if submitted:
                 {"position": 0.0, "type": "pin"},
                 {"position": beam_length, "type": "roller"},
             ],
-        }
+        },
+        ecology=_ecology_for_report() if include_ecology else None,
     )
 
 st.subheader("View Existing Reports")

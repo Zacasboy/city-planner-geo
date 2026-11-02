@@ -69,8 +69,16 @@ async def test_generated_html_escapes_request_values(monkeypatch):
     assert uploads[0][1] == b"%PDF-fake"
 
 
-@pytest.mark.asyncio
-async def test_generated_html_shows_safe_status(monkeypatch):
+ECOLOGY = {
+    "total_records": 120,
+    "records_excluded_by_license": 7,
+    "allowed_licenses": ["CC0_1_0", "CC_BY_4_0"],
+    "species": [{"scientific_name": "Quercus suber <b>", "records": 42}],
+    "notes": ["Only open licences."],
+}
+
+
+def _render(monkeypatch, **kwargs):
     rendered = {}
     monkeypatch.setattr(
         ReportsService,
@@ -78,8 +86,40 @@ async def test_generated_html_shows_safe_status(monkeypatch):
         staticmethod(lambda h: rendered.setdefault("html", h).encode()),
     )
     monkeypatch.setattr(reports_service, "supabase", MagicMock())
+    return rendered, kwargs
+
+
+@pytest.mark.asyncio
+async def test_html_has_neutral_status_and_disclaimer(monkeypatch):
+    rendered, _ = _render(monkeypatch)
 
     await ReportsService().generate_structural_report(BEAM, RESULTS, user_id="ana")
 
-    assert "SAFE" in rendered["html"]
-    assert "UNSAFE" not in rendered["html"]
+    assert "not a code check" in rendered["html"]
+    assert "preliminary estimate" in rendered["html"]
+    assert "Ecological Context" not in rendered["html"]
+
+
+@pytest.mark.asyncio
+async def test_html_includes_escaped_ecology_context(monkeypatch):
+    rendered, _ = _render(monkeypatch)
+
+    await ReportsService().generate_structural_report(BEAM, RESULTS, user_id="ana", ecology=ECOLOGY)
+
+    html = rendered["html"]
+    assert "Ecological Context" in html
+    assert "Quercus suber &lt;b&gt;" in html
+    assert "<b>" not in html.split("Ecological Context")[1].split("Disclaimer")[0]
+    assert "CC0_1_0" in html
+
+
+@pytest.mark.asyncio
+async def test_html_supports_explicit_section(monkeypatch):
+    rendered, _ = _render(monkeypatch)
+    beam = {k: v for k, v in BEAM.items() if k not in ("width", "height")} | {
+        "section": {"area": 0.01, "moment_of_inertia": 1e-5, "height": 0.2}
+    }
+
+    await ReportsService().generate_structural_report(beam, RESULTS, user_id="ana")
+
+    assert "Moment of Inertia" in rendered["html"]
