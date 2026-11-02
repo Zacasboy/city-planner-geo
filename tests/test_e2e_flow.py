@@ -47,6 +47,14 @@ def storage(monkeypatch: pytest.MonkeyPatch) -> Iterator[FakeStorage]:
     yield fake
 
 
+def _require_weasyprint() -> None:
+    """O PDF real precisa das bibliotecas do WeasyPrint (macOS: `brew install pango`)."""
+    try:
+        import weasyprint  # noqa: F401, PLC0415
+    except OSError as error:
+        pytest.skip(f"WeasyPrint system libraries are missing: {error}")
+
+
 def test_health_is_public(client: TestClient) -> None:
     assert client.get("/health").json()["status"] == "healthy"
 
@@ -61,6 +69,7 @@ def test_protected_routes_reject_anonymous_requests(
 def test_analysis_then_report_then_isolation(
     client: TestClient, storage: FakeStorage, auth_headers: Callable[[str], dict[str, str]]
 ) -> None:
+    _require_weasyprint()
     ana, rui = auth_headers("ana"), auth_headers("rui")
 
     analysis = client.post("/structural/beam", json=BEAM, headers=ana)
