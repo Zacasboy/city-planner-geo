@@ -9,7 +9,7 @@
 | Última alteração | 2026-11-01 (fim do dia) |
 | Fase | Fase 1 — MVP (T1.1–T1.12 implementadas, com ressalvas) |
 | Versão | 0.3.0 |
-| Processo ativo | Nenhum (próximo: T1.13 ou T1.6b torção) |
+| Processo ativo | Nenhum (próximo: T1.13, deploy em staging) |
 | Bloqueios | Nenhum |
 | Risco principal | Cálculo estrutural simplificado; login por verificar com o Supabase real; licença da camada DGT |
 
@@ -107,13 +107,14 @@
 - **D28** Staging: backend no Render (Docker, deploy automático do `develop` depois de o CI passar), frontend no Streamlit Community Cloud, Sentry sem PII; migrações do Supabase aplicadas à mão com `supabase db push` até haver necessidade de automatizar
 - **D29** Estrutural: motor FEM (PyNite) para viga de secção retangular em flexão plana, peso próprio incluído por defeito; validado só contra soluções analíticas. A comparação com o TimoDS (O3) exige descarregar os CSV do Zenodo e conhecer as colunas
 - **D30** Estrutural: o motor da API passou de PyNite (Euler-Bernoulli) para um solver próprio de Timoshenko (`timoshenko.py`). Comparação com 2000 instâncias do TimoDS (2026-11-02): flexão e axial com erro máximo 0,011 % (casos 1, 2, 3, 5, 6); Euler-Bernoulli chegava a 203 % em vigas curtas (L/i < 20). Torção (caso 4) com erro mediano 79 % nos dois motores: o veio e a mola `c_x_A` batem com o TimoDS, mas a rotação em B é incompatível com `c_x_B`, logo a convenção do benchmark nesse extremo é diferente e a torção fica fora do O3 até à T1.6b. A API aceita secção retangular (área de corte de Cowper) ou propriedades explícitas, com `include_shear_deformation` opcional
+- **D31** Torção (T1.6b, 2026-11-02): em 2364 instâncias do caso 4 do TimoDS, a mola de A inferida das rotações coincide com `c_x_A` e o binário aplicado é 1 kN·m, mas a mola implícita em B não coincide com `c_x_B` (mediana da razão 0,0002; percentis 5 e 95 em -0,65 e 1,59; negativa nalgumas, o que nenhum apoio passivo permite) e correlaciona com a posição da carga (Spearman 0,56 com `a`). Só a viga simétrica (a = 0,5) bate. Decisão: não usar o caso 4 como referência; a API não calcula torção. Hipóteses abertas: coluna `c_x_B` do conjunto de dados não é a usada no cálculo, ou convenção diferente no apoio de torção em B
 
 **Pendente**
 - Verificar o login com o Supabase real (`iss`/`aud`); limite de pedidos (`slowapi`) por decidir
 - Painel florestal com dados reais; relatório PDF com contexto ecológico
 - Estrutural: falta validar com o TimoDS e suportar perfis IPE/HEA/HEB; licença DGT; PROF; T0.6; PR #11 (Angola) e decisões P6–P10 por aprovar
 
-**Próximo passo:** T1.13 (e2e/staging) ou T1.6b (torção)
+**Próximo passo:** T1.13 (deploy em staging)
 - Última alteração: 2026-11-01 (fim do dia)
 
 ## 6.3 Processo atual (um por vez)
