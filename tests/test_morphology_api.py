@@ -95,6 +95,7 @@ def test_structural_beam_endpoint_matches_closed_form(
         "yield_stress": 250e6,
         "point_loads": [{"position": 2.5, "magnitude": 10000.0}],
         "include_self_weight": False,
+        "include_shear_deformation": False,
         "supports": [{"position": 0.0, "type": "pin"}, {"position": 5.0, "type": "roller"}],
     }
     response = TestClient(app).post("/structural/beam", json=body, headers=auth_headers("user-1"))

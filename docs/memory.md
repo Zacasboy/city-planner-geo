@@ -9,7 +9,7 @@
 | Última alteração | 2026-11-01 (fim do dia) |
 | Fase | Fase 1 — MVP (T1.1–T1.12 implementadas, com ressalvas) |
 | Versão | 0.3.0 |
-| Processo ativo | Nenhum (próximo: T0.6 ou T1.6 FEM/TimoDS) |
+| Processo ativo | Nenhum (próximo: T1.13 ou T1.6b torção) |
 | Bloqueios | Nenhum |
 | Risco principal | Cálculo estrutural simplificado; login por verificar com o Supabase real; licença da camada DGT |
 
@@ -106,13 +106,14 @@
 - **D27** Áreas fora da zona de validade do EPSG:3763 são rejeitadas em vez de calculadas com distorção; Angola exige outra projeção (P6–P10)
 - **D28** Staging: backend no Render (Docker, deploy automático do `develop` depois de o CI passar), frontend no Streamlit Community Cloud, Sentry sem PII; migrações do Supabase aplicadas à mão com `supabase db push` até haver necessidade de automatizar
 - **D29** Estrutural: motor FEM (PyNite) para viga de secção retangular em flexão plana, peso próprio incluído por defeito; validado só contra soluções analíticas. A comparação com o TimoDS (O3) exige descarregar os CSV do Zenodo e conhecer as colunas
+- **D30** Estrutural: o motor da API passou de PyNite (Euler-Bernoulli) para um solver próprio de Timoshenko (`timoshenko.py`). Comparação com 2000 instâncias do TimoDS (2026-11-02): flexão e axial com erro máximo 0,011 % (casos 1, 2, 3, 5, 6); Euler-Bernoulli chegava a 203 % em vigas curtas (L/i < 20). Torção (caso 4) com erro mediano 79 % nos dois motores: o veio e a mola `c_x_A` batem com o TimoDS, mas a rotação em B é incompatível com `c_x_B`, logo a convenção do benchmark nesse extremo é diferente e a torção fica fora do O3 até à T1.6b. A API aceita secção retangular (área de corte de Cowper) ou propriedades explícitas, com `include_shear_deformation` opcional
 
 **Pendente**
 - Verificar o login com o Supabase real (`iss`/`aud`); limite de pedidos (`slowapi`) por decidir
 - Painel florestal com dados reais; relatório PDF com contexto ecológico
 - Estrutural: falta validar com o TimoDS e suportar perfis IPE/HEA/HEB; licença DGT; PROF; T0.6; PR #11 (Angola) e decisões P6–P10 por aprovar
 
-**Próximo passo:** T0.6 (Sentry + CD) ou T1.6 (FEM/TimoDS)
+**Próximo passo:** T1.13 (e2e/staging) ou T1.6b (torção)
 - Última alteração: 2026-11-01 (fim do dia)
 
 ## 6.3 Processo atual (um por vez)
@@ -135,7 +136,7 @@
 | 4 | T0.4 | Supabase | `[x]` |
 | 5 | T0.5 | Auditoria de fontes de dados | `[x]` |
 | 6 | T0.6 | Sentry + CD staging | `[ ]` |
-| 7 | T1.6 | Estrutural: FEM e TimoDS | `[~]` |
+| 7 | T1.6 | Estrutural: FEM e TimoDS | `[x]` (torção: T1.6b) |
 | 8 | T1.10 | Painel florestal real | `[~]` |
 | 9 | T1.13 | E2E e staging | `[ ]` |
 
@@ -162,7 +163,7 @@
 | R8 | Limite de tamanho de ficheiro do plano Supabase vs. LiDAR de até 5 GB | Média | Médio | Confirmar plano; upload resumível ou Cloudflare R2 |
 | R9 | The Well não tem dados de edifícios/microclima/geografia; F4 e F6 sem base de dados | Alta | Alto | Decisões D20 e D21 (P2 e P3) |
 | R10 | Licença da camada "Regime florestal" por confirmar | Média | Médio | Bloqueio da T1.5: confirmar com ICNF/DGT antes de redistribuir |
-| R11 | Cálculo estrutural simplificado pode ser lido como dimensionamento | Média | Alto | Aviso obrigatório; FEM e TimoDS na T1.6 |
+| R11 | Cálculo estrutural simplificado pode ser lido como dimensionamento | Média | Alto | Aviso obrigatório; FEM de Timoshenko validado com o TimoDS (flexão); torção não suportada |
 | R12 | Sem limite de pedidos nas rotas autenticadas | Média | Médio | Avaliar `slowapi` (nova dependência) |
 
 ## 6.7 Modelo de entrada diária (copiar)

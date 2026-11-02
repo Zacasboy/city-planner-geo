@@ -29,6 +29,7 @@ def _beam(**overrides: object) -> BeamRequest:
         "yield_stress": 275e6,
         "supports": PIN_ROLLER,
         "include_self_weight": False,
+        "include_shear_deformation": False,
     }
     data.update(overrides)
     return BeamRequest.model_validate(data)
@@ -162,3 +163,100 @@ async def test_service_reports_stress_and_utilisation() -> None:
 def test_invalid_beams_are_rejected(overrides: dict[str, object], message: str) -> None:
     with pytest.raises(ValidationError, match=message):
         _beam(**overrides)
+
+
+SHEAR_MODULUS = E / (2 * 1.3)
+SHEAR_AREA = 10 * 1.3 / (12 + 11 * 0.3) * AREA  # Cowper, retângulo, nu = 0.3
+
+
+def test_timoshenko_midspan_point_load_adds_the_shear_term() -> None:
+    load = 20_000.0
+    r = solve_beam(
+        _beam(include_shear_deformation=True, point_loads=[{"position": L / 2, "magnitude": load}])
+    )
+    expected = load * L**3 / (48 * EI) + load * L / (4 * SHEAR_MODULUS * SHEAR_AREA)
+    assert r.max_deflection_m == pytest.approx(expected, rel=1e-6)
+    assert r.max_moment_nm == pytest.approx(load * L / 4, rel=REL)
+
+
+def test_timoshenko_cantilever_uniform_load_adds_the_shear_term() -> None:
+    w = 9_000.0
+    r = solve_beam(
+        _beam(
+            include_shear_deformation=True,
+            uniform_load=w,
+            supports=[{"position": 0.0, "type": "fixed"}],
+        )
+    )
+    expected = w * L**4 / (8 * EI) + w * L**2 / (2 * SHEAR_MODULUS * SHEAR_AREA)
+    assert r.max_deflection_m == pytest.approx(expected, rel=1e-4)
+    assert r.max_moment_nm == pytest.approx(w * L**2 / 2, rel=REL)
+
+
+def test_shear_deformation_matters_more_for_deep_short_beams() -> None:
+    def ratio(length: float) -> float:
+        loads = [{"position": length / 2, "magnitude": 10_000.0}]
+        supports = [{"position": 0.0, "type": "pin"}, {"position": length, "type": "roller"}]
+        kwargs = {"length": length, "point_loads": loads, "supports": supports}
+        shear = solve_beam(_beam(include_shear_deformation=True, **kwargs))
+        bending = solve_beam(_beam(**kwargs))
+        return shear.max_deflection_m / bending.max_deflection_m
+
+    assert ratio(1.0) > 1.2 > ratio(12.0) > 1.0
+
+
+def test_explicit_section_drives_stiffness_stress_and_shear_area() -> None:
+    area, inertia, depth = 0.005, 8e-5, 0.3
+    shear_area = 0.002
+    request = BeamRequest.model_validate(
+        {
+            "length": 2.0,
+            "section": {
+                "area": area,
+                "moment_of_inertia": inertia,
+                "height": depth,
+                "shear_area": shear_area,
+            },
+            "youngs_modulus": E,
+            "density": 7850,
+            "yield_stress": 275e6,
+            "include_self_weight": False,
+            "supports": PIN_ROLLER[:1] + [{"position": 2.0, "type": "roller"}],
+            "point_loads": [{"position": 1.0, "magnitude": 50_000.0}],
+        }
+    )
+    r = solve_beam(request)
+    expected = 50_000.0 * 8 / (48 * E * inertia) + 50_000.0 * 2 / (4 * SHEAR_MODULUS * shear_area)
+    assert r.max_deflection_m == pytest.approx(expected, rel=1e-6)
+    assert request.depth == depth
+    assert request.shear_area == shear_area
+
+
+def test_section_without_shear_area_uses_half_of_the_area() -> None:
+    request = _beam(
+        width=None,
+        height=None,
+        section={"area": 0.01, "moment_of_inertia": 1e-4, "height": 0.2},
+    )
+    assert request.shear_area == pytest.approx(0.005)
+
+
+@pytest.mark.parametrize(
+    "overrides",
+    [
+        {"width": None},
+        {"section": {"area": 0.01, "moment_of_inertia": 1e-4, "height": 0.2}},
+    ],
+)
+def test_section_must_be_rectangle_or_explicit(overrides: dict[str, object]) -> None:
+    with pytest.raises(ValidationError, match="either width and height, or a section"):
+        _beam(**overrides)
+
+
+def test_moment_peak_between_nodes_is_found_on_a_coarse_mesh(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("backend.app.services.structural_fem.MESH_DIVISIONS", 3)
+    w = 12_000.0
+    r = solve_beam(_beam(uniform_load=w))
+    assert r.max_moment_nm == pytest.approx(w * L**2 / 8, rel=REL)

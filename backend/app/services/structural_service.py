@@ -1,8 +1,9 @@
 """Análise de vigas de aço.
 
-T1.6: elementos finitos (PyNite) com apoios, cargas pontuais, carga uniforme e peso próprio,
+T1.6: elementos finitos de Timoshenko com apoios, cargas pontuais, carga uniforme e peso próprio,
 validados contra soluções analíticas fechadas (tests/test_structural_service.py).
-A validação com o benchmark TimoDS ainda não foi feita.
+A validação com o benchmark TimoDS (flexão e axial, erro < 0,011 %) está em `timods_benchmark`.
+A torção não é suportada.
 """
 
 import logging
@@ -16,10 +17,11 @@ router = APIRouter()
 
 logger = logging.getLogger(__name__)
 
-ANALYSIS_METHOD = "FEM (PyNite): Euler-Bernoulli beam, linear elastic, bending in one plane"
+ANALYSIS_METHOD = "FEM: Timoshenko beam, linear elastic, bending in one plane"
+ANALYSIS_METHOD_EULER = "FEM: Euler-Bernoulli beam, linear elastic, bending in one plane"
 RESULT_NOTE = (
-    "Preliminary estimate of bending only: it ignores shear deformation, lateral-torsional "
-    "buckling, local effects and code checks (Eurocode). It does not replace a structural design."
+    "Preliminary estimate of bending only: it ignores torsion, lateral-torsional buckling, "
+    "local effects and code checks (Eurocode). It does not replace a structural design."
 )
 
 
@@ -52,17 +54,17 @@ class StructuralService:
 
     def _analyze(self, request: BeamRequest) -> BeamResponse:
         results = solve_beam(request)
-        area_m2 = request.width * request.height
-        inertia_m4 = request.width * request.height**3 / 12
-        stress_pa = results.max_moment_nm * (request.height / 2) / inertia_m4
+        area_m2 = request.area
+        inertia_m4 = request.inertia
+        stress_pa = results.max_moment_nm * (request.depth / 2) / inertia_m4
         return BeamResponse(
             max_deflection=results.max_deflection_m,
             max_stress=stress_pa,
             utilization_ratio=stress_pa / request.yield_stress,
             details={
                 "beam_length_m": request.length,
-                "cross_section_width_m": request.width,
-                "cross_section_height_m": request.height,
+                "cross_section_height_m": request.depth,
+                "shear_area_m2": request.shear_area,
                 "cross_section_area_m2": area_m2,
                 "moment_of_inertia_m4": inertia_m4,
                 "youngs_modulus_pa": request.youngs_modulus,
@@ -73,7 +75,9 @@ class StructuralService:
                 "max_bending_moment_nm": results.max_moment_nm,
                 "max_shear_force_n": results.max_shear_n,
                 "reactions_n": {str(x): r for x, r in results.reactions_n.items()},
-                "analysis_method": ANALYSIS_METHOD,
+                "analysis_method": (
+                    ANALYSIS_METHOD if request.include_shear_deformation else ANALYSIS_METHOD_EULER
+                ),
                 "note": RESULT_NOTE,
             },
         )
