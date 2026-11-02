@@ -106,6 +106,19 @@ O regime florestal existe noutro serviço, **ArcGIS REST FeatureServer** (não O
   3. O valor real é **metodológico**: arquiteturas (FNO, U-Net) e *checkpoints* pré-treinados para *surrogates* de PDE.
 - **Custo/risco:** *download* completo inviável; *streaming* tem latência e depende da Hugging Face; exige PyTorch (dependência pesada).
 
+## 5b. OpenBuildingMap (T2.1)
+
+**Estado:** ⚠️ confirmado só em documentação do autor e de terceiros; **não testado ao vivo** (o ambiente de desenvolvimento não alcança o S3). Correr `poetry run python scripts/check_obm.py` na sua máquina antes de confiar nos resultados.
+
+- **O que é:** 2,69 mil milhões de pegadas (OSM de 2024-07-01, Google Open Buildings, Microsoft ML Footprints) com altura, ocupação e área útil; artigo em Scientific Data (DOI 10.1038/s41597-025-06132-z); dados em GFZ (DOI 10.5880/GFZ.LKUT.2025.002) ✅.
+- **Licença:** ODbL v1.0 ✅ (descrição dos dados do GFZ). Obriga a citar a fonte e a partilhar bases derivadas nas mesmas condições; os relatórios citam "OpenBuildingMap (Oostwegel et al., 2025), ODbL v1.0".
+- **Acesso:** não há API. Ficheiros `building.<quadkey>.parquet` por tile de nível 6, em `s3://us-west-2.opendata.source.coop/tge-labs/openbuildingmap/` (acesso anónimo), ordenados por curva de Hilbert; ~194 GB no total ⚠️ (blogue de terceiros). A leitura filtra pela coluna `bbox` e só lê os row groups necessários (testado com Parquet sintético).
+- **Tiles de Portugal continental:** `031332` e `033110` (Lisboa em `033110`).
+- **Esquema:** `id`, `geometry` (WKB), `bbox{xmin,ymin,xmax,ymax}`, `height` (texto), `occupancy`, `source`, `floorspace`, `quadkey`, ... ⚠️. A projeção do Parquet não está confirmada (o GPKG original é EPSG:3857): o código deteta-a pelas estatísticas da `bbox` e aceita as duas.
+- **Alturas:** ~25 % dos edifícios não têm. Formatos `H:n` (pisos), `HAPP:n`, `HBET:a,b` (intervalo), `HHT:m` (metros), combináveis com `+`. Pisos a 3 m. As métricas de altura usam só edifícios com altura; o `floor_area_ratio` é um **limite inferior** (sem altura conta 1 piso).
+- **Ocupação:** ~60 % `UNK`; só `RES`, `COM` e `IND` entram nas percentagens por tipo.
+- **Limites:** áreas até 5 km² (400 acima), cache de 24 h, timeout de 30 s (504); falha de leitura → 503.
+
 ## 6. Testes ao vivo
 
 Executados em 2026-10-06; resultados nas secções 2 e 3. Para repetir (compatível com zsh, sem comentários `#` na colagem;

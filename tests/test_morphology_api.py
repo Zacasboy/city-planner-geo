@@ -60,7 +60,7 @@ def test_morphology_returns_serialisable_metrics_with_samples(
 ) -> None:
     response = TestClient(app).post(
         "/morphology/analyze",
-        json={"geojson": SQUARE_FEATURE, "include_detailed_metrics": True},
+        json={"geojson": SQUARE_FEATURE, "include_detailed_metrics": True, "data_source": "mock"},
         headers=auth_headers("user-1"),
     )
     assert response.status_code == 200

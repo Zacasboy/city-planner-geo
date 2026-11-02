@@ -1,6 +1,6 @@
 """Modelos de pedido e resposta da análise de morfologia urbana."""
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -9,7 +9,10 @@ class MorphologyRequest(BaseModel):
     """Pedido de análise de morfologia."""
 
     geojson: dict[str, Any] = Field(..., description="GeoJSON polygon defining the analysis area")
-    data_source: str = Field(default="auto", description="Data source: 'opendata', 'dbsm', 'auto'")
+    data_source: Literal["auto", "mock"] = Field(
+        default="auto",
+        description="Data source: 'auto' (OpenBuildingMap) or 'mock' (simulated, development only)",
+    )
     include_detailed_metrics: bool = Field(
         default=True, description="Include detailed morphological metrics"
     )
