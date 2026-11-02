@@ -108,7 +108,7 @@ O regime florestal existe noutro serviço, **ArcGIS REST FeatureServer** (não O
 
 ## 5b. OpenBuildingMap (T2.1)
 
-**Estado:** ⚠️ confirmado só em documentação do autor e de terceiros; **não testado ao vivo** (o ambiente de desenvolvimento não alcança o S3). Correr `poetry run python scripts/check_obm.py` na sua máquina antes de confiar nos resultados.
+**Estado:** ✅ testado ao vivo em 2026-11-02 (`scripts/check_obm.py`): quarteirão de Lisboa (~1 km²), tile `033110` encontrado, **2065 edifícios em 11,8 s**, sem tiles em falta; só **19 %** com altura (muito abaixo dos 75 % globais). O esquema e a projeção das secções abaixo vêm da documentação do autor e de terceiros.
 
 - **O que é:** 2,69 mil milhões de pegadas (OSM de 2024-07-01, Google Open Buildings, Microsoft ML Footprints) com altura, ocupação e área útil; artigo em Scientific Data (DOI 10.1038/s41597-025-06132-z); dados em GFZ (DOI 10.5880/GFZ.LKUT.2025.002) ✅.
 - **Licença:** ODbL v1.0 ✅ (descrição dos dados do GFZ). Obriga a citar a fonte e a partilhar bases derivadas nas mesmas condições; os relatórios citam "OpenBuildingMap (Oostwegel et al., 2025), ODbL v1.0".
