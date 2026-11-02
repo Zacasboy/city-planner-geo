@@ -185,6 +185,84 @@ def test_ecology_page_rejects_invalid_polygon() -> None:
     assert not any(b.label.startswith("Query") for b in app.button)
 
 
+FOREST_OVERLAP = {
+    "overlap_area_km2": 0.5,
+    "percentage_covered": 42.5,
+    "details": {
+        "features_count": 1,
+        "features": [
+            {
+                "codigo": "X1",
+                "nome": "Mata Teste",
+                "tipologia": "Perímetro",
+                "regime": "Parcial",
+                "overlap_km2": 0.5,
+            }
+        ],
+        "warnings": ["Aviso de teste."],
+    },
+}
+
+
+def test_forest_page_asks_for_a_polygon_first() -> None:
+    with patch("frontend.components.map_selector.render_map_selector", return_value=None):
+        app = _page("forest.py", LOGGED_IN).run()
+    assert not app.exception
+    assert any("draw a polygon" in i.value for i in app.info)
+    assert not any(b.label.startswith("Check") for b in app.button)
+
+
+def test_forest_page_queries_backend_and_shows_overlap() -> None:
+    response = MagicMock(status_code=200)
+    response.json.return_value = FOREST_OVERLAP
+    with (
+        patch("frontend.components.map_selector.render_map_selector", return_value=AREA),
+        patch("requests.post", return_value=response) as post,
+    ):
+        app = _page("forest.py", LOGGED_IN).run()
+        app.button[0].click().run()
+    assert not app.exception
+    call = post.call_args
+    assert call.args[0].endswith("/forest/overlap")
+    assert call.kwargs["json"] == {"geojson": AREA}
+    assert call.kwargs["headers"] == {"Authorization": "Bearer token-de-teste"}
+    assert [m.value for m in app.metric] == ["50.00 ha", "42.5 %", "1"]
+    assert any("Aviso de teste" in c.value for c in app.caption)
+    assert len(app.dataframe) == 1
+
+
+def test_forest_page_without_overlap_says_so() -> None:
+    empty = FOREST_OVERLAP | {
+        "overlap_area_km2": 0.0,
+        "percentage_covered": 0.0,
+        "details": FOREST_OVERLAP["details"] | {"features_count": 0, "features": []},  # type: ignore[dict-item]
+    }
+    response = MagicMock(status_code=200)
+    response.json.return_value = empty
+    with (
+        patch("frontend.components.map_selector.render_map_selector", return_value=AREA),
+        patch("requests.post", return_value=response),
+    ):
+        app = _page("forest.py", LOGGED_IN).run()
+        app.button[0].click().run()
+    assert not app.exception
+    assert any("No forest-regime area" in i.value for i in app.info)
+    assert len(app.dataframe) == 0
+
+
+def test_forest_page_shows_backend_errors() -> None:
+    response = MagicMock(status_code=503)
+    response.json.return_value = {"error": {"message": "DGT unavailable"}}
+    with (
+        patch("frontend.components.map_selector.render_map_selector", return_value=AREA),
+        patch("requests.post", return_value=response),
+    ):
+        app = _page("forest.py", LOGGED_IN).run()
+        app.button[0].click().run()
+    assert any("DGT unavailable" in e.value for e in app.error)
+    assert len(app.metric) == 0
+
+
 def test_reports_page_sends_the_session_token() -> None:
     analysis = MagicMock(status_code=200)
     analysis.json.return_value = {
