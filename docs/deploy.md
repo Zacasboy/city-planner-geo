@@ -25,7 +25,8 @@ está vazio).
 
 ## 3. Frontend (Streamlit Community Cloud)
 1. New app → este repositório, branch `develop`, ficheiro `frontend/app.py`.
-2. Em Advanced settings → Secrets:
+2. As dependências vêm de `frontend/requirements.txt` (só as do frontend). Sem ele, o Streamlit instala as do `pyproject.toml` (backend incluído) e a instalação pode falhar. Em Advanced settings escolher Python 3.12.
+3. Em Advanced settings → Secrets:
 
 ```
 BACKEND_URL = "https://<serviço>.onrender.com"
