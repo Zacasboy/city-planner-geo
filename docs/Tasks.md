@@ -24,7 +24,7 @@
 - [x] **T1.9** `MapSelector` (desenho de polígono, validação, envio) (usado pelo painel ecológico; `send_polygon_to_backend` da página Geo ainda é simulado)
 - [x] **T1.10** Dashboards ecológico/florestal (ecológico com dados reais do GBIF via `/ecology/area-species`; florestal com a sobreposição real com o regime florestal da DGT via `/forest/overlap`; só Portugal, licença da camada por confirmar). O componente `ProgressTracker` deixou de ser usado
 - [x] **T1.11** Vista estrutural (formulário + resultados)
-- [x] **T1.12** Relatório PDF (Jinja2 + WeasyPrint, com fontes, licenças e o aviso do PRD 1.7; upload a Storage, `GET /reports/{id}`; ficheiros em `<user_id>/<report_id>.pdf`, só o dono acede; ainda sem contexto ecológico)
+- [x] **T1.12** Relatório PDF (Jinja2 + WeasyPrint, com fontes, licenças e o aviso do PRD 1.7; upload a Storage, `GET /reports/{id}`; ficheiros em `<user_id>/<report_id>.pdf`, só o dono acede; secção opcional de contexto ecológico GBIF com as 15 espécies mais registadas, vinda do último resultado da página Ecology)
 - [x] **T1.13** Teste end-to-end e deploy em staging (backend no Render e frontend no Streamlit Community Cloud no ar desde 2026-11-02; login Supabase e análise estrutural verificados no browser: 0,20 mm, 3,9 MPa, utilização 0,02; `tests/test_e2e_flow.py` e `scripts/smoke_staging.py`). Por verificar em staging: relatório PDF (bibliotecas do WeasyPrint no Docker), Sentry (sem DSN), worker Celery (inexistente)
 
 ## Fase 2 — v1.0

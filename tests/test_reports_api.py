@@ -146,3 +146,35 @@ def test_storage_errors_do_not_leak_details(
     response = client.get(f"/reports/{MISSING_ID}", headers=auth_headers("ana"))
     assert response.status_code == 500
     assert "segredo" not in response.text
+
+
+def test_report_accepts_ecology_context(
+    client: TestClient, storage: FakeStorage, auth_headers: Callable[[str], dict[str, str]]
+) -> None:
+    body = REPORT_BODY | {
+        "ecology": {
+            "total_records": 3,
+            "records_excluded_by_license": 0,
+            "allowed_licenses": ["CC0_1_0"],
+            "species": [{"scientific_name": "Quercus suber", "records": 3}],
+            "notes": [],
+        }
+    }
+    response = client.post("/reports/structural", json=body, headers=auth_headers("ana"))
+    assert response.status_code == 201
+
+
+def test_report_rejects_oversized_ecology_context(
+    client: TestClient, storage: FakeStorage, auth_headers: Callable[[str], dict[str, str]]
+) -> None:
+    species = [{"scientific_name": "x", "records": 1}] * 101
+    body = REPORT_BODY | {
+        "ecology": {
+            "total_records": 1,
+            "records_excluded_by_license": 0,
+            "allowed_licenses": [],
+            "species": species,
+        }
+    }
+    response = client.post("/reports/structural", json=body, headers=auth_headers("ana"))
+    assert response.status_code == 422
