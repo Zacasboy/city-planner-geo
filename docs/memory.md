@@ -139,7 +139,7 @@
 | 5 | T0.5 | Auditoria de fontes de dados | `[x]` |
 | 6 | T0.6 | Sentry + CD staging | `[ ]` |
 | 7 | T1.6 | Estrutural: FEM e TimoDS | `[x]` (torção: T1.6b) |
-| 8 | T1.10 | Painel florestal real | `[~]` |
+| 8 | T1.10 | Painel florestal real | `[x]` |
 | 9 | T1.13 | E2E e staging | `[x]` |
 
 ## 6.5 Métricas
