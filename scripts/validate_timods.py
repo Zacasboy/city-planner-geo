@@ -26,11 +26,12 @@ def main() -> None:
     parser.add_argument("--results", type=Path, required=True)
     parser.add_argument("--sample", type=int, default=DEFAULT_SAMPLE)
     parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--worst", type=int, default=2, help="piores instâncias por caso")
     args = parser.parse_args()
     results = run_benchmark(
         args.inputs.expanduser(), args.results.expanduser(), args.sample, args.seed
     )
-    sys.stdout.write("\n".join(summarise(results)) + "\n")
+    sys.stdout.write("\n".join(summarise(results, args.worst)) + "\n")
 
 
 if __name__ == "__main__":

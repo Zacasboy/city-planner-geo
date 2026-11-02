@@ -7,10 +7,12 @@ import numpy as np
 import pytest
 
 from backend.app.services.timods_benchmark import (
+    LOAD_CASES,
     STATIONS,
     BenchmarkBeam,
     normalised_error,
     solve_benchmark_beam,
+    solve_timoshenko_beam,
 )
 from backend.app.services.timods_data import (
     InstanceResult,
@@ -82,6 +84,40 @@ def test_load_between_stations_is_supported() -> None:
     assert r["uz"][MID] == pytest.approx(expected, rel=1e-6)
 
 
+SHEAR_AREA = 0.005
+INFINITE_SHEAR_AREA = float("inf")
+
+
+def _timoshenko_beam(
+    case: int, a: float, springs: dict[str, float], shear_area: float
+) -> BenchmarkBeam:
+    return BenchmarkBeam(L, A, IY, IZ, J, springs, case, a, shear_area, shear_area)
+
+
+def test_timoshenko_adds_the_shear_term_to_a_simply_supported_beam() -> None:
+    r = solve_timoshenko_beam(_timoshenko_beam(3, 0.5, SIMPLY_SUPPORTED, SHEAR_AREA))
+    expected = L**3 / (48 * E * IY) + L / (4 * G * SHEAR_AREA)
+    assert r["uz"][MID] == pytest.approx(expected, rel=1e-6)
+
+
+def test_timoshenko_adds_the_shear_term_to_a_cantilever() -> None:
+    fixed_a = {f"{k}_A": RIGID for k in KEYS} | {f"{k}_B": 0.0 for k in KEYS}
+    r = solve_timoshenko_beam(_timoshenko_beam(2, 1.0, fixed_a, SHEAR_AREA))
+    assert r["uy"][-1] == pytest.approx(L**3 / (3 * E * IZ) + L / (G * SHEAR_AREA), rel=1e-6)
+
+
+@pytest.mark.parametrize("case", [1, 2, 3, 4, 5, 6])
+def test_timoshenko_without_shear_matches_pynite_for_elastic_supports(case: int) -> None:
+    springs = {
+        "k_x_A": 5e5, "k_x_B": 2e6, "k_y_A": 3e5, "k_y_B": 8e5, "k_z_A": 4e5, "k_z_B": 9e5,
+        "c_x_A": 2e3, "c_x_B": 5e3, "c_y_A": 6e4, "c_y_B": 1e3, "c_z_A": 2e3, "c_z_B": 4e4,
+    }  # fmt: skip
+    pynite = solve_benchmark_beam(_beam(case, 0.35, springs))
+    timoshenko = solve_timoshenko_beam(_timoshenko_beam(case, 0.35, springs, INFINITE_SHEAR_AREA))
+    for quantity in LOAD_CASES[case][1]:
+        assert normalised_error(timoshenko[quantity], pynite[quantity]) < 1e-6
+
+
 def test_normalised_error() -> None:
     reference = np.array([0.0, 2.0, -4.0])
     assert normalised_error(reference, reference) == 0.0
@@ -103,19 +139,28 @@ def _write_csvs(tmp_path: Path) -> tuple[Path, Path]:
     results = tmp_path / "results.csv"
     spring_cols = [f"{k}_{e}" for k in KEYS for e in ENDS]
     quantities = ("ux", "uy", "uz", "rx", "ry", "rz")
-    result_cols = ["row_id", "S", "I_yy", "I_zz", "J_xx", *spring_cols] + [
+    result_cols = ["row_id", "S", "A_y", "A_z", "I_yy", "I_zz", "J_xx", *spring_cols] + [
         f"{q}{s:.2f}" for q in quantities for s in STATIONS
     ]
     with inputs.open("w", newline="") as fi, results.open("w", newline="") as fr:
-        wi = csv.DictWriter(fi, ["ID", "Lcase", "L", "a"])
+        wi = csv.DictWriter(fi, ["ID", "Lcase", "L", "a", "SecName"])
         wr = csv.DictWriter(fr, result_cols)
         wi.writeheader()
         wr.writeheader()
         for i, case in enumerate((2, 3, 5)):
             springs = SIMPLY_SUPPORTED
             solved = solve_benchmark_beam(_beam(case, 0.5, springs))
-            wi.writerow({"ID": i, "Lcase": case, "L": L, "a": 0.5})
-            row = {"row_id": i, "S": A, "I_yy": IY, "I_zz": IZ, "J_xx": J, **springs}
+            wi.writerow({"ID": i, "Lcase": case, "L": L, "a": 0.5, "SecName": "TEST"})
+            row = {
+                "row_id": i,
+                "S": A,
+                "A_y": A,
+                "A_z": A,
+                "I_yy": IY,
+                "I_zz": IZ,
+                "J_xx": J,
+                **springs,
+            }
             row.update(
                 {
                     f"{q}{s:.2f}": v
@@ -131,15 +176,18 @@ def test_end_to_end_with_synthetic_csv(tmp_path: Path) -> None:
     inputs, results = _write_csvs(tmp_path)
     outcome = run_benchmark(inputs, results, sample_size=10)
     assert len(outcome) == 3
-    assert all(max(r.errors.values()) < 1e-9 for r in outcome)
-    text = "\n".join(summarise(outcome))
+    assert all(max(r.errors["pynite"].values()) < 1e-9 for r in outcome)
+    text = "\n".join(summarise(outcome, worst_per_case=1))
+    assert "Piores instâncias" in text
     assert "caso 2" in text and "caso 3" in text and "caso 5" in text
     assert "todas" in text
 
 
 def test_summary_flags_large_errors() -> None:
-    bad = InstanceResult(1, 3, 15.0, {"uz": 0.2, "ry": 0.01})
-    good = InstanceResult(2, 3, 90.0, {"uz": 0.001, "ry": 0.002})
+    bad = InstanceResult(1, 3, 15.0, {"pynite": {"uz": 0.2}, "timoshenko": {"uz": 0.2, "ry": 0.01}})
+    good = InstanceResult(
+        2, 3, 90.0, {"pynite": {"uz": 0.001}, "timoshenko": {"uz": 0.001, "ry": 0.002}}
+    )
     lines = "\n".join(summarise([bad, good]))
     assert "0-20" in lines and ">80" in lines
     assert "50.0%" in lines  # metade das instâncias acima de 5 %

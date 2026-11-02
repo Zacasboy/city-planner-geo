@@ -17,6 +17,7 @@ from backend.app.services.timods_benchmark import (
     BenchmarkBeam,
     normalised_error,
     solve_benchmark_beam,
+    solve_timoshenko_beam,
 )
 
 ERROR_LIMIT = 0.05  # objetivo O3: diferença < 5 %
@@ -32,7 +33,8 @@ class InstanceResult:
     instance_id: int
     load_case: int
     slenderness: float
-    errors: dict[str, float]
+    errors: dict[str, dict[str, float]]  # motor -> grandeza -> erro normalizado
+    detail: str = ""
 
 
 def _station_key(quantity: str, station: float) -> str:
@@ -74,6 +76,8 @@ def build_beam(inputs: Row, results: Row) -> BenchmarkBeam:
         springs=springs,
         load_case=int(inputs["Lcase"]),
         load_position=float(inputs["a"]),
+        shear_area_y_m2=float(results["A_y"]),
+        shear_area_z_m2=float(results["A_z"]),
     )
 
 
@@ -88,16 +92,45 @@ def slenderness(beam: BenchmarkBeam) -> float:
     return beam.length_m / math.sqrt(inertia / beam.area_m2)
 
 
+ENGINES = {"pynite": solve_benchmark_beam, "timoshenko": solve_timoshenko_beam}
+
+
+def _describe(instance_id: int, inputs: Row, beam: BenchmarkBeam, results: Row) -> str:
+    """Texto com os parâmetros e três posições, para diagnosticar uma instância."""
+    quantity = LOAD_CASES[beam.load_case][1][0]
+    reference = reference_values(results, quantity)
+    computed = {name: solver(beam)[quantity] for name, solver in ENGINES.items()}
+    marks = [0, len(STATIONS) // 2, len(STATIONS) - 1]
+    values = "  ".join(
+        f"x={STATIONS[i]:.2f}: TimoDS={reference[i]:.4e} "
+        + " ".join(f"{n}={c[i]:.4e}" for n, c in computed.items())
+        for i in marks
+    )
+    return (
+        f"id={instance_id} caso={beam.load_case} {inputs['SecName']} L={beam.length_m} "
+        f"a={beam.load_position} J={beam.torsion_j_m4:.3e} springs="
+        + ",".join(f"{k}={v:.3g}" for k, v in beam.springs.items())
+        + f"\n    {quantity}: {values}"
+    )
+
+
 def compare_instance(instance_id: int, inputs: Row, results: Row) -> InstanceResult:
-    """Resolve uma instância com o nosso motor e compara-a com o TimoDS."""
+    """Resolve uma instância com os dois motores e compara-a com o TimoDS."""
     beam = build_beam(inputs, results)
-    computed = solve_benchmark_beam(beam)
     quantities = LOAD_CASES[beam.load_case][1]
-    errors = {
-        quantity: normalised_error(computed[quantity], reference_values(results, quantity))
-        for quantity in quantities
-    }
-    return InstanceResult(instance_id, beam.load_case, slenderness(beam), errors)
+    errors: dict[str, dict[str, float]] = {}
+    for name, solver in ENGINES.items():
+        computed = solver(beam)
+        errors[name] = {
+            q: normalised_error(computed[q], reference_values(results, q)) for q in quantities
+        }
+    return InstanceResult(
+        instance_id,
+        beam.load_case,
+        slenderness(beam),
+        errors,
+        _describe(instance_id, inputs, beam, results),
+    )
 
 
 def run_benchmark(
@@ -121,8 +154,8 @@ def run_benchmark(
     return [compare_instance(i, inputs[i], results[i]) for i in sorted(chosen)]
 
 
-def _worst_error(result: InstanceResult) -> float:
-    return max(result.errors.values())
+def _worst_error(result: InstanceResult, engine: str) -> float:
+    return max(result.errors[engine].values())
 
 
 def _bin_label(value: float) -> str:
@@ -144,16 +177,44 @@ def _stats_line(label: str, values: list[float]) -> str:
     )
 
 
-def summarise(results: list[InstanceResult]) -> list[str]:
-    """Linhas de texto com o erro por caso de carga e por esbelteza."""
+def _engine_summary(results: list[InstanceResult], engine: str) -> list[str]:
     by_case: dict[int, list[float]] = defaultdict(list)
     by_slenderness: dict[str, list[float]] = defaultdict(list)
     for result in results:
-        by_case[result.load_case].append(_worst_error(result))
-        by_slenderness[_bin_label(result.slenderness)].append(_worst_error(result))
-    lines = ["Erro normalizado (maior diferença / maior valor do TimoDS)", "", "Por caso de carga"]
+        by_case[result.load_case].append(_worst_error(result, engine))
+        by_slenderness[_bin_label(result.slenderness)].append(_worst_error(result, engine))
+    lines = ["Por caso de carga"]
     lines += [_stats_line(f"caso {case}", by_case[case]) for case in sorted(by_case)]
     lines += ["", "Por esbelteza L/i (eixo de flexão)"]
     lines += [_stats_line(label, values) for label, values in sorted(by_slenderness.items())]
-    lines += ["", _stats_line("todas", [_worst_error(r) for r in results])]
+    lines += ["", _stats_line("todas", [_worst_error(r, engine) for r in results])]
+    return lines
+
+
+def summarise(results: list[InstanceResult], worst_per_case: int = 0) -> list[str]:
+    """Linhas de texto com o erro por motor, caso de carga e esbelteza.
+
+    Args:
+        results: Resultados da comparação.
+        worst_per_case: Se > 0, acrescenta as piores instâncias do solver de Timoshenko
+            em cada caso de carga, com valores, para diagnóstico.
+
+    Returns:
+        Linhas de texto.
+    """
+    lines = ["Erro normalizado (maior diferença / maior valor do TimoDS)"]
+    for engine, title in (("pynite", "PyNite (Euler-Bernoulli)"), ("timoshenko", "Timoshenko")):
+        lines += ["", f"=== {title} ===", *_engine_summary(results, engine)]
+    if worst_per_case:
+        lines += ["", "=== Piores instâncias (Timoshenko) ==="]
+        for case in sorted({r.load_case for r in results}):
+            worst = sorted(
+                (r for r in results if r.load_case == case),
+                key=lambda r: _worst_error(r, "timoshenko"),
+                reverse=True,
+            )
+            lines += [
+                f"erro={_worst_error(r, 'timoshenko'):.3%} {r.detail}"
+                for r in worst[:worst_per_case]
+            ]
     return lines
