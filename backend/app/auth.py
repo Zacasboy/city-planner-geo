@@ -9,6 +9,7 @@ O algoritmo do cabeçalho só escolhe a fonte da chave; nunca se verifica um tok
 com uma chave pública.
 """
 
+import json
 import logging
 import re
 from functools import lru_cache
@@ -102,6 +103,13 @@ def verify_supabase_jwt(token: str) -> dict[str, Any]:
         raise _unauthorized("Token has expired") from exc
     except jwt.PyJWKClientConnectionError as exc:
         logger.error("Could not fetch the Supabase JWKS: %s", exc)
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Authentication service unavailable",
+        ) from exc
+    except json.JSONDecodeError as exc:
+        # O PyJWKClient não apanha uma resposta que não seja JSON (por exemplo, um URL errado)
+        logger.error("The Supabase JWKS is not valid JSON; check SUPABASE_URL: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Authentication service unavailable",
