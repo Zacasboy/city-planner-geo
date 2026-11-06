@@ -34,6 +34,7 @@ LOGGED_IN_PAGES = [
     st.Page("pages/geo.py", title="Geo Validation", icon="🌍"),
     st.Page("pages/ecology.py", title="Ecological Analysis", icon="🌱"),
     st.Page("pages/forest.py", title="Forest Analysis", icon="🌲"),
+    st.Page("pages/morphology.py", title="Urban Morphology", icon="🏙️"),
     st.Page("pages/structural.py", title="Structural Analysis", icon="🏗️"),
     st.Page("pages/orchestration.py", title="Orchestration", icon="🔄"),
     st.Page("pages/reports.py", title="Reports", icon="📋"),

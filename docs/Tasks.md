@@ -28,7 +28,7 @@
 - [x] **T1.13** Teste end-to-end e deploy em staging (backend no Render e frontend no Streamlit Community Cloud no ar desde 2026-11-02; login Supabase e análise estrutural verificados no browser: 0,20 mm, 3,9 MPa, utilização 0,02; `tests/test_e2e_flow.py` e `scripts/smoke_staging.py`). Por verificar em staging: relatório PDF (bibliotecas do WeasyPrint no Docker), Sentry (sem DSN), worker Celery (inexistente)
 
 ## Fase 2 — v1.0
-- [~] **T2.1** Morfologia com edifícios reais do OpenBuildingMap (Parquet público, ODbL) + métricas (densidade, altura, ocupação): `POST /morphology/analyze` lê por tile com filtro `bbox`, cache 24 h, limite de 5 km², 503/504 se a fonte falhar; `data_source` `auto` (OBM) ou `mock` (só desenvolvimento). Falta: correr `scripts/check_obm.py` ao vivo, DBSM (UE), página no frontend
+- [~] **T2.1** Morfologia com edifícios reais do OpenBuildingMap (Parquet público, ODbL) + métricas (densidade, altura, ocupação): `POST /morphology/analyze` lê por tile com filtro `bbox`, cache 24 h, limite de 5 km², 503/504 se a fonte falhar; `data_source` `auto` (OBM) ou `mock` (só desenvolvimento). Testado ao vivo (Lisboa: 2065 edifícios em 11,8 s; 19 % com altura); página `Urban Morphology` no frontend. Falta: DBSM (UE), fonte de alturas complementar
 - [ ] **T2.2** Classificação morfológica (UMCC)
 - [ ] **T2.3** Catálogo de materiais + `GET /materials/suggest`
 - [ ] **T2.4** Quantidades IFC (IfcOpenShell; LivingBIM/IFC-Bench)

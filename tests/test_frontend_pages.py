@@ -36,7 +36,15 @@ def _without_supabase_config(monkeypatch: pytest.MonkeyPatch) -> None:
 
 @pytest.mark.parametrize(
     "name",
-    ["home.py", "geo.py", "ecology.py", "forest.py", "structural.py", "orchestration.py"],
+    [
+        "home.py",
+        "geo.py",
+        "ecology.py",
+        "forest.py",
+        "morphology.py",
+        "structural.py",
+        "orchestration.py",
+    ],
 )
 def test_page_runs_without_exception(name: str) -> None:
     app = _page(name, LOGGED_IN).run()
@@ -260,6 +268,58 @@ def test_forest_page_shows_backend_errors() -> None:
         app = _page("forest.py", LOGGED_IN).run()
         app.button[0].click().run()
     assert any("DGT unavailable" in e.value for e in app.error)
+    assert len(app.metric) == 0
+
+
+MORPHOLOGY = {
+    "analysis_area_m2": 100000.0,
+    "building_count": 40,
+    "density_metrics": {"building_density_per_km2": 400.0, "floor_area_ratio": 0.5},
+    "height_metrics": {"average_height_m": 9.0},
+    "height_percentiles": {"height_50th_percentile": 9.0},
+    "occupation_metrics": {"built_up_percentage": 31.5},
+    "building_type_metrics": {"residential_percentage": 50.0, "commercial_percentage": 10.0},
+    "data_source_used": "OpenBuildingMap",
+    "details": {
+        "height_coverage_percent": 19.0,
+        "attribution": "OpenBuildingMap (test)",
+        "notes": ["Nota de teste"],
+    },
+}
+
+
+def test_morphology_page_sends_a_feature_and_shows_metrics() -> None:
+    response = MagicMock(status_code=200)
+    response.json.return_value = MORPHOLOGY
+    with (
+        patch("frontend.components.map_selector.render_map_selector", return_value=AREA),
+        patch("requests.post", return_value=response) as post,
+    ):
+        app = _page("morphology.py", LOGGED_IN).run()
+        app.button[0].click().run()
+    assert not app.exception
+    call = post.call_args
+    assert call.args[0].endswith("/morphology/analyze")
+    assert call.kwargs["json"]["geojson"] == {
+        "type": "Feature",
+        "geometry": AREA,
+        "properties": {},
+    }
+    assert [m.value for m in app.metric] == ["40", "31.5 %", "400 /km²", "9.0 m"]
+    assert any("Only 19 %" in w.value for w in app.warning)
+    assert any("OpenBuildingMap (test)" in c.value for c in app.caption)
+
+
+def test_morphology_page_shows_backend_errors() -> None:
+    response = MagicMock(status_code=503)
+    response.json.return_value = {"error": {"message": "Building data source unavailable"}}
+    with (
+        patch("frontend.components.map_selector.render_map_selector", return_value=AREA),
+        patch("requests.post", return_value=response),
+    ):
+        app = _page("morphology.py", LOGGED_IN).run()
+        app.button[0].click().run()
+    assert any("unavailable" in e.value for e in app.error)
     assert len(app.metric) == 0
 
 
