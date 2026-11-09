@@ -88,7 +88,8 @@ def _estimated_height_details(
 class MorphologyService:
     """Análise de morfologia com edifícios reais do OpenBuildingMap (ou simulados, em dev)."""
 
-    def __init__(self, fetcher: BuildingFetcher = gba_source.fetch_buildings_with_heights) -> None:  # noqa: D107
+    def __init__(self, fetcher: BuildingFetcher = gba_source.fetch_buildings_with_heights) -> None:
+        """Cria o serviço; ``fetcher`` permite injetar outra fonte de edifícios (testes)."""
         self._fetcher = fetcher
 
     async def close(self) -> None:
