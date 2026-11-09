@@ -46,6 +46,7 @@ class EcologyContext(BaseModel):
     records_excluded_by_license: int = Field(ge=0)
     allowed_licenses: list[str] = Field(max_length=MAX_ECOLOGY_NOTES)
     species: list[EcologySpecies] = Field(max_length=MAX_ECOLOGY_SPECIES)
+    species_limit_reached: bool = False
     notes: list[str] = Field(default_factory=list, max_length=MAX_ECOLOGY_NOTES)
 
 

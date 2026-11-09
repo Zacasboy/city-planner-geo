@@ -307,6 +307,9 @@ def test_morphology_page_sends_a_feature_and_shows_metrics() -> None:
     }
     assert [m.value for m in app.metric] == ["40", "31.5 %", "400 /km²", "9.0 m"]
     assert any("Only 19 %" in w.value for w in app.warning)
+    chart = str(app.get("vega_lite_chart")[0].proto)
+    assert "other / unknown" in chart
+    assert "40" in chart and "domain" in chart
     assert any("OpenBuildingMap (test)" in c.value for c in app.caption)
 
 

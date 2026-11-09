@@ -5,6 +5,7 @@ T2.1/T2.7: métricas de uma área a partir dos edifícios do OpenBuildingMap.
 
 from typing import Any
 
+import altair as alt
 import pandas as pd
 import streamlit as st
 
@@ -16,6 +17,7 @@ from frontend.components.sidebar import render_sidebar
 RESULT_KEY = "morphology_result"
 LOW_HEIGHT_COVERAGE_PERCENT = 50
 HECTARES_PER_M2 = 1e-4
+PERCENT_TOTAL = 100.0
 
 st.title("🏙️ Urban Morphology")
 st.write(
@@ -37,6 +39,23 @@ def _summary_table(data: dict[str, Any]) -> pd.DataFrame:
     return pd.DataFrame({"metric": list(rows), "value": list(rows.values())})
 
 
+def _render_type_chart(metrics: dict[str, float]) -> None:
+    """Percentagem de edifícios por tipo, com o resto como "other / unknown"."""
+    types = {name.removesuffix("_percentage"): value for name, value in metrics.items()}
+    types["other / unknown"] = max(0.0, PERCENT_TOTAL - sum(types.values()))
+    chart = (
+        alt.Chart(pd.DataFrame({"type": list(types), "percent": list(types.values())}))
+        .mark_bar()
+        .encode(
+            x=alt.X("type:N", sort=None, title=None),
+            y=alt.Y(
+                "percent:Q", title="% of buildings", scale=alt.Scale(domain=[0, PERCENT_TOTAL])
+            ),
+        )
+    )
+    st.altair_chart(chart, width="stretch")
+
+
 def _render_result(data: dict[str, Any]) -> None:
     details = data["details"]
     coverage = details["height_coverage_percent"]
@@ -50,11 +69,7 @@ def _render_result(data: dict[str, Any]) -> None:
             f"Only {coverage:.0f} % of the buildings have a known height; height figures "
             "are based on that sample and the floor area ratio is a lower bound."
         )
-    types = {
-        name.removesuffix("_percentage"): value
-        for name, value in data["building_type_metrics"].items()
-    }
-    st.bar_chart(pd.Series(types, name="% of buildings"))
+    _render_type_chart(data["building_type_metrics"])
     st.dataframe(_summary_table(data), hide_index=True, width="stretch")
     st.download_button(
         "Download metrics (CSV)",

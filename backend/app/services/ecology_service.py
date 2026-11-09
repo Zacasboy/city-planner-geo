@@ -47,10 +47,9 @@ MAX_FACET_LIMIT = 100
 MAX_WKT_VERTICES = 1000  # keeps the GET URL within server limits
 SIMPLIFY_ABOVE_VERTICES = 300
 SIMPLIFY_TOLERANCE_DEG = 0.0001
-EFFORT_NOTE = (
-    "As contagens medem esforço de observação (registos), não abundância. "
-    "Em Angola a cobertura GBIF é esparsa e de baixa resolução."
-)
+EFFORT_NOTE = "As contagens medem esforço de observação (registos), não abundância."
+ANGOLA_NOTE = "Em Angola a cobertura GBIF é esparsa e de baixa resolução."
+ANGOLA_BOUNDS = (11.6, -18.1, 24.1, -4.3)  # oeste, sul, este, norte (WGS84)
 ATTRIBUTION_NOTE = (
     "Dados GBIF sob CC0 ou CC BY 4.0; a atribuição ao fornecedor de cada registo é obrigatória."
 )
@@ -117,6 +116,7 @@ class AreaSpeciesResponse(BaseModel):
     records_excluded_by_license: int
     allowed_licenses: list[str]
     species: list[AreaSpeciesItem]
+    species_limit_reached: bool = False
     notes: list[str]
 
 
@@ -125,6 +125,14 @@ def _polygons(area: BaseGeometry) -> list[Polygon]:
     if isinstance(area, Polygon):
         return [area]
     return [p for part in getattr(area, "geoms", []) for p in _polygons(part)]
+
+
+def _coverage_notes(area: BaseGeometry) -> list[str]:
+    """Avisos de cobertura GBIF que dependem da região da área."""
+    west, south, east, north = ANGOLA_BOUNDS
+    centroid = area.centroid
+    in_angola = west <= centroid.x <= east and south <= centroid.y <= north
+    return [ANGOLA_NOTE] if in_angola else []
 
 
 def _vertex_count(polygons: list[Polygon]) -> int:
@@ -376,7 +384,8 @@ class EcologyService:
                 {"species_key": int(c["name"]), "scientific_name": n, "records": int(c["count"])}
                 for c, n in zip(counts, names, strict=True)
             ],
-            "notes": [EFFORT_NOTE, ATTRIBUTION_NOTE],
+            "species_limit_reached": len(counts) >= request.limit,
+            "notes": [EFFORT_NOTE, *_coverage_notes(parse_area(request.geojson)), ATTRIBUTION_NOTE],
         }
         area_cache[cache_key] = result
         return AreaSpeciesResponse.model_validate(result)

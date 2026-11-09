@@ -23,7 +23,8 @@ st.write("Draw a polygon to list the species recorded in the area (source: GBIF)
 def _render_result(data: dict[str, Any]) -> None:
     species = pd.DataFrame(data["species"])
     col1, col2, col3 = st.columns(3)
-    col1.metric("Species found", len(species))
+    limit_suffix = "+" if data.get("species_limit_reached") else ""
+    col1.metric("Species found", f"{len(species)}{limit_suffix}")
     col2.metric("Records used", data["total_records"])
     col3.metric("Records excluded (license)", data["records_excluded_by_license"])
     if species.empty:

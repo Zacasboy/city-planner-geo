@@ -44,7 +44,7 @@ STRUCTURAL_REPORT_TEMPLATE = """\
         .table th { background-color: #f2f2f2; }
         .table tr:nth-child(even) { background-color: #f9f9f9; }
         .footer { text-align: center; margin-top: 50px; color: #95a5a6; font-size: 12px; }
-        .note { font-size: 14px; color: #e74c3c; }
+        .note { font-size: 13px; color: #555; }
     </style>
 </head>
 <body>
@@ -107,9 +107,11 @@ STRUCTURAL_REPORT_TEMPLATE = """\
         <table class="table">
             <tr><th>Parameter</th><th>Value</th></tr>
             <tr><td>Maximum Deflection</td>
-                <td>{{ analysis_results.max_deflection * 1000 }} mm</td></tr>
-            <tr><td>Maximum Stress</td><td>{{ analysis_results.max_stress / 1e6 }} MPa</td></tr>
-            <tr><td>Utilization Ratio</td><td>{{ analysis_results.utilization_ratio }}</td></tr>
+                <td>{{ "%.3f"|format(analysis_results.max_deflection * 1000) }} mm</td></tr>
+            <tr><td>Maximum Stress</td>
+                <td>{{ "%.2f"|format(analysis_results.max_stress / 1e6) }} MPa</td></tr>
+            <tr><td>Utilization Ratio</td>
+                <td>{{ "%.3f"|format(analysis_results.utilization_ratio) }}</td></tr>
             <tr><td>Utilization check</td><td>
                 {% if analysis_results.utilization_ratio < 1.0 %}
                 Bending stress below the yield stress (preliminary, not a code check)
@@ -124,8 +126,8 @@ STRUCTURAL_REPORT_TEMPLATE = """\
         <div class="section-title">Analysis Details</div>
         <table class="table">
             <tr><th>Parameter</th><th>Value</th></tr>
-            {% for key, value in analysis_results.details.items() %}
-            <tr><td>{{ key.replace('_', ' ')|title }}</td><td>{{ value }}</td></tr>
+            {% for label, value in detail_rows %}
+            <tr><td>{{ label }}</td><td>{{ value }}</td></tr>
             {% endfor %}
         </table>
     </div>
@@ -136,7 +138,8 @@ STRUCTURAL_REPORT_TEMPLATE = """\
         <p>Species recorded in the selected area (source: GBIF.org, only records licensed
             {{ ecology.allowed_licenses|join(' / ') }}).</p>
         <table class="table">
-            <tr><th>Species found</th><td>{{ ecology.species|length }}
+            <tr><th>Species found</th>
+                <td>{{ ecology.species|length }}{{ "+" if ecology.species_limit_reached }}
                 (top {{ ecology_top|length }} listed)</td></tr>
             <tr><th>Records used</th><td>{{ ecology.total_records }}</td></tr>
             <tr><th>Records excluded (license)</th>
@@ -148,8 +151,9 @@ STRUCTURAL_REPORT_TEMPLATE = """\
             <tr><td>{{ item.scientific_name }}</td><td>{{ item.records }}</td></tr>
             {% endfor %}
         </table>
-        {% for note in ecology.notes %}<p class="note">{{ note }}</p>{% endfor %}
         <p class="note">Record counts show observation effort, not abundance.</p>
+        <p class="note">GBIF data under CC0 or CC BY 4.0; attribution to each record's provider
+            is required.</p>
     </div>
     {% endif %}
 
@@ -168,6 +172,24 @@ STRUCTURAL_REPORT_TEMPLATE = """\
 
 REPORTS_BUCKET = "reports"
 ECOLOGY_TOP_SPECIES = 15
+SIGNIFICANT_DIGITS = 6
+DETAIL_LABELS = {
+    "beam_length_m": ("Beam length", "m"),
+    "cross_section_height_m": ("Section height", "m"),
+    "shear_area_m2": ("Shear area", "m²"),
+    "cross_section_area_m2": ("Section area", "m²"),
+    "moment_of_inertia_m4": ("Moment of inertia", "m⁴"),
+    "youngs_modulus_pa": ("Young's modulus", "Pa"),
+    "density_kgm3": ("Density", "kg/m³"),
+    "yield_stress_pa": ("Yield stress", "Pa"),
+    "self_weight_n_per_m": ("Self weight", "N/m"),
+    "total_load_n": ("Total load", "N"),
+    "max_bending_moment_nm": ("Maximum bending moment", "N·m"),
+    "max_shear_force_n": ("Maximum shear force", "N"),
+    "reactions_n": ("Reactions", "N"),
+    "analysis_method": ("Analysis method", ""),
+    "note": ("Note", ""),
+}
 DISCLAIMER = (
     "These results are a preliminary estimate and decision support. They do not replace a "
     "structural design, a code check (Eurocodes) or the opinion of the competent authorities. "
@@ -183,6 +205,26 @@ class ReportNotFoundError(Exception):
 def _report_path(user_id: str, report_id: str) -> str:
     """Caminho no Storage; o prefixo do dono impede aceder a relatórios de outros."""
     return f"{user_id}/{report_id}.pdf"
+
+
+def _format_value(value: Any, unit: str) -> str:
+    if isinstance(value, dict):
+        parts = [
+            f"x = {position} m: {_format_value(item, unit)}" for position, item in value.items()
+        ]
+        return "; ".join(parts)
+    if isinstance(value, float):
+        value = f"{value:.{SIGNIFICANT_DIGITS}g}"
+    return f"{value} {unit}".strip()
+
+
+def format_details(details: dict[str, Any]) -> list[tuple[str, str]]:
+    """Prepara as linhas de "Analysis Details" com rótulos, unidades e valores arredondados."""
+    rows = []
+    for key, value in details.items():
+        label, unit = DETAIL_LABELS.get(key, (key.replace("_", " ").capitalize(), ""))
+        rows.append((label, _format_value(value, unit)))
+    return rows
 
 
 class ReportsService:
@@ -220,6 +262,7 @@ class ReportsService:
                 "ecology": ecology,
                 "ecology_top": (ecology or {}).get("species", [])[:ECOLOGY_TOP_SPECIES],
                 "disclaimer": DISCLAIMER,
+                "detail_rows": format_details(analysis_results.get("details", {})),
                 "title": "Structural Beam Analysis Report",
                 "company": "City Planner Geo",
             }
