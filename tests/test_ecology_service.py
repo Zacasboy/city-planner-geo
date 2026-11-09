@@ -269,6 +269,25 @@ async def test_area_species_filters_licenses_and_reports_exclusions():
     wkt = filtered.url.params["geometry"]
     assert wkt.startswith("POLYGON ((-9.4 38.8, -9.39 38.8")  # anti-clockwise
     assert any("esforço" in n for n in result.notes)
+    assert not any("Angola" in n for n in result.notes)
+    assert result.species_limit_reached is True
+    await client.aclose()
+
+
+ANGOLA_SQUARE = {
+    "type": "Polygon",
+    "coordinates": [[[13.2, -8.9], [13.2, -8.8], [13.3, -8.8], [13.3, -8.9], [13.2, -8.9]]],
+}
+
+
+@pytest.mark.asyncio
+async def test_area_species_angola_note_only_for_angola_and_limit_flag():
+    client = httpx.AsyncClient(transport=httpx.MockTransport(_area_handler([])))
+    result = await EcologyService(http_client=client).get_area_species(
+        AreaSpeciesRequest(geojson=ANGOLA_SQUARE, limit=5)
+    )
+    assert any("Angola" in n for n in result.notes)
+    assert result.species_limit_reached is False
     await client.aclose()
 
 

@@ -12,7 +12,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from backend.app.services import reports_service
-from backend.app.services.reports_service import ReportsService
+from backend.app.services.reports_service import ReportsService, format_details
 
 
 def test_service_import_does_not_require_weasyprint():
@@ -123,3 +123,36 @@ async def test_html_supports_explicit_section(monkeypatch):
     await ReportsService().generate_structural_report(beam, RESULTS, user_id="ana")
 
     assert "Moment of Inertia" in rendered["html"]
+
+
+def test_format_details_labels_units_and_rounding():
+    rows = dict(
+        format_details(
+            {
+                "moment_of_inertia_m4": 0.0031249999999999997,
+                "reactions_n": {"0.0": 33868.3259375046, "5.0": 33868.32593750343},
+                "analysis_method": "FEM",
+                "custom_key": 1,
+            }
+        )
+    )
+    assert rows["Moment of inertia"] == "0.003125 m⁴"
+    assert rows["Reactions"] == "x = 0.0 m: 33868.3 N; x = 5.0 m: 33868.3 N"
+    assert rows["Analysis method"] == "FEM"
+    assert rows["Custom key"] == "1"
+
+
+@pytest.mark.asyncio
+async def test_html_rounds_results_and_marks_truncated_species(monkeypatch):
+    rendered, _ = _render(monkeypatch)
+    results = RESULTS | {"max_deflection": 0.00019697824248153198}
+
+    await ReportsService().generate_structural_report(
+        BEAM, results, user_id="ana", ecology=ECOLOGY | {"species_limit_reached": True}
+    )
+
+    html = rendered["html"]
+    assert "0.197 mm" in html
+    assert "0.19697824" not in html
+    assert "1+" in html
+    assert "attribution to each record" in html
