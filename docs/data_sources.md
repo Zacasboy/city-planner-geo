@@ -131,6 +131,24 @@ O regime florestal existe noutro serviço, **ArcGIS REST FeatureServer** (não O
 - **Falhas:** se o GBA não puder ser lido, a análise continua só com o OBM e `gba_tiles_missing` indica `gba:unavailable`.
 - **Limite:** timeout total de 60 s (OBM e GBA lidos em paralelo).
 
+## 5d. Tipologia morfológica por regras (T2.2)
+
+Heurística própria, **não** uma classificação científica validada (o UMCC e o Urban Taxonomy não servem, ver D35). Usa as métricas já calculadas; a primeira regra que se cumprir decide o tipo, e a resposta inclui o motivo e o aviso.
+
+| Ordem | Tipo | Regra |
+|---|---|---|
+| 1 | Large-footprint / industrial | ocupação ≥ 3 % e (pegada média ≥ 600 m² ou ≥ 30 % industriais) |
+| 2 | High-rise blocks | média ≥ 7 pisos (só com alturas) |
+| 3 | Compact urban fabric | ocupação ≥ 35 % |
+| 4 | Medium-density mid-rise | ocupação ≥ 15 % e média ≥ 4 pisos (só com alturas) |
+| 5 | Medium-density low-rise | ocupação ≥ 15 % |
+| 6 | Low-density / suburban | ocupação ≥ 3 % |
+| 7 | Sparse / rural | restante; "No buildings" se não houver edifícios |
+
+- **Ocupação** = índice de implantação (área de pegadas / área desenhada), por isso parques, ruas e terreno vazio dentro do polígono baixam-na.
+- **Alturas:** as regras de pisos só contam se ≥ 50 % dos edifícios tiverem altura (reais ou estimadas); senão são ignoradas e a resposta diz-o.
+- **Limiares:** escolhidos à mão para áreas urbanas portuguesas, **por calibrar** com exemplos reais (Lisboa, periferia, zona rural).
+
 ## 6. Testes ao vivo
 
 Executados em 2026-10-06; resultados nas secções 2 e 3. Para repetir (compatível com zsh, sem comentários `#` na colagem;

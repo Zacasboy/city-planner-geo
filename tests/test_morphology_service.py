@@ -356,3 +356,13 @@ async def test_without_estimates_the_gba_licence_is_not_claimed():
     assert response.details["license"] == "ODbL-1.0"
     assert "buildings_with_estimated_height" not in response.details
     assert response.details["gba_tiles_missing"] == ["gba:unavailable"]
+
+
+@pytest.mark.asyncio
+async def test_response_includes_a_rule_based_typology():
+    buildings = [_building(str(i), 9.0) for i in range(3)]
+    service = MorphologyService(fetcher=lambda *_: (buildings, []))
+    response = await service.analyze_morphology(MorphologyRequest(geojson=SQUARE))
+    assert response.typology is not None
+    assert response.typology["type"]
+    assert response.typology["used_height"] is True

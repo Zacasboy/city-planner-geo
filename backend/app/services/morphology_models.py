@@ -33,3 +33,6 @@ class MorphologyResponse(BaseModel):
     data_source_used: str = Field(..., description="Actual data source used for analysis")
     analysis_method: str = Field(..., description="Method used for analysis")
     details: dict[str, Any] = Field(..., description="Additional analysis details")
+    typology: dict[str, Any] | None = Field(
+        default=None, description="Rule-based morphological type of the area (heuristic)"
+    )

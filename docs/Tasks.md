@@ -29,7 +29,7 @@
 
 ## Fase 2 — v1.0
 - [~] **T2.1** Morfologia com edifícios reais do OpenBuildingMap (Parquet público, ODbL) + métricas (densidade, altura, ocupação): `POST /morphology/analyze` lê por tile com filtro `bbox`, cache 24 h, limite de 5 km², 503/504 se a fonte falhar; `data_source` `auto` (OBM) ou `mock` (só desenvolvimento). Testado ao vivo (Lisboa: 2065 edifícios em 11,8 s; 19 % com altura); página `Urban Morphology` no frontend. Alturas em falta completadas pelo GlobalBuildingAtlas (estimativas, CC BY-NC 4.0; testado ao vivo: Lisboa passa de 19 % para 71 % de edifícios com altura). Falta: DBSM (UE)
-- [ ] **T2.2** Tipologia morfológica por regras (limiares documentados, sobre as métricas já calculadas). O UMCC foi descartado: é um conjunto de imagens para treino de modelos (23 cidades), sem classes; o Urban Taxonomy (ODbL) não cobre Portugal
+- [x] **T2.2** Tipologia morfológica por regras (`morphology_typology.py`; limiares em `docs/data_sources.md` 5d; campo `typology` da resposta e página Urban Morphology), sobre as métricas já calculadas. O UMCC foi descartado: é um conjunto de imagens para treino de modelos (23 cidades), sem classes; o Urban Taxonomy (ODbL) não cobre Portugal
 - [ ] **T2.3** Catálogo de materiais + `GET /materials/suggest`
 - [ ] **T2.4** Quantidades IFC (IfcOpenShell; LivingBIM/IFC-Bench)
 - [ ] **T2.5** Fonte para simulações físicas/térmicas: avaliar alternativas (The Well está fora do âmbito, ver `docs/data_sources.md`); só implementar `POST /physics/simulate` se houver dados relevantes

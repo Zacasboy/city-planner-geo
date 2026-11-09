@@ -70,6 +70,10 @@ def _render_result(data: dict[str, Any]) -> None:
             f"Only {coverage:.0f} % of the buildings have a known height; height figures "
             "are based on that sample and the floor area ratio is a lower bound."
         )
+    typology = data.get("typology")
+    if typology:
+        st.subheader(f"Morphological type: {typology['label']}")
+        st.caption("Because " + "; ".join(typology["reasons"]) + ". " + typology["disclaimer"])
     _render_type_chart(data["building_type_metrics"])
     st.dataframe(_summary_table(data), hide_index=True, width="stretch")
     st.download_button(

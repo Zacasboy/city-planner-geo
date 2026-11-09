@@ -400,3 +400,26 @@ def test_anonymous_user_can_navigate_between_login_and_signup(
         next(b for b in app.button if "Login" in b.label).click().run()
         assert not app.exception
         assert app.title[0].value.endswith("Login to City Planner Geo")
+
+
+def test_morphology_page_shows_the_typology_and_its_reason() -> None:
+    data = MORPHOLOGY | {
+        "typology": {
+            "type": "compact_urban_fabric",
+            "label": "Compact urban fabric",
+            "reasons": ["built-up share 40 % (limit 35 %)"],
+            "used_height": True,
+            "disclaimer": "Rule-based typology (test).",
+        }
+    }
+    response = MagicMock(status_code=200)
+    response.json.return_value = data
+    with (
+        patch("frontend.components.map_selector.render_map_selector", return_value=AREA),
+        patch("requests.post", return_value=response),
+    ):
+        app = _page("morphology.py", LOGGED_IN).run()
+        app.button[0].click().run()
+    assert not app.exception
+    assert any("Compact urban fabric" in s.value for s in app.subheader)
+    assert any("built-up share 40 %" in c.value for c in app.caption)
