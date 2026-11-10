@@ -1,0 +1,611 @@
+{
+  "source": {
+    "name": "ÖKOBAUDAT",
+    "release": "2024-II",
+    "module": "A1-A3",
+    "indicator": "GWP-total (EN 15804+A2), kg CO2e per reference amount",
+    "license_statement": "BMWSB provides the ÖKOBAUDAT data free of charge and without any restrictions"
+  },
+  "materials": [
+    {
+      "id": "structural-steel-sections",
+      "name": "Structural steel sections",
+      "category": "structural",
+      "reference_amount": 1000.0,
+      "reference_unit": "kg",
+      "density_kg_m3": 7850.0,
+      "density_source": "ÖKOBAUDAT dataset",
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": 560.287415289044,
+        "gwp_fossil": 559.841015556956,
+        "gwp_biogenic": 0.38000401310769,
+        "gwp_luluc": 0.0663957189804693
+      },
+      "dataset": {
+        "uuid": "20c29cbd-f9a2-4518-a1ce-c681246c29c8",
+        "version": "00.03.000",
+        "name_en": "Structural Steel: Sections and merchant bars",
+        "type": "average dataset",
+        "country": "WEU",
+        "valid_until": "2028",
+        "declaration_owner": "bauforumstahl e.V.",
+        "conformity": "DIN EN 15804+A2 / ISO 14025"
+      }
+    },
+    {
+      "id": "galvanized-structural-steel",
+      "name": "Hot-dip galvanized structural steel",
+      "category": "structural",
+      "reference_amount": 1000.0,
+      "reference_unit": "kg",
+      "density_kg_m3": 7850.0,
+      "density_source": "ÖKOBAUDAT dataset",
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": 788.797066619538,
+        "gwp_fossil": 786.682320760484,
+        "gwp_biogenic": 1.92698357697129,
+        "gwp_luluc": 0.187762282083127
+      },
+      "dataset": {
+        "uuid": "0f0618af-76f4-4f79-bb83-bd4577b5c17b",
+        "version": "00.02.100",
+        "name_en": "Hot-dip galvanized Structural Steel: Sections and merchant bars",
+        "type": "average dataset",
+        "country": "RER",
+        "valid_until": "2029",
+        "declaration_owner": "Institut Feuerverzinken GmbH",
+        "conformity": "DIN EN 15804+A2 / ISO 14025"
+      }
+    },
+    {
+      "id": "concrete-c20-25",
+      "name": "Ready-mix concrete C20/25",
+      "category": "structural",
+      "reference_amount": 1.0,
+      "reference_unit": "m3",
+      "density_kg_m3": 2297.0,
+      "density_source": "ÖKOBAUDAT dataset",
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": 200.067802954894,
+        "gwp_fossil": 200.156874331849,
+        "gwp_biogenic": -0.328711851140822,
+        "gwp_luluc": 0.239640474185427
+      },
+      "dataset": {
+        "uuid": "e3d7a045-ee91-43ac-8fb4-a5216c65ba0b",
+        "version": "20.26.070",
+        "name_en": "Ready-mix concrete C20/25",
+        "type": "generic dataset",
+        "country": "DE",
+        "valid_until": "2026",
+        "declaration_owner": "Sphera Solutions GmbH",
+        "conformity": "EN 15804+A2 (EF 3.1)"
+      }
+    },
+    {
+      "id": "concrete-c25-30",
+      "name": "Ready-mix concrete C25/30",
+      "category": "structural",
+      "reference_amount": 1.0,
+      "reference_unit": "m3",
+      "density_kg_m3": 2300.0,
+      "density_source": "ÖKOBAUDAT dataset",
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": 221.656798081968,
+        "gwp_fossil": 221.752392594831,
+        "gwp_biogenic": -0.348896333462629,
+        "gwp_luluc": 0.253301820599808
+      },
+      "dataset": {
+        "uuid": "a71e60a5-b64b-4715-ae8a-c8c8819149d2",
+        "version": "20.26.070",
+        "name_en": "Ready-mix concrete C25/30",
+        "type": "generic dataset",
+        "country": "DE",
+        "valid_until": "2026",
+        "declaration_owner": "Sphera Solutions GmbH",
+        "conformity": "EN 15804+A2 (EF 3.1)"
+      }
+    },
+    {
+      "id": "concrete-c30-37",
+      "name": "Ready-mix concrete C30/37",
+      "category": "structural",
+      "reference_amount": 1.0,
+      "reference_unit": "m3",
+      "density_kg_m3": 2306.0,
+      "density_source": "ÖKOBAUDAT dataset",
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": 257.693592680481,
+        "gwp_fossil": 257.800190511761,
+        "gwp_biogenic": -0.383153900262196,
+        "gwp_luluc": 0.276556068982654
+      },
+      "dataset": {
+        "uuid": "d6f982e3-beda-49f0-a298-694fcbf3ba38",
+        "version": "20.26.070",
+        "name_en": "Ready-mix concrete C30/37",
+        "type": "generic dataset",
+        "country": "DE",
+        "valid_until": "2026",
+        "declaration_owner": "Sphera Solutions GmbH",
+        "conformity": "EN 15804+A2 (EF 3.1)"
+      }
+    },
+    {
+      "id": "concrete-c50-60",
+      "name": "Ready-mix concrete C50/60",
+      "category": "structural",
+      "reference_amount": 1.0,
+      "reference_unit": "m3",
+      "density_kg_m3": 2316.6,
+      "density_source": "ÖKOBAUDAT dataset",
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": 325.38371253761,
+        "gwp_fossil": 325.510742596025,
+        "gwp_biogenic": -0.446339267739886,
+        "gwp_luluc": 0.319309209324289
+      },
+      "dataset": {
+        "uuid": "0a1fa7f9-ad49-4942-a173-cb8c4ad99c9b",
+        "version": "20.26.070",
+        "name_en": "Ready-mix concrete C50/60",
+        "type": "generic dataset",
+        "country": "DE",
+        "valid_until": "2026",
+        "declaration_owner": "Sphera Solutions GmbH",
+        "conformity": "EN 15804+A2 (EF 3.1)"
+      }
+    },
+    {
+      "id": "recycled-concrete-c25-30",
+      "name": "Recycled-aggregate concrete C25/30",
+      "category": "structural",
+      "reference_amount": 1.0,
+      "reference_unit": "m3",
+      "density_kg_m3": 2300.0,
+      "density_source": "ÖKOBAUDAT dataset",
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": 217.786400137445,
+        "gwp_fossil": 217.847109870671,
+        "gwp_biogenic": -0.281939695442299,
+        "gwp_luluc": 0.221229962216261
+      },
+      "dataset": {
+        "uuid": "61c0c795-7116-407d-8635-68fe422f76a9",
+        "version": "20.26.070",
+        "name_en": "Recycling ready- mix concrete C25/30",
+        "type": "generic dataset",
+        "country": "DE",
+        "valid_until": "2026",
+        "declaration_owner": "Sphera Solutions GmbH",
+        "conformity": "EN 15804+A2 (EF 3.1)"
+      }
+    },
+    {
+      "id": "recycled-concrete-c30-37",
+      "name": "Recycled-aggregate concrete C30/37",
+      "category": "structural",
+      "reference_amount": 1.0,
+      "reference_unit": "m3",
+      "density_kg_m3": 2306.0,
+      "density_source": "ÖKOBAUDAT dataset",
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": 279.221934087695,
+        "gwp_fossil": 279.269821664513,
+        "gwp_biogenic": -0.317424772809558,
+        "gwp_luluc": 0.269537195991441
+      },
+      "dataset": {
+        "uuid": "3e15eb88-e824-4a81-972a-45e06930aa19",
+        "version": "20.26.070",
+        "name_en": "Recycling ready-mix concrete C30/37",
+        "type": "generic dataset",
+        "country": "DE",
+        "valid_until": "2026",
+        "declaration_owner": "Sphera Solutions GmbH",
+        "conformity": "EN 15804+A2 (EF 3.1)"
+      }
+    },
+    {
+      "id": "glulam-softwood",
+      "name": "Glued laminated timber (softwood)",
+      "category": "structural",
+      "reference_amount": 1.0,
+      "reference_unit": "m3",
+      "density_kg_m3": 515.2,
+      "density_source": "ÖKOBAUDAT dataset",
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": -583.49564293893,
+        "gwp_fossil": 237.588809307306,
+        "gwp_biogenic": -822.416811504242,
+        "gwp_luluc": 1.33235925800567
+      },
+      "dataset": {
+        "uuid": "aeab0f39-5eab-422f-8c4b-822bb98aa63c",
+        "version": "20.26.070",
+        "name_en": "Laminated wood beam softwood (generic)",
+        "type": "generic dataset",
+        "country": "DE",
+        "valid_until": "2026",
+        "declaration_owner": "Sphera Solutions GmbH",
+        "conformity": "EN 15804+A2 (EF 3.1)"
+      }
+    },
+    {
+      "id": "solid-construction-timber",
+      "name": "Solid construction timber",
+      "category": "structural",
+      "reference_amount": 1.0,
+      "reference_unit": "m3",
+      "density_kg_m3": 529.0,
+      "density_source": "ÖKOBAUDAT dataset",
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": -629.370198947723,
+        "gwp_fossil": 215.200208331972,
+        "gwp_biogenic": -845.868118824993,
+        "gwp_luluc": 1.29771154529712
+      },
+      "dataset": {
+        "uuid": "6b363ddc-f127-4d44-9f4b-54daada07465",
+        "version": "20.26.070",
+        "name_en": "Solid construction timber (generic, 15% moisture / 13% H2O content)",
+        "type": "generic dataset",
+        "country": "DE",
+        "valid_until": "2026",
+        "declaration_owner": "Sphera Solutions GmbH",
+        "conformity": "EN 15804+A2 (EF 3.1)"
+      }
+    },
+    {
+      "id": "reinforcing-steel",
+      "name": "Reinforcing steel (coils and bars)",
+      "category": "reinforcement",
+      "reference_amount": 1000.0,
+      "reference_unit": "kg",
+      "density_kg_m3": 7850.0,
+      "density_source": "ÖKOBAUDAT dataset",
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": 473.984349693345,
+        "gwp_fossil": 469.949284277015,
+        "gwp_biogenic": 3.82657375527047,
+        "gwp_luluc": 0.208491661059715
+      },
+      "dataset": {
+        "uuid": "b14811fa-c9ad-4073-9d8f-68ad1fcd4d1d",
+        "version": "00.02.000",
+        "name_en": "Reinforcing Steel Coils & Bars",
+        "type": "average dataset",
+        "country": "DE",
+        "valid_until": "2027",
+        "declaration_owner": "Baustahlgewebe GmbH",
+        "conformity": "DIN EN 15804+A2 / ISO 14025"
+      }
+    },
+    {
+      "id": "facing-brick",
+      "name": "Facing brick",
+      "category": "masonry",
+      "reference_amount": 1.0,
+      "reference_unit": "m3",
+      "density_kg_m3": 1800.0,
+      "density_source": "ÖKOBAUDAT dataset",
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": 555.203198209436,
+        "gwp_fossil": 553.996917330963,
+        "gwp_biogenic": 0.594721457100356,
+        "gwp_luluc": 0.611559421372952
+      },
+      "dataset": {
+        "uuid": "1401638f-b9d7-4b33-9444-b072e2756f49",
+        "version": "20.26.070",
+        "name_en": "Facing brick",
+        "type": "generic dataset",
+        "country": "DE",
+        "valid_until": "2026",
+        "declaration_owner": "Sphera Solutions GmbH",
+        "conformity": "EN 15804+A2 (EF 3.1)"
+      }
+    },
+    {
+      "id": "sand-lime-brick",
+      "name": "Sand-lime brick",
+      "category": "masonry",
+      "reference_amount": 1.0,
+      "reference_unit": "m3",
+      "density_kg_m3": 2000.0,
+      "density_source": "ÖKOBAUDAT dataset",
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": 311.698401314982,
+        "gwp_fossil": 311.279305992229,
+        "gwp_biogenic": 0.143545920499695,
+        "gwp_luluc": 0.275549402253002
+      },
+      "dataset": {
+        "uuid": "c916ceb3-a44d-40b7-8984-861afa589956",
+        "version": "20.26.070",
+        "name_en": "Sand-lime brick",
+        "type": "generic dataset",
+        "country": "DE",
+        "valid_until": "2026",
+        "declaration_owner": "Sphera Solutions GmbH",
+        "conformity": "EN 15804+A2 (EF 3.1)"
+      }
+    },
+    {
+      "id": "concrete-masonry-brick",
+      "name": "Concrete masonry brick",
+      "category": "masonry",
+      "reference_amount": 1.0,
+      "reference_unit": "m3",
+      "density_kg_m3": 2000.0,
+      "density_source": "ÖKOBAUDAT dataset",
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": 229.039357800164,
+        "gwp_fossil": 229.075372217442,
+        "gwp_biogenic": -0.653812491034504,
+        "gwp_luluc": 0.617798073755794
+      },
+      "dataset": {
+        "uuid": "2cdcffc6-84e9-4238-b8af-beebabea9a2d",
+        "version": "20.26.070",
+        "name_en": "Concrete masonry brick",
+        "type": "generic dataset",
+        "country": "DE",
+        "valid_until": "2026",
+        "declaration_owner": "Sphera Solutions GmbH",
+        "conformity": "EN 15804+A2 (EF 3.1)"
+      }
+    },
+    {
+      "id": "aerated-concrete-p4-05",
+      "name": "Aerated concrete P4 05 (non-reinforced)",
+      "category": "masonry",
+      "reference_amount": 1.0,
+      "reference_unit": "m3",
+      "density_kg_m3": 472.0,
+      "density_source": "ÖKOBAUDAT dataset",
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": 232.169619262139,
+        "gwp_fossil": 231.838191867981,
+        "gwp_biogenic": 0.180871251919723,
+        "gwp_luluc": 0.150556142238373
+      },
+      "dataset": {
+        "uuid": "f1e6c40e-3f2e-4435-9fd8-abc2dd96c38c",
+        "version": "20.26.070",
+        "name_en": "Aerated concrete P4 05 non-reinforced",
+        "type": "generic dataset",
+        "country": "DE",
+        "valid_until": "2026",
+        "declaration_owner": "Sphera Solutions GmbH",
+        "conformity": "EN 15804+A2 (EF 3.1)"
+      }
+    },
+    {
+      "id": "eps-insulation",
+      "name": "EPS rigid foam insulation",
+      "category": "insulation",
+      "reference_amount": 1.0,
+      "reference_unit": "m3",
+      "density_kg_m3": 25.0,
+      "density_source": "ÖKOBAUDAT dataset",
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": 86.9290183109761,
+        "gwp_fossil": 86.4015080986334,
+        "gwp_biogenic": 0.487838310188589,
+        "gwp_luluc": 0.0396719021541068
+      },
+      "dataset": {
+        "uuid": "121c71e8-0f4c-4529-b72e-331198d15f0f",
+        "version": "20.26.070",
+        "name_en": "2.2.01. EPS rigid foam insulation",
+        "type": "generic dataset",
+        "country": "DE",
+        "valid_until": "2026",
+        "declaration_owner": "Sphera Solutions GmbH",
+        "conformity": "EN 15804+A2 (EF 3.1)"
+      }
+    },
+    {
+      "id": "xps-insulation",
+      "name": "Extruded polystyrene (XPS)",
+      "category": "insulation",
+      "reference_amount": 1.0,
+      "reference_unit": "m3",
+      "density_kg_m3": 32.0,
+      "density_source": "ÖKOBAUDAT dataset",
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": 102.019470065136,
+        "gwp_fossil": 101.560182830206,
+        "gwp_biogenic": 0.430084069509508,
+        "gwp_luluc": 0.0292031654204912
+      },
+      "dataset": {
+        "uuid": "c4ddfdbc-ee2b-4dd5-a754-b317cf06470a",
+        "version": "20.26.070",
+        "name_en": "Extruded polystyrene (XPS)",
+        "type": "generic dataset",
+        "country": "DE",
+        "valid_until": "2026",
+        "declaration_owner": "Sphera Solutions GmbH",
+        "conformity": "EN 15804+A2 (EF 3.1)"
+      }
+    },
+    {
+      "id": "pur-insulation",
+      "name": "PUR rigid foam",
+      "category": "insulation",
+      "reference_amount": 1.0,
+      "reference_unit": "m3",
+      "density_kg_m3": 30.0,
+      "density_source": "ÖKOBAUDAT dataset",
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": 176.048177622853,
+        "gwp_fossil": 176.392191797625,
+        "gwp_biogenic": -0.39796066685481,
+        "gwp_luluc": 0.0539464920826371
+      },
+      "dataset": {
+        "uuid": "b960f95d-466b-4014-9565-64e51407a364",
+        "version": "20.26.070",
+        "name_en": "PUR rigid foam",
+        "type": "generic dataset",
+        "country": "DE",
+        "valid_until": "2026",
+        "declaration_owner": "Sphera Solutions GmbH",
+        "conformity": "EN 15804+A2 (EF 3.1)"
+      }
+    },
+    {
+      "id": "mineral-wool-facade",
+      "name": "Mineral wool (facade insulation)",
+      "category": "insulation",
+      "reference_amount": 1.0,
+      "reference_unit": "m3",
+      "density_kg_m3": 46.25,
+      "density_source": "ÖKOBAUDAT dataset",
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": 66.9749789974578,
+        "gwp_fossil": 66.4456825951734,
+        "gwp_biogenic": 0.492242397655523,
+        "gwp_luluc": 0.0370540046288292
+      },
+      "dataset": {
+        "uuid": "50d421e2-3a7b-4659-92a4-f20d6a52fcf0",
+        "version": "20.26.070",
+        "name_en": "Mineral wool (facade insulation)",
+        "type": "generic dataset",
+        "country": "DE",
+        "valid_until": "2026",
+        "declaration_owner": "Sphera Solutions GmbH",
+        "conformity": "EN 15804+A2 (EF 3.1)"
+      }
+    },
+    {
+      "id": "wood-fibre-board",
+      "name": "Wood fibre board (wet process)",
+      "category": "insulation",
+      "reference_amount": 1.0,
+      "reference_unit": "m3",
+      "density_kg_m3": 160.0,
+      "density_source": "ÖKOBAUDAT dataset",
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": -162.685243764979,
+        "gwp_fossil": 115.372336192051,
+        "gwp_biogenic": -278.168190275288,
+        "gwp_luluc": 0.110610318258221
+      },
+      "dataset": {
+        "uuid": "c91aa879-2826-4078-8bfa-baae349549cb",
+        "version": "20.26.070",
+        "name_en": "Wood fibre board (wet process)",
+        "type": "generic dataset",
+        "country": "DE",
+        "valid_until": "2026",
+        "declaration_owner": "Sphera Solutions GmbH",
+        "conformity": "EN 15804+A2 (EF 3.1)"
+      }
+    },
+    {
+      "id": "expanded-cork",
+      "name": "Expanded cork",
+      "category": "insulation",
+      "reference_amount": 1.0,
+      "reference_unit": "m3",
+      "density_kg_m3": 80.0,
+      "density_source": "ÖKOBAUDAT dataset",
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": -85.0816545123129,
+        "gwp_fossil": 40.9832085684419,
+        "gwp_biogenic": -126.475294353582,
+        "gwp_luluc": 0.410431272826836
+      },
+      "dataset": {
+        "uuid": "fdbe82c6-7073-4f8c-a540-c37a6bf16cd6",
+        "version": "20.26.070",
+        "name_en": "Expanded cork",
+        "type": "generic dataset",
+        "country": "DE",
+        "valid_until": "2026",
+        "declaration_owner": "Sphera Solutions GmbH",
+        "conformity": "EN 15804+A2 (EF 3.1)"
+      }
+    },
+    {
+      "id": "cellulose-insulation",
+      "name": "Cellulose fibre blowing insulation",
+      "category": "insulation",
+      "reference_amount": 1.0,
+      "reference_unit": "m3",
+      "density_kg_m3": 45.0,
+      "density_source": "ÖKOBAUDAT dataset",
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": -72.7166093398296,
+        "gwp_fossil": 9.73993095362037,
+        "gwp_biogenic": -82.4739942548327,
+        "gwp_luluc": 0.0174539613827328
+      },
+      "dataset": {
+        "uuid": "5fac6347-55b0-47be-9118-d8229d7e62c4",
+        "version": "20.26.070",
+        "name_en": "Cellulose fibre blowing insulation material",
+        "type": "generic dataset",
+        "country": "DE",
+        "valid_until": "2026",
+        "declaration_owner": "Sphera Solutions GmbH",
+        "conformity": "EN 15804+A2 (EF 3.1)"
+      }
+    },
+    {
+      "id": "double-glazing",
+      "name": "Insulated glazing, double pane",
+      "category": "glazing",
+      "reference_amount": 1.0,
+      "reference_unit": "qm",
+      "density_kg_m3": null,
+      "density_source": null,
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": 38.279657104205,
+        "gwp_fossil": 38.166669676045,
+        "gwp_biogenic": 0.0645120933721341,
+        "gwp_luluc": 0.0484753347878632
+      },
+      "dataset": {
+        "uuid": "d7bf4202-d1a8-4f3e-8861-c3d78cd2bf70",
+        "version": "20.26.070",
+        "name_en": "Insulated glazing, double pane",
+        "type": "generic dataset",
+        "country": "DE",
+        "valid_until": "2026",
+        "declaration_owner": "Sphera Solutions GmbH",
+        "conformity": "EN 15804+A2 (EF 3.1)"
+      }
+    },
+    {
+      "id": "triple-glazing",
+      "name": "Insulated glazing, triple pane",
+      "category": "glazing",
+      "reference_amount": 1.0,
+      "reference_unit": "qm",
+      "density_kg_m3": null,
+      "density_source": null,
+      "gwp_a1_a3_per_reference": {
+        "gwp_total": 59.7649122529103,
+        "gwp_fossil": 59.5637261523346,
+        "gwp_biogenic": 0.126049248329716,
+        "gwp_luluc": 0.0751368522460606
+      },
+      "dataset": {
+        "uuid": "ba58d8b9-945b-4428-b4e0-aecda8b3df18",
+        "version": "20.26.070",
+        "name_en": "Insulated glazing, triple pane",
+        "type": "generic dataset",
+        "country": "DE",
+        "valid_until": "2026",
+        "declaration_owner": "Sphera Solutions GmbH",
+        "conformity": "EN 15804+A2 (EF 3.1)"
+      }
+    }
+  ]
+}

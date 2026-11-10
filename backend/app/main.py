@@ -17,7 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from backend.app.api import morphology, reports
+from backend.app.api import materials, morphology, reports
 from backend.app.auth import get_current_user, get_current_user_id
 from backend.app.config import settings
 from backend.app.observability import init_sentry
@@ -204,6 +204,9 @@ app.include_router(
     structural_router, prefix="/structural", tags=["structural"], dependencies=PROTECTED
 )
 app.include_router(morphology.router)
+app.include_router(
+    materials.router, prefix="/materials", tags=["materials"], dependencies=PROTECTED
+)
 app.include_router(reports.router)
 app.include_router(orchestration_router, prefix="/orchestration", tags=["orchestration"])
 

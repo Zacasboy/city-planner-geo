@@ -149,6 +149,21 @@ Heurística própria, **não** uma classificação científica validada (o UMCC 
 - **Alturas:** as regras de pisos só contam se ≥ 50 % dos edifícios tiverem altura (reais ou estimadas); senão são ignoradas e a resposta diz-o.
 - **Limiares:** escolhidos à mão para áreas urbanas portuguesas, **por calibrar** com exemplos reais (Lisboa, periferia, zona rural).
 
+## 5e. ÖKOBAUDAT — pegada de carbono dos materiais (T2.3)
+
+**Estado:** ✅ catálogo gerado a partir do CSV oficial (versão 2024-II, descarregado pelo utilizador em 2026-11-10; 44 973 linhas). Rota `GET /materials/suggest` testada com testes automáticos; ainda não verificada em produção.
+
+- **O que é:** base oficial alemã (BBSR/BMWSB) de ACV e EPD de produtos de construção, norma EN 15804+A2.
+- **Licença:** a página de pesquisa diz *"The BMWSB provides the ÖKOBAUDAT data free of charge and without any restrictions"*. A página "Data Policy" a que as descargas ligam **não foi lida**: confirmar antes de qualquer uso comercial.
+- **Descarga:** https://www.oekobaudat.de/en/service/downloads.html → CSV com ponto decimal (separador `;`, codificação cp1252). O site não é acessível a partir do ambiente do assistente; o ficheiro tem de ser descarregado à mão.
+- **Como entra:** `scripts/build_materials_catalog.py <csv>` escolhe 24 datasets por UUID (aço de perfis, galvanizado e de armadura; betões C20/25 a C50/60 e com agregado reciclado; madeira lamelada e maciça; tijolos e blocos; 6 isolamentos; vidro duplo e triplo), lê só o módulo **A1-A3** e grava `backend/app/data/materials_oekobaudat.json`. Falha se um dataset não existir ou for ambíguo. Para atualizar: descarregar o novo CSV e voltar a correr o script.
+- **Valores:** GWP-total, fóssil, biogénico e LULUC (A2) por unidade de referência (kg, m³ ou m²); o serviço converte para por kg/m³/m² com a massa volúmica do dataset. Única exceção: o aço usa 7850 kg/m³ (EN 1993-1-1, 3.2.6), porque os datasets de aço não a trazem.
+- **Datasets:** genéricos alemães (DE) e médias de associações (bauforumstahl WEU, Baustahlgewebe DE); o `Gueltig bis` de cada um vai na resposta (vários genéricos acabam em 2026).
+- **Cuidados:** (1) só produção (A1-A3), sem transporte, uso nem fim de vida; (2) dados alemães/europeus, a produção portuguesa pode diferir; (3) **madeira e outros materiais biogénicos têm GWP-total fortemente negativo** (carbono armazenado), por isso a ordenação usa por omissão o GWP **fóssil** e `carbon_metric=total` inclui o biogénico; (4) kg, m³ e m² não são unidades funcionais equivalentes, só comparar materiais com a mesma função.
+- **Custos:** não existe fonte aberta de preços unitários em Portugal (INE e IMPIC só publicam índices). O catálogo não traz custos; o utilizador pode indicá-los (`cost=id:valor`) e ordenar por eles.
+- **Durabilidade:** sem fonte, **não incluída**. As notas de exposição (`exposure=humid|coastal`) apenas remetem para as normas EN ISO 12944, EN 206 e EN 335.
+- **Fontes avaliadas e rejeitadas:** ICE v5 (desde 30/06/2026 só uso educativo, sem integração em ferramentas/APIs); EC3 (API gratuita sem cache nem uso em produção); ECO Portal (API gratuita só com aprovação prévia).
+
 ## 6. Testes ao vivo
 
 Executados em 2026-10-06; resultados nas secções 2 e 3. Para repetir (compatível com zsh, sem comentários `#` na colagem;

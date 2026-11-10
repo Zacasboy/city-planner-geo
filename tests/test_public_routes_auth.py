@@ -18,6 +18,7 @@ PROTECTED_REQUESTS = [
     ("get", "/ecology/cache/stats", {}),
     ("post", "/forest/overlap", {"json": {}}),
     ("post", "/structural/beam", {"json": {}}),
+    ("get", "/materials/suggest?category=structural", {}),
 ]
 
 
