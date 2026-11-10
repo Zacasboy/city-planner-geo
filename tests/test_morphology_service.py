@@ -325,3 +325,34 @@ async def test_slow_source_is_504(monkeypatch):
             MorphologyRequest(geojson=area)
         )
     assert error.value.status_code == 504
+
+
+@pytest.mark.asyncio
+async def test_estimated_heights_are_reported_with_licence_and_attribution():
+    buildings = [_building("a", 6.0), _building("b", 12.0), _building("c", None)]
+    buildings[0]["height_source"] = "obm"
+    buildings[1]["height_source"] = "gba_estimate"
+    buildings[2]["height_source"] = None
+    service = MorphologyService(fetcher=lambda *_: (buildings, ["gba:w010_n40_w005_n35"]))
+    response = await service.analyze_morphology(MorphologyRequest(geojson=SQUARE))
+
+    details = response.details
+    assert response.data_source_used == "OpenBuildingMap + GlobalBuildingAtlas (estimated heights)"
+    assert details["buildings_with_estimated_height"] == 1
+    assert details["estimated_height_percent"] == 33.3
+    assert "GlobalBuildingAtlas" in details["attribution"]
+    assert "OpenBuildingMap" in details["attribution"]
+    assert details["license"] == "ODbL-1.0; heights: CC-BY-NC-4.0"
+    assert details["tiles_missing"] == []
+    assert details["gba_tiles_missing"] == ["gba:w010_n40_w005_n35"]
+    assert any("Non-commercial" in note for note in details["notes"])
+
+
+@pytest.mark.asyncio
+async def test_without_estimates_the_gba_licence_is_not_claimed():
+    service = MorphologyService(fetcher=lambda *_: ([_building("a", 6.0)], ["gba:unavailable"]))
+    response = await service.analyze_morphology(MorphologyRequest(geojson=SQUARE))
+    assert response.data_source_used == "OpenBuildingMap"
+    assert response.details["license"] == "ODbL-1.0"
+    assert "buildings_with_estimated_height" not in response.details
+    assert response.details["gba_tiles_missing"] == ["gba:unavailable"]

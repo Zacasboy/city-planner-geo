@@ -119,6 +119,18 @@ O regime florestal existe noutro serviço, **ArcGIS REST FeatureServer** (não O
 - **Ocupação:** ~60 % `UNK`; só `RES`, `COM` e `IND` entram nas percentagens por tipo.
 - **Limites:** áreas até 5 km² (400 acima), cache de 24 h, timeout de 30 s (504); falha de leitura → 503.
 
+## 5c. GlobalBuildingAtlas — alturas estimadas (T2.1)
+
+**Estado:** ⚠️ implementado e testado com Parquet sintético; **ainda não testado ao vivo** (correr `scripts/check_gba.py`, que também imprime o esquema real do tile). Esquema, nomes e ordenação vêm do blogue de Mark Litwintschik e do README da conversão em Source Cooperative.
+
+- **O que é:** 2,75 mil milhões de pegadas com altura LoD1 (Zhu et al., TUM, 2025; ESSD 17, 6647). Alturas **estimadas por deep learning** a partir de imagens de satélite (completude > 97 %, RMSE global ≈ 5,5 m); não são medições.
+- **Licença:** **CC BY-NC 4.0 — uso não comercial** (README do repositório original). O projeto é não comercial (decisão do utilizador, 2026-11-09), por isso a fonte é usada; se isso mudar, desligar esta fonte. A conversão em Parquet diz CC BY 4.0 (walkthru.earth), mas não substitui a licença dos dados originais. Os resultados com alturas GBA citam a fonte e a licença.
+- **Acesso:** `s3://us-west-2.opendata.source.coop/tge-labs/globalbuildingatlas-lod1/<oeste>_<norte>_<este>_<sul>.parquet`, tiles de 5°×5° (Lisboa: `w010_n40_w005_n35`; Portugal continental: esse e `w010_n45_w005_n40`), ~0,2 GB cada, ordenados por curva de Hilbert, row groups de 15 000 linhas; a leitura filtra pela `bbox`.
+- **Esquema:** `geometry`, `height` (metros; -999 = sem dados), `bbox{xmin,ymin,xmax,ymax}`, `id`, `region`, `source`, `var` ⚠️. WGS84 (o código recusa tiles em metros).
+- **Como entra:** só nos edifícios do OpenBuildingMap **sem altura**: recebem a altura do polígono GBA que contém o seu centroide; pisos = altura / 3 m (mínimo 1). As alturas do OBM nunca são substituídas. Cada edifício leva `height_source` (`obm` ou `gba_estimate`) e a resposta indica `buildings_with_estimated_height`, a licença e a atribuição.
+- **Falhas:** se o GBA não puder ser lido, a análise continua só com o OBM e `gba_tiles_missing` indica `gba:unavailable`.
+- **Limite:** timeout total de 60 s (OBM e GBA lidos em paralelo).
+
 ## 6. Testes ao vivo
 
 Executados em 2026-10-06; resultados nas secções 2 e 3. Para repetir (compatível com zsh, sem comentários `#` na colagem;

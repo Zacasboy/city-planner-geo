@@ -22,7 +22,8 @@ PERCENT_TOTAL = 100.0
 st.title("🏙️ Urban Morphology")
 st.write(
     "Draw a polygon (up to 5 km², Portugal mainland) to measure the existing buildings "
-    "(source: OpenBuildingMap)."
+    "(footprints: OpenBuildingMap; missing heights estimated with GlobalBuildingAtlas — "
+    "non-commercial use only)."
 )
 
 

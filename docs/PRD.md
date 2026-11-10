@@ -53,7 +53,7 @@ Nem todas as fontes são obrigatórias. Escolhidas por fase:
 | Regime florestal (DGT, ArcGIS REST FeatureServer) | Regime florestal PT | MVP | **[VERIFICAR]** licença; camada 1562 com 209 polígonos; PROF e corredores ecológicos não localizados |
 | TimoDS (Zenodo, DOI 10.5281/zenodo.19324945) | Validação de vigas de aço | MVP | CC BY 4.0; conjunto sintético com cargas unitárias |
 | The Well (`polymathic-ai/the_well`, Hugging Face) | Referência metodológica (arquiteturas e *checkpoints* de PDE) | **Fora do âmbito** | Sem dados de edifícios, microclima ou geografia; ver `docs/data_sources.md` |
-| OpenBuildingMap (ODbL), DBSM | Pegadas de edifícios | v1.0 | OBM ⚠️ ver `data_sources.md` 5b; DBSM **[VERIFICAR]** |
+| OpenBuildingMap (ODbL), GlobalBuildingAtlas (CC BY-NC, alturas), DBSM | Pegadas de edifícios | v1.0 | OBM e GBA ⚠️ ver `data_sources.md` 5b e 5c; DBSM **[VERIFICAR]** |
 | UMCC (Zenodo) | Classes de morfologia urbana | v1.0 | **[VERIFICAR]** |
 | CITYLID, Glasgow 3D City Model, SUM4Re LiDAR | Nuvens de pontos / 3D urbano | v1.0 | Cobertura não é Portugal: usar para treino/validação de métodos |
 | LivingBIM, IFC-Bench | Quantidades BIM/IFC | v1.0 | **[VERIFICAR]** |
