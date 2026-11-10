@@ -39,7 +39,7 @@ Plataforma web em Python, com análise por streaming de dados, que ajuda **profi
 | F2 | Contexto ecológico | GBIF (ocorrências por polígono, filtradas por licença; a licença de cada registo consta do relatório) + regime florestal (DGT, ArcGIS REST FeatureServer); PROF e corredores ecológicos por localizar | MVP |
 | F3 | Morfologia urbana | OpenBuildingMap/OSM, DBSM, tipologia por regras; métricas de densidade, altura média, coeficiente de ocupação | v1.0 |
 | F4 | Cálculo físico/estrutural | Vigas de aço em flexão (elementos de Timoshenko; perfis por propriedades explícitas, catálogo IPE/HEA/HEB por criar), validado com TimoDS (torção não suportada) (*benchmark* sintético, ver 1.7); simulações térmicas/fluidos: fonte de dados por definir em v1.0 (The Well fora do âmbito, ver `docs/data_sources.md`) | MVP (básico) / v1.0 |
-| F5 | Materiais | Catálogo (carbono do ÖKOBAUDAT; custo indicado pelo utilizador; durabilidade sem fonte); extração de quantidades IFC (LivingBIM, IFC-Bench) | v1.0 |
+| F5 | Materiais | Catálogo (carbono do ÖKOBAUDAT; custo indicado pelo utilizador; durabilidade sem fonte); extração de quantidades IFC (IfcOpenShell; LivingBIM e IFC-Bench não usados) | v1.0 |
 | F6 | *Geographic fine-tuning* | Pré-treino + adaptação regional **apenas com dados regionais reais fornecidos pelo utilizador**; não existe fonte pública definida | v1.1 (condicionada) |
 | F7 | Relatórios | PDF; exportação GeoJSON/CSV/IFC; API REST | MVP (PDF) / v1.1 (API) |
 | F8 | Streaming de dados | Leitura em streaming (Hugging Face), cache LRU, barra de progresso | v1.0 |
@@ -57,7 +57,7 @@ Nem todas as fontes são obrigatórias. Escolhidas por fase:
 | ~~UMCC (Zenodo)~~ | Descartado: imagens de 23 cidades para treino de modelos, sem classes de morfologia (2026-11-09); substituído por tipologia por regras (T2.2) | — | ✅ |
 | CITYLID, Glasgow 3D City Model, SUM4Re LiDAR | Nuvens de pontos / 3D urbano | v1.0 | Cobertura não é Portugal: usar para treino/validação de métodos |
 | ÖKOBAUDAT (CSV) | Pegada de carbono dos materiais (T2.3) | v1.0 | ✅ ver `data_sources.md` 5e |
-| LivingBIM, IFC-Bench | Quantidades BIM/IFC | v1.0 | **[VERIFICAR]** |
+| IfcOpenShell (LGPL) | Quantidades BIM/IFC (T2.4) | v1.0 | ✅ ver `data_sources.md` 5f; LivingBIM/IFC-Bench descartados |
 | STEEL-3dPointClouds, Bridge Datasets | Fadiga e inspeção estrutural | v1.1+ | Opcional |
 | EarthworkSat-7K, LUPAN, BuildingWorld | Segmentação de terreno/uso do solo/edifícios | v1.1+ | Opcional |
 | Copernicus CLMS | Cobertura do solo | v1.0 | Requer chave **[VERIFICAR]** |

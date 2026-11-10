@@ -19,6 +19,7 @@ PROTECTED_REQUESTS = [
     ("post", "/forest/overlap", {"json": {}}),
     ("post", "/structural/beam", {"json": {}}),
     ("get", "/materials/suggest?category=structural", {}),
+    ("post", "/bim/quantities", {"content": b""}),
 ]
 
 

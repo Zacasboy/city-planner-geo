@@ -164,6 +164,16 @@ Heurística própria, **não** uma classificação científica validada (o UMCC 
 - **Durabilidade:** sem fonte, **não incluída**. As notas de exposição (`exposure=humid|coastal`) apenas remetem para as normas EN ISO 12944, EN 206 e EN 335.
 - **Fontes avaliadas e rejeitadas:** ICE v5 (desde 30/06/2026 só uso educativo, sem integração em ferramentas/APIs); EC3 (API gratuita sem cache nem uso em produção); ECO Portal (API gratuita só com aprovação prévia).
 
+## 5f. Quantidades IFC — IfcOpenShell (T2.4)
+
+**Estado:** ✅ `POST /bim/quantities` (corpo = ficheiro `.ifc` STEP, máx. 25 MB; 413 se exceder, 422 se não for IFC legível). Testado só com modelos gerados em código; falta experimentar com um IFC real.
+
+- **Biblioteca:** IfcOpenShell (`ifcopenshell` no PyPI), LGPL-3.0-or-later, wheels para Python 3.11/3.12. A LGPL permite usá-la como dependência sem tornar o resto do código copyleft; a imagem Docker (`python:3.12-slim`, glibc ≥ 2.31) serve para a wheel `manylinux_2_31`.
+- **Método:** (1) lê as quantidades declaradas (`IfcElementQuantity`: `NetVolume`/`GrossVolume`, `NetArea`/`GrossArea`/`NetSideArea`/`GrossSideArea`, `Length`), convertidas com as unidades do modelo; (2) se o elemento não declara volume, calcula-o pela geometria (máx. 1500 elementos por pedido); (3) soma por classe IFC e por material. Cada classe indica quantos volumes são declarados, calculados ou ausentes.
+- **Cuidados:** a qualidade depende de como o modelo foi feito; área e comprimento só aparecem se declarados; elementos com vários materiais ficam sob um rótulo combinado, sem dividir o volume. Modelos grandes devem passar para o Celery (regra R9); por agora o limite de 25 MB e de 1500 geometrias protege o pedido.
+- **IFC-Bench (HF):** dataset em CC BY 4.0, mas os modelos IFC mantêm a licença de origem e alguns são GPLv3 (sinalizados). É um benchmark de perguntas e respostas, não serve como fonte de dados do produto; só como ficheiros de teste com licença permissiva.
+- **LivingBIM (Zenodo):** um único edifício académico, ficheiros de 0,9 a 3,6 GB; licença **não confirmada**. Não usado.
+
 ## 6. Testes ao vivo
 
 Executados em 2026-10-06; resultados nas secções 2 e 3. Para repetir (compatível com zsh, sem comentários `#` na colagem;
