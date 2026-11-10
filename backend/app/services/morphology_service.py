@@ -25,6 +25,7 @@ from backend.app.services.morphology_data import (
     is_valid_geojson,
 )
 from backend.app.services.morphology_models import MorphologyRequest, MorphologyResponse
+from backend.app.services.morphology_typology import classify_typology
 from backend.app.services.obm_source import ATTRIBUTION, BuildingSourceError
 
 __all__ = ["MorphologyRequest", "MorphologyResponse", "MorphologyService"]
@@ -205,14 +206,25 @@ class MorphologyService:
         if request.include_detailed_metrics and buildings:
             details["building_samples"] = buildings[:SAMPLE_BUILDINGS]
 
+        occupation = metrics.occupation_metrics(buildings, area_m2)
+        height = metrics.height_metrics(with_height)
+        type_metrics = metrics.building_type_metrics(buildings)
         return MorphologyResponse(
             analysis_area_m2=area_m2,
             building_count=len(buildings),
             density_metrics=metrics.density_metrics(buildings, area_m2),
-            height_metrics=metrics.height_metrics(with_height),
+            height_metrics=height,
             height_percentiles=metrics.height_percentiles(with_height),
-            occupation_metrics=metrics.occupation_metrics(buildings, area_m2),
-            building_type_metrics=metrics.building_type_metrics(buildings),
+            occupation_metrics=occupation,
+            building_type_metrics=type_metrics,
+            typology=classify_typology(
+                len(buildings),
+                area_m2,
+                occupation,
+                type_metrics,
+                height,
+                details["height_coverage_percent"],
+            ),
             data_source_used=_data_source_label(is_mock, estimated),
             analysis_method=MOCK_ANALYSIS_METHOD if is_mock else OBM_ANALYSIS_METHOD,
             details=details,
